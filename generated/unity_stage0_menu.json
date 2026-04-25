@@ -1,0 +1,4811 @@
+{
+  "source": "E:\\spaceherounity\\Space-Hero\\Assets\\Scenes\\stage0.unity",
+  "viewport": [
+    1280,
+    720
+  ],
+  "camera_orthographic_size": 5.0,
+  "pixels_per_unit": 72.0,
+  "objects": [
+    {
+      "id": 853816490,
+      "transform_id": 853816491,
+      "name": "Background_02",
+      "active": true,
+      "parent_transform": 862443843,
+      "children_transforms": [
+        2028087347
+      ],
+      "local": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.1495156,
+          1.4326905,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.1495156,
+          1.4326905,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        640.0,
+        360.0
+      ],
+      "sprite": {
+        "guid": "0e70b5ece5e71684d8c576db276cd1bb",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Background_01.png",
+        "godot_path": "res://assets/sprites/Background_01.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          500,
+          700
+        ],
+        "entry": {
+          "name": "Background_01",
+          "rect_unity": [
+            0,
+            0,
+            500,
+            700
+          ],
+          "rect_godot": [
+            0,
+            0,
+            500,
+            700
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": -1,
+        "size": [
+          5.0,
+          7.0
+        ]
+      },
+      "behaviours": [
+        {
+          "game_object": 853816490,
+          "script_guid": "40a5af982f3073a4088b92854f206d70",
+          "values": {}
+        }
+      ]
+    },
+    {
+      "id": 322867683,
+      "transform_id": 322867684,
+      "name": "Asteroids 08",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "e19d4a9c5440a8a4bbebb28332e8b802",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 08.png",
+        "godot_path": "res://assets/sprites/Asteroids 08.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          50,
+          61
+        ],
+        "entry": {
+          "name": "Asteroids 08",
+          "rect_unity": [
+            0,
+            0,
+            50,
+            61
+          ],
+          "rect_godot": [
+            0,
+            0,
+            50,
+            61
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.5,
+          0.61
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 403452635,
+      "transform_id": 403452636,
+      "name": "Asteroids 06",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "7184c4c08dc177e458ac80a04574a9bf",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 06.png",
+        "godot_path": "res://assets/sprites/Asteroids 06.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          27,
+          31
+        ],
+        "entry": {
+          "name": "Asteroids 06",
+          "rect_unity": [
+            0,
+            0,
+            27,
+            31
+          ],
+          "rect_godot": [
+            0,
+            0,
+            27,
+            31
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.27,
+          0.31
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 434988260,
+      "transform_id": 434988261,
+      "name": "Asteroids 04",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "02fdae6017b79204aa43dd7dc65dd8ce",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 04.png",
+        "godot_path": "res://assets/sprites/Asteroids 04.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          28,
+          35
+        ],
+        "entry": {
+          "name": "Asteroids 04",
+          "rect_unity": [
+            0,
+            0,
+            28,
+            35
+          ],
+          "rect_godot": [
+            0,
+            0,
+            28,
+            35
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.28,
+          0.35
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 667427632,
+      "transform_id": 667427633,
+      "name": "Asteroids 09",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "6312b66b8c53dfa438b08a8108b11884",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 09.png",
+        "godot_path": "res://assets/sprites/Asteroids 09.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          48,
+          61
+        ],
+        "entry": {
+          "name": "Asteroids 09",
+          "rect_unity": [
+            0,
+            0,
+            48,
+            61
+          ],
+          "rect_godot": [
+            0,
+            0,
+            48,
+            61
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.48,
+          0.61
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 716269665,
+      "transform_id": 716269666,
+      "name": "Asteroids 03",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "d5399f5887355324d8ddc52921f95b89",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 03.png",
+        "godot_path": "res://assets/sprites/Asteroids 03.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          32,
+          28
+        ],
+        "entry": {
+          "name": "Asteroids 03",
+          "rect_unity": [
+            0,
+            0,
+            32,
+            28
+          ],
+          "rect_godot": [
+            0,
+            0,
+            32,
+            28
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.32,
+          0.28
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 878711886,
+      "transform_id": 878711887,
+      "name": "Asteroids 12",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "b32d042b541662942abdd3e74c0ee8ad",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 12.png",
+        "godot_path": "res://assets/sprites/Asteroids 12.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          29,
+          33
+        ],
+        "entry": {
+          "name": "Asteroids 12",
+          "rect_unity": [
+            0,
+            0,
+            29,
+            33
+          ],
+          "rect_godot": [
+            0,
+            0,
+            29,
+            33
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.29,
+          0.33
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1042987605,
+      "transform_id": 1042987606,
+      "name": "Asteroids 16",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "38afbb7aebcaa234fa433140ec4c69eb",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 16.png",
+        "godot_path": "res://assets/sprites/Asteroids 16.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          71,
+          58
+        ],
+        "entry": {
+          "name": "Asteroids 16",
+          "rect_unity": [
+            0,
+            0,
+            71,
+            58
+          ],
+          "rect_godot": [
+            0,
+            0,
+            71,
+            58
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.71,
+          0.58
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1144071649,
+      "transform_id": 1144071650,
+      "name": "Asteroids 11",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "ae2fc91ab4c4b854199d3420ea98b41f",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 11.png",
+        "godot_path": "res://assets/sprites/Asteroids 11.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          21,
+          24
+        ],
+        "entry": {
+          "name": "Asteroids 11",
+          "rect_unity": [
+            0,
+            0,
+            21,
+            24
+          ],
+          "rect_godot": [
+            0,
+            0,
+            21,
+            24
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.21,
+          0.24
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1364475573,
+      "transform_id": 1364475574,
+      "name": "Asteroids 15",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "bdefab6216dca0f40a117d4523fc797b",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 15.png",
+        "godot_path": "res://assets/sprites/Asteroids 15.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          16,
+          17
+        ],
+        "entry": {
+          "name": "Asteroids 15",
+          "rect_unity": [
+            0,
+            0,
+            16,
+            17
+          ],
+          "rect_godot": [
+            0,
+            0,
+            16,
+            17
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.16,
+          0.17
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1397890310,
+      "transform_id": 1397890311,
+      "name": "Asteroids 02",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "e2cb094b25220204cbec3d08740c0672",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 02.png",
+        "godot_path": "res://assets/sprites/Asteroids 02.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          78,
+          59
+        ],
+        "entry": {
+          "name": "Asteroids 02",
+          "rect_unity": [
+            0,
+            0,
+            78,
+            59
+          ],
+          "rect_godot": [
+            0,
+            0,
+            78,
+            59
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.78,
+          0.59
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1584246856,
+      "transform_id": 1584246857,
+      "name": "Asteroids 07",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "32fba51e987061d499a8eacf400021d8",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 07.png",
+        "godot_path": "res://assets/sprites/Asteroids 07.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          96,
+          100
+        ],
+        "entry": {
+          "name": "Asteroids 07",
+          "rect_unity": [
+            0,
+            0,
+            96,
+            100
+          ],
+          "rect_godot": [
+            0,
+            0,
+            96,
+            100
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.96,
+          1.0
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1609823735,
+      "transform_id": 1609823736,
+      "name": "Asteroids 13",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "f7e9d76cef5f1ff43b9794f0c75e6fb3",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 13.png",
+        "godot_path": "res://assets/sprites/Asteroids 13.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          31,
+          38
+        ],
+        "entry": {
+          "name": "Asteroids 13",
+          "rect_unity": [
+            0,
+            0,
+            31,
+            38
+          ],
+          "rect_godot": [
+            0,
+            0,
+            31,
+            38
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.31,
+          0.38
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1701369282,
+      "transform_id": 1701369283,
+      "name": "Asteroids 14",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "d84d27062aef0ed4dbd3f3b013ad27a1",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 14.png",
+        "godot_path": "res://assets/sprites/Asteroids 14.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          12,
+          24
+        ],
+        "entry": {
+          "name": "Asteroids 14",
+          "rect_unity": [
+            0,
+            0,
+            12,
+            24
+          ],
+          "rect_godot": [
+            0,
+            0,
+            12,
+            24
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.12,
+          0.24
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1733574240,
+      "transform_id": 1733574241,
+      "name": "Asteroids 10",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "5306ae8152d366543a8322e6d410ded7",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 10.png",
+        "godot_path": "res://assets/sprites/Asteroids 10.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          109,
+          108
+        ],
+        "entry": {
+          "name": "Asteroids 10",
+          "rect_unity": [
+            0,
+            0,
+            109,
+            108
+          ],
+          "rect_godot": [
+            0,
+            0,
+            109,
+            108
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          1.09,
+          1.08
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 2002205998,
+      "transform_id": 2002205999,
+      "name": "Asteroids 01",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "acb1a36dd0fd15e47be1c86ce34cef37",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 01.png",
+        "godot_path": "res://assets/sprites/Asteroids 01.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          43,
+          56
+        ],
+        "entry": {
+          "name": "Asteroids 01",
+          "rect_unity": [
+            0,
+            0,
+            43,
+            56
+          ],
+          "rect_godot": [
+            0,
+            0,
+            43,
+            56
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.43,
+          0.56
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 2028087346,
+      "transform_id": 2028087347,
+      "name": "Stars",
+      "active": true,
+      "parent_transform": 853816491,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.081331365,
+          0.029470844,
+          -10.246821
+        ],
+        "scale": [
+          0.7392539,
+          0.87226367,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.09349167283679401,
+          0.042222598225782004,
+          0.0
+        ],
+        "scale": [
+          0.84978389041084,
+          1.2496838735041351,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        646.7314004442492,
+        356.9599729277437
+      ],
+      "sprite": {
+        "guid": "62b61d13fcc358340b16ff4e76b6c4b6",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Stars.png",
+        "godot_path": "res://assets/sprites/Stars.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          556,
+          800
+        ],
+        "entry": {
+          "name": "Stars",
+          "rect_unity": [
+            0,
+            0,
+            556,
+            800
+          ],
+          "rect_godot": [
+            0,
+            0,
+            556,
+            800
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          5.56,
+          8.0
+        ]
+      },
+      "behaviours": [
+        {
+          "game_object": 2028087346,
+          "script_guid": "5af4fee56c2e2684db451bcbc6abff88",
+          "values": {
+            "amplitude": 0.001,
+            "frequency": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "id": 2117813065,
+      "transform_id": 2117813066,
+      "name": "Asteroids 05",
+      "active": false,
+      "parent_transform": 91209061,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.33677784,
+          0.12560925,
+          -0.11686048
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.269422272,
+          0.1004874,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        659.398403584,
+        352.7649072
+      ],
+      "sprite": {
+        "guid": "daad9296bd5a3374cb547aa278976757",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Asteroids 05.png",
+        "godot_path": "res://assets/sprites/Asteroids 05.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          15,
+          24
+        ],
+        "entry": {
+          "name": "Asteroids 05",
+          "rect_unity": [
+            0,
+            0,
+            15,
+            24
+          ],
+          "rect_godot": [
+            0,
+            0,
+            15,
+            24
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 0,
+        "size": [
+          0.15,
+          0.24
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 17913481,
+      "transform_id": 17913482,
+      "name": "duat font corporal_17",
+      "active": true,
+      "parent_transform": 595715472,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          1.81,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.2200002400000003,
+          -0.30200000000000005,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        655.84001728,
+        381.744
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-1599620009",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_17",
+          "rect_unity": [
+            323.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            323.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 76852992,
+      "transform_id": 76852993,
+      "name": "duat font corporal_17",
+      "active": true,
+      "parent_transform": 1424855658,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          1.82,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.21399999999999997,
+          0.32200000000000006,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        655.408,
+        336.816
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-1599620009",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_17",
+          "rect_unity": [
+            323.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            323.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 166089759,
+      "transform_id": 166089760,
+      "name": "duat font corporal_23",
+      "active": true,
+      "parent_transform": 1424654356,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          2.81,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          2.0,
+          2.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.595,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        597.16,
+        255.60000000000002
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "1770357812",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_23",
+          "rect_unity": [
+            746.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            746.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 208365012,
+      "transform_id": 208365013,
+      "name": "duat font corporal_15",
+      "active": true,
+      "parent_transform": 1424855658,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          3.16,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          1.0179999999999998,
+          0.32200000000000006,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        713.296,
+        336.816
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "1283350992",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_15",
+          "rect_unity": [
+            227.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            227.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 320747567,
+      "transform_id": 320747569,
+      "name": "select",
+      "active": false,
+      "parent_transform": 0,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          -1.33,
+          0.26,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -90.0
+        ]
+      },
+      "world": {
+        "position": [
+          -1.33,
+          0.26,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -90.0
+        ]
+      },
+      "screen": [
+        544.24,
+        341.28
+      ],
+      "sprite": {
+        "guid": "97ab208426483d14f8fd0fd9fa9dca47",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Spaceship_Enemy - SingleShot.png",
+        "godot_path": "res://assets/sprites/Spaceship_Enemy - SingleShot.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          40,
+          34
+        ],
+        "entry": {
+          "name": "Spaceship_Enemy - SingleShot",
+          "rect_unity": [
+            0,
+            0,
+            40,
+            34
+          ],
+          "rect_godot": [
+            0,
+            0,
+            40,
+            34
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.4,
+          0.34
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 383274899,
+      "transform_id": 383274900,
+      "name": "duat font corporal_28",
+      "active": true,
+      "parent_transform": 1424654356,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          5.28,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          2.0,
+          2.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.6400000000000001,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        686.08,
+        255.60000000000002
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-76244514",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_28",
+          "rect_unity": [
+            989.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            989.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 398051888,
+      "transform_id": 398051889,
+      "name": "duat font corporal_15",
+      "active": true,
+      "parent_transform": 595715472,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          3.15,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          1.0240002400000001,
+          -0.30200000000000005,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        713.72801728,
+        381.744
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "1283350992",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_15",
+          "rect_unity": [
+            227.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            227.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 499977323,
+      "transform_id": 499977324,
+      "name": "duat font corporal_8",
+      "active": true,
+      "parent_transform": 1424654356,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          8.06,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          2.0300000000000002,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        786.1600000000001,
+        255.60000000000002
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-326353651",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_8",
+          "rect_unity": [
+            879.0,
+            694.0,
+            88.0,
+            101.0
+          ],
+          "rect_godot": [
+            879.0,
+            0.0,
+            88.0,
+            101.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.88,
+          1.01
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 563813925,
+      "transform_id": 563813927,
+      "name": "friendplane",
+      "active": true,
+      "parent_transform": 1597519748,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          -4.37,
+          -5.59,
+          0.0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -2.005,
+          -4.085,
+          0.0
+        ],
+        "scale": [
+          0.75,
+          0.75,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        495.64,
+        654.12
+      ],
+      "sprite": {
+        "guid": "3f6a296076952fa488a4fd6faac1daa8",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/friendplane.png",
+        "godot_path": "res://assets/sprites/friendplane.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          28,
+          41
+        ],
+        "entry": {
+          "name": "friendplane",
+          "rect_unity": [
+            0,
+            0,
+            28,
+            41
+          ],
+          "rect_godot": [
+            0,
+            0,
+            28,
+            41
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.28,
+          0.41
+        ]
+      },
+      "behaviours": [
+        {
+          "game_object": 563813925,
+          "script_guid": "f86ad81cb3dd770408d13aab3f3306fc",
+          "values": {
+            "radius": 0.5,
+            "speed": 5.0,
+            "startAngle": 60.0,
+            "target": 612065682
+          }
+        }
+      ]
+    },
+    {
+      "id": 612065681,
+      "transform_id": 612065682,
+      "name": "Spaceship_Protagonist - P1",
+      "active": true,
+      "parent_transform": 1597519748,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          -3.16,
+          -5.49,
+          0.0
+        ],
+        "scale": [
+          3.0,
+          3.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -1.4000000000000001,
+          -4.035,
+          0.0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        539.2,
+        650.52
+      ],
+      "sprite": {
+        "guid": "c9156abf791745946b55da55fdad4079",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/Spaceship_Protagonist - P1.png",
+        "godot_path": "res://assets/sprites/Spaceship_Protagonist - P1.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          28,
+          41
+        ],
+        "entry": {
+          "name": "Spaceship_Protagonist - P1",
+          "rect_unity": [
+            0,
+            0,
+            28,
+            41
+          ],
+          "rect_godot": [
+            0,
+            0,
+            28,
+            41
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.28,
+          0.41
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 789094632,
+      "transform_id": 789094633,
+      "name": "duat font corporal_48",
+      "active": true,
+      "parent_transform": 1424654356,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          7.11,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          2.0,
+          2.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          1.5550000000000002,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        751.96,
+        255.60000000000002
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "416793703",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_48",
+          "rect_unity": [
+            998.0,
+            465.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            998.0,
+            278.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 843467413,
+      "transform_id": 843467414,
+      "name": "duat font corporal_37",
+      "active": true,
+      "parent_transform": 595715472,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.8659997599999998,
+          -0.30200000000000005,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        577.64801728,
+        381.744
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "1856397838",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_37",
+          "rect_unity": [
+            333.0,
+            458.0,
+            45.0,
+            59.0
+          ],
+          "rect_godot": [
+            333.0,
+            278.0,
+            45.0,
+            59.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.59
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 854669874,
+      "transform_id": 854669875,
+      "name": "duat font corporal_11",
+      "active": true,
+      "parent_transform": 1424855658,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          2.24,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.46599999999999997,
+          0.32200000000000006,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        673.552,
+        336.816
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-1926884102",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_11",
+          "rect_unity": [
+            30.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            30.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 932025316,
+      "transform_id": 932025317,
+      "name": "duat font corporal_11",
+      "active": true,
+      "parent_transform": 595715472,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          2.23,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.47200024000000007,
+          -0.30200000000000005,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        673.98401728,
+        381.744
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-1926884102",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_11",
+          "rect_unity": [
+            30.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            30.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 971564607,
+      "transform_id": 971564608,
+      "name": "duat font corporal_51",
+      "active": true,
+      "parent_transform": 595715472,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.42,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.6139997599999998,
+          -0.30200000000000005,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        595.79201728,
+        381.744
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-1383567881",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_51",
+          "rect_unity": [
+            30.0,
+            399.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            30.0,
+            344.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1043924614,
+      "transform_id": 1043924615,
+      "name": "duat font corporal_46",
+      "active": true,
+      "parent_transform": 1424654356,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.93,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          2.0,
+          2.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -1.535,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        529.48,
+        255.60000000000002
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-933513521",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_46",
+          "rect_unity": [
+            901.0,
+            465.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            901.0,
+            278.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1061203814,
+      "transform_id": 1061203815,
+      "name": "duat font corporal_33",
+      "active": true,
+      "parent_transform": 595715472,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          2.7,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.7540002400000003,
+          -0.30200000000000005,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        694.2880172800001,
+        381.744
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-1964287888",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_33",
+          "rect_unity": [
+            134.0,
+            465.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            134.0,
+            278.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1090500153,
+      "transform_id": 1090500154,
+      "name": "duat font corporal_49",
+      "active": true,
+      "parent_transform": 1424654356,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          2.0,
+          2.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -2.0,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        496.0,
+        255.60000000000002
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "1778223807",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_49",
+          "rect_unity": [
+            1049.0,
+            465.0,
+            44.0,
+            52.0
+          ],
+          "rect_godot": [
+            1049.0,
+            278.0,
+            44.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.44,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1392918403,
+      "transform_id": 1392918404,
+      "name": "duat font corporal_53",
+      "active": true,
+      "parent_transform": 1424855658,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.99,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.28400000000000014,
+          0.32200000000000006,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        619.552,
+        336.816
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-936462439",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_53",
+          "rect_unity": [
+            132.0,
+            399.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            132.0,
+            344.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1441618249,
+      "transform_id": 1441618250,
+      "name": "friendplane2",
+      "active": true,
+      "parent_transform": 1597519748,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          -1.99,
+          -5.63,
+          0.0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.815,
+          -4.105,
+          0.0
+        ],
+        "scale": [
+          0.75,
+          0.75,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        581.32,
+        655.5600000000001
+      ],
+      "sprite": {
+        "guid": "3f6a296076952fa488a4fd6faac1daa8",
+        "file_id": "21300000",
+        "asset": "Assets/Sprite/friendplane.png",
+        "godot_path": "res://assets/sprites/friendplane.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          28,
+          41
+        ],
+        "entry": {
+          "name": "friendplane",
+          "rect_unity": [
+            0,
+            0,
+            28,
+            41
+          ],
+          "rect_godot": [
+            0,
+            0,
+            28,
+            41
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.28,
+          0.41
+        ]
+      },
+      "behaviours": [
+        {
+          "game_object": 1441618249,
+          "script_guid": "f86ad81cb3dd770408d13aab3f3306fc",
+          "values": {
+            "radius": 0.5,
+            "speed": 5.0,
+            "startAngle": 0.0,
+            "target": 612065682
+          }
+        }
+      ]
+    },
+    {
+      "id": 1451665737,
+      "transform_id": 1451665738,
+      "name": "duat font corporal_25 (1)",
+      "active": true,
+      "parent_transform": 1424654356,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          6.19,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          2.0,
+          2.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          1.0950000000000002,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        718.84,
+        255.60000000000002
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "250743912",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_25",
+          "rect_unity": [
+            844.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            844.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1478550737,
+      "transform_id": 1478550738,
+      "name": "duat font corporal_40",
+      "active": true,
+      "parent_transform": 595715472,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          1.23,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.1279997599999998,
+          -0.30200000000000005,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        630.7840172800001,
+        381.744
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "1465910424",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_40",
+          "rect_unity": [
+            478.0,
+            465.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            478.0,
+            278.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1503663535,
+      "transform_id": 1503663536,
+      "name": "duat font corporal_34",
+      "active": true,
+      "parent_transform": 1424855658,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.8780000000000001,
+          0.32200000000000006,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        576.784,
+        336.816
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "1264552317",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_34",
+          "rect_unity": [
+            187.0,
+            465.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            187.0,
+            278.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1520267833,
+      "transform_id": 1520267834,
+      "name": "duat font corporal_33",
+      "active": true,
+      "parent_transform": 1424855658,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          2.69,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.7359999999999998,
+          0.32200000000000006,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        692.992,
+        336.816
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "-1964287888",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_33",
+          "rect_unity": [
+            134.0,
+            465.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            134.0,
+            278.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1646349100,
+      "transform_id": 1646349101,
+      "name": "duat font corporal_19",
+      "active": true,
+      "parent_transform": 595715472,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.83,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.36799975999999984,
+          -0.30200000000000005,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        613.50401728,
+        381.744
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "884557205",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_19",
+          "rect_unity": [
+            421.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            421.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1656456032,
+      "transform_id": 1656456033,
+      "name": "duat font corporal_15",
+      "active": true,
+      "parent_transform": 1424855658,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.52,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.5660000000000001,
+          0.32200000000000006,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        599.248,
+        336.816
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "1283350992",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_15",
+          "rect_unity": [
+            227.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            227.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1661187959,
+      "transform_id": 1661187960,
+      "name": "duat font corporal_25",
+      "active": true,
+      "parent_transform": 1424654356,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          3.74,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          2.0,
+          2.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.1299999999999999,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        630.64,
+        255.60000000000002
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "250743912",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_25",
+          "rect_unity": [
+            844.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            844.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 1783195787,
+      "transform_id": 1783195788,
+      "name": "duat font corporal_21",
+      "active": true,
+      "parent_transform": 1424654356,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          1.86,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          2.0,
+          2.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -1.0699999999999998,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        562.96,
+        255.60000000000002
+      ],
+      "sprite": {
+        "guid": "6a778e2deb6a71c41b1108302396b58d",
+        "file_id": "623185493",
+        "asset": "Assets/Sprite/duat font corporal.png",
+        "godot_path": "res://assets/sprites/duat font corporal.png",
+        "pixels_per_unit": 100.0,
+        "image_size": [
+          1170,
+          795
+        ],
+        "entry": {
+          "name": "duat font corporal_21",
+          "rect_unity": [
+            647.0,
+            531.0,
+            45.0,
+            52.0
+          ],
+          "rect_godot": [
+            647.0,
+            212.0,
+            45.0,
+            52.0
+          ],
+          "pivot": [
+            0.0,
+            0.0
+          ]
+        },
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "sorting_order": 1,
+        "size": [
+          0.45,
+          0.52
+        ]
+      },
+      "behaviours": []
+    },
+    {
+      "id": 91209060,
+      "transform_id": 91209061,
+      "name": "asteroies",
+      "active": true,
+      "parent_transform": 862443843,
+      "children_transforms": [
+        2002205999,
+        1397890311,
+        716269666,
+        434988261,
+        2117813066,
+        403452636,
+        1584246857,
+        322867684,
+        667427633,
+        1733574241,
+        1144071650,
+        878711887,
+        1609823736,
+        1701369283,
+        1364475574,
+        1042987606
+      ],
+      "local": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        640.0,
+        360.0
+      ],
+      "sprite": null,
+      "behaviours": [
+        {
+          "game_object": 91209060,
+          "script_guid": "7c5b2111be2be65408b2b00d9e87b66b",
+          "values": {}
+        }
+      ]
+    },
+    {
+      "id": 498203841,
+      "transform_id": 498203843,
+      "name": "GameData",
+      "active": true,
+      "parent_transform": 0,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.02,
+          -2.67,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.02,
+          -2.67,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        641.44,
+        552.24
+      ],
+      "sprite": null,
+      "behaviours": [
+        {
+          "game_object": 498203841,
+          "script_guid": "1fb04a2e3429b4d438eb03fba825bab1",
+          "values": {}
+        }
+      ]
+    },
+    {
+      "id": 595715471,
+      "transform_id": 595715472,
+      "name": "QUIT",
+      "active": true,
+      "parent_transform": 1711459441,
+      "children_transforms": [
+        843467414,
+        971564608,
+        1646349101,
+        1478550738,
+        17913482,
+        932025317,
+        1061203815,
+        398051889
+      ],
+      "local": {
+        "position": [
+          -3.9099996,
+          1.88,
+          -0.05452379
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.8659997599999998,
+          -0.30200000000000005,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        577.64801728,
+        381.744
+      ],
+      "sprite": null,
+      "behaviours": [
+        {
+          "game_object": 595715471,
+          "script_guid": "5ff38370104f06146b6ab1e9f5f93e4c",
+          "values": {}
+        },
+        {
+          "game_object": 595715471,
+          "script_guid": "85bc3d4c3b534404ab9849b4759212cd",
+          "values": {
+            "speed": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "id": 862443842,
+      "transform_id": 862443843,
+      "name": "BackGround",
+      "active": true,
+      "parent_transform": 0,
+      "children_transforms": [
+        853816491,
+        91209061
+      ],
+      "local": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        640.0,
+        360.0
+      ],
+      "sprite": null,
+      "behaviours": []
+    },
+    {
+      "id": 1424654355,
+      "transform_id": 1424654356,
+      "name": "Title",
+      "active": true,
+      "parent_transform": 0,
+      "children_transforms": [
+        1090500154,
+        1043924615,
+        1783195788,
+        166089760,
+        1661187960,
+        383274900,
+        1451665738,
+        789094633,
+        499977324
+      ],
+      "local": {
+        "position": [
+          -2.0,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -2.0,
+          1.45,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        496.0,
+        255.60000000000002
+      ],
+      "sprite": null,
+      "behaviours": [
+        {
+          "game_object": 1424654355,
+          "script_guid": "f54078ac471d3854084551bb23507582",
+          "values": {}
+        }
+      ]
+    },
+    {
+      "id": 1424855657,
+      "transform_id": 1424855658,
+      "name": "NewGame",
+      "active": true,
+      "parent_transform": 1711459441,
+      "children_transforms": [
+        1503663536,
+        1656456033,
+        1392918404,
+        76852993,
+        854669875,
+        1520267834,
+        208365013
+      ],
+      "local": {
+        "position": [
+          -3.93,
+          2.92,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.8780000000000001,
+          0.32200000000000006,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        576.784,
+        336.816
+      ],
+      "sprite": null,
+      "behaviours": [
+        {
+          "game_object": 1424855657,
+          "script_guid": "cb6c643272568d647bda991d002e4d6a",
+          "values": {}
+        },
+        {
+          "game_object": 1424855657,
+          "script_guid": "85bc3d4c3b534404ab9849b4759212cd",
+          "values": {
+            "speed": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "id": 1597519747,
+      "transform_id": 1597519748,
+      "name": "planes",
+      "active": true,
+      "parent_transform": 0,
+      "children_transforms": [
+        612065682,
+        563813927,
+        1441618250
+      ],
+      "local": {
+        "position": [
+          0.18,
+          -1.29,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.18,
+          -1.29,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        652.96,
+        452.88
+      ],
+      "sprite": null,
+      "behaviours": []
+    },
+    {
+      "id": 1638282884,
+      "transform_id": 1638282886,
+      "name": "Audio Source",
+      "active": true,
+      "parent_transform": 0,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          -2.73,
+          -0.45,
+          -9.987878
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -2.73,
+          -0.45,
+          -9.987878
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        443.44,
+        392.4
+      ],
+      "sprite": null,
+      "behaviours": []
+    },
+    {
+      "id": 1711459440,
+      "transform_id": 1711459441,
+      "name": "Buttons",
+      "active": true,
+      "parent_transform": 0,
+      "children_transforms": [
+        1424855658,
+        595715472
+      ],
+      "local": {
+        "position": [
+          1.48,
+          -1.43,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          1.48,
+          -1.43,
+          0.05452379
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        746.56,
+        462.96
+      ],
+      "sprite": null,
+      "behaviours": [
+        {
+          "game_object": 1711459440,
+          "script_guid": "9e7a0211bcdc7bf43a08f21adda13d27",
+          "values": {}
+        },
+        {
+          "game_object": 1711459440,
+          "script_guid": "eaab740b1d9a3ff4dbec54afa524d1c2",
+          "values": {}
+        }
+      ]
+    },
+    {
+      "id": 1857191386,
+      "transform_id": 1857191388,
+      "name": "AudioPlayer",
+      "active": true,
+      "parent_transform": 0,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          -3.76,
+          -0.72,
+          -9.987878
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -3.76,
+          -0.72,
+          -9.987878
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        369.28000000000003,
+        411.84
+      ],
+      "sprite": null,
+      "behaviours": [
+        {
+          "game_object": 1857191386,
+          "script_guid": "5ef82134b41270047a79d9a521520625",
+          "values": {}
+        }
+      ]
+    },
+    {
+      "id": 2067687161,
+      "transform_id": 2067687163,
+      "name": "monitor",
+      "active": true,
+      "parent_transform": 0,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          -0.32227802,
+          -3.19,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          -0.32227802,
+          -3.19,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        616.79598256,
+        589.6800000000001
+      ],
+      "sprite": null,
+      "behaviours": [
+        {
+          "game_object": 2067687161,
+          "script_guid": "7da7b3f7f8ec33340af725c34768b7dd",
+          "values": {}
+        }
+      ]
+    },
+    {
+      "id": 2092958024,
+      "transform_id": 2092958028,
+      "name": "Main Camera",
+      "active": true,
+      "parent_transform": 0,
+      "children_transforms": [],
+      "local": {
+        "position": [
+          0.0,
+          0.0,
+          -10.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "world": {
+        "position": [
+          0.0,
+          0.0,
+          -10.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "screen": [
+        640.0,
+        360.0
+      ],
+      "sprite": null,
+      "behaviours": [
+        {
+          "game_object": 2092958024,
+          "script_guid": "a79441f348de89743a2939f4d699eac1",
+          "values": {}
+        },
+        {
+          "game_object": 2092958024,
+          "script_guid": "81d6c96ec7bda34408b507f46034a228",
+          "values": {}
+        },
+        {
+          "game_object": 2092958024,
+          "script_guid": "9a6d84595bcb2d343b4f11578d88dd03",
+          "values": {}
+        }
+      ]
+    }
+  ]
+}
