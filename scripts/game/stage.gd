@@ -3,6 +3,7 @@ extends Node2D
 @export var stage_number := 1
 
 const HudScene := preload("res://scripts/ui/hud.gd")
+const StarfieldScene := preload("res://scenes/components/starfield_particles.tscn")
 
 var player: PlayerShip
 var hud: BattleHud
@@ -20,9 +21,9 @@ var warning_sent := false
 var stage_done := false
 
 var configs := {
-	1: {"bg": "Background_01.png", "boss_time": 120.0, "ship_delay": 0.0, "ship_prob": 0.8, "ep2_delay": 10.0, "ep2_prob": 0.6, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.1, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 0.0, "boss": 1},
-	2: {"bg": "Background_02.png", "boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 2},
-	3: {"bg": "Background_03.png", "boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 3},
+	1: {"boss_time": 120.0, "ship_delay": 0.0, "ship_prob": 0.8, "ep2_delay": 10.0, "ep2_prob": 0.6, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.1, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 0.0, "boss": 1},
+	2: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 2},
+	3: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 3},
 }
 
 func _ready() -> void:
@@ -76,22 +77,21 @@ func spawn_shield() -> void:
 
 func _create_camera() -> void:
 	var camera := Camera2D.new()
-	camera.position = Vector2(640, 360)
+	camera.position = DisplaySettings.logical_center()
 	add_child(camera)
 	camera.make_current()
 
 func _create_background() -> void:
-	var cfg: Dictionary = configs[stage_number]
-	for i in 2:
-		var bg := Sprite2D.new()
-		bg.texture = load("res://assets/sprites/%s" % cfg.bg)
-		bg.centered = false
-		bg.position = Vector2(0, i * -720)
-		if bg.texture:
-			bg.scale = Vector2(1280.0 / bg.texture.get_width(), 720.0 / bg.texture.get_height())
-		bg.z_index = -10
-		bg.set_meta("scroll_bg", true)
-		add_child(bg)
+	var background_layer := CanvasLayer.new()
+	background_layer.layer = -100
+	add_child(background_layer)
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color.BLACK
+	background_layer.add_child(bg)
+	var starfield := StarfieldScene.instantiate()
+	starfield.name = "Starfield"
+	background_layer.add_child(starfield)
 
 func _create_hud() -> void:
 	hud = HudScene.new()
@@ -101,16 +101,16 @@ func _create_player() -> void:
 	player = PlayerShip.new()
 	add_child(player)
 	player.stage = self
-	player.global_position = Vector2(640, 600)
+	player.global_position = DisplaySettings.to_current(Vector2(960, 900))
 	player.health_changed.connect(hud.set_player_health)
 	player.weapon_changed.connect(hud.refresh)
 
 func _create_shop() -> void:
 	var goods := [
-		["bullet", 40, "BulletArrow", Vector2(1030, 590)],
-		["bullet", 70, "Bullet3", Vector2(1135, 590)],
-		["friend", 90, "", Vector2(1030, 675)],
-		["shield", 110, "", Vector2(1135, 675)],
+		["bullet", 40, "BulletArrow", DisplaySettings.to_current(Vector2(1545, 885))],
+		["bullet", 70, "Bullet3", DisplaySettings.to_current(Vector2(1702.5, 885))],
+		["friend", 90, "", DisplaySettings.to_current(Vector2(1545, 1012.5))],
+		["shield", 110, "", DisplaySettings.to_current(Vector2(1702.5, 1012.5))],
 	]
 	for g in goods:
 		var item := PickupItem.new()
@@ -144,11 +144,11 @@ func _update_enemy_spawns(cfg: Dictionary) -> void:
 		_spawn_enemy("small_boss")
 
 func _spawn_rotation_pair() -> void:
-	_spawn_enemy_at("rotation_ep", Vector2(_unity_x_to_screen(-1.5), -60))
-	_spawn_enemy_at("rotation_ep", Vector2(_unity_x_to_screen(1.5), -60))
+	_spawn_enemy_at("rotation_ep", Vector2(_unity_x_to_screen(-1.5), DisplaySettings.scale_value(-90)))
+	_spawn_enemy_at("rotation_ep", Vector2(_unity_x_to_screen(1.5), DisplaySettings.scale_value(-90)))
 
 func _spawn_enemy(kind: String) -> void:
-	_spawn_enemy_at(kind, Vector2(randf_range(70, 1210), -60))
+	_spawn_enemy_at(kind, Vector2(randf_range(DisplaySettings.scale_value(105), DisplaySettings.scale_value(1815)), DisplaySettings.scale_value(-90)))
 
 func _spawn_enemy_at(kind: String, pos: Vector2) -> void:
 	var enemy := EnemyShip.new()
@@ -157,7 +157,7 @@ func _spawn_enemy_at(kind: String, pos: Vector2) -> void:
 	enemy.died.connect(_on_enemy_died)
 
 func _unity_x_to_screen(unity_x: float) -> float:
-	return 640.0 + unity_x * 128.0
+	return DisplaySettings.scale_value(960.0 + unity_x * 192.0)
 
 func _spawn_boss(id: int) -> void:
 	boss_spawned = true
@@ -171,11 +171,11 @@ func _spawn_pickup() -> void:
 	var item := PickupItem.new()
 	add_child(item)
 	if randf() < 0.2:
-		item.configure_hp(Vector2(randf_range(80, 1200), -40))
+		item.configure_hp(Vector2(randf_range(DisplaySettings.scale_value(120), DisplaySettings.scale_value(1800)), DisplaySettings.scale_value(-60)))
 	else:
 		var type_name: String = ["coin1", "coin2", "coin3"].pick_random()
 		var value: int = 10 if type_name == "coin1" else 20 if type_name == "coin2" else 30
-		item.configure_coin(type_name, Vector2(randf_range(80, 1200), -40), value)
+		item.configure_coin(type_name, Vector2(randf_range(DisplaySettings.scale_value(120), DisplaySettings.scale_value(1800)), DisplaySettings.scale_value(-60)), value)
 
 func _on_enemy_died(enemy: CombatBody) -> void:
 	if randf() < enemy.coin_drop_chance:

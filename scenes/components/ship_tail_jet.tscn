@@ -1,0 +1,80 @@
+[gd_scene format=3]
+
+[node name="ShipTailJet" type="Node2D"]
+z_index = 2
+
+[node name="OuterJet" type="Polygon2D" parent="."]
+color = Color(1, 1, 1, 0.72)
+polygon = PackedVector2Array(-11, 0, 11, 0, 6, 5, 3, 13, 0, 24, -3, 13, -6, 5)
+vertex_colors = PackedColorArray(0.02, 0.38, 1, 0.58, 0.02, 0.38, 1, 0.58, 0.08, 0.55, 1, 0.5, 0.52, 0.22, 0.95, 0.42, 1, 0.16, 0.08, 0.44, 0.52, 0.22, 0.95, 0.42, 0.08, 0.55, 1, 0.5)
+
+[node name="MidJet" type="Polygon2D" parent="."]
+color = Color(1, 1, 1, 0.82)
+polygon = PackedVector2Array(-7, 0, 7, 0, 4, 5, 1.8, 12, 0, 19, -1.8, 12, -4, 5)
+vertex_colors = PackedColorArray(0.16, 0.76, 1, 0.8, 0.16, 0.76, 1, 0.8, 0.2, 0.62, 1, 0.68, 0.7, 0.2, 0.9, 0.58, 1, 0.28, 0.08, 0.62, 0.7, 0.2, 0.9, 0.58, 0.2, 0.62, 1, 0.68)
+
+[node name="CoreJet" type="Polygon2D" parent="."]
+color = Color(1, 1, 1, 0.9)
+polygon = PackedVector2Array(-3.5, 0, 3.5, 0, 1.8, 5, 0, 13, -1.8, 5)
+vertex_colors = PackedColorArray(0.38, 0.9, 1, 0.9, 0.38, 0.9, 1, 0.9, 0.32, 0.66, 1, 0.72, 1, 0.38, 0.1, 0.72, 0.32, 0.66, 1, 0.72)
+
+[node name="BlueJetParticles" type="CPUParticles2D" parent="."]
+emitting = true
+amount = 22
+lifetime = 0.13
+preprocess = 0.13
+speed_scale = 1.0
+randomness = 0.18
+lifetime_randomness = 0.25
+local_coords = true
+direction = Vector2(0, 1)
+spread = 8.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 44.0
+initial_velocity_max = 62.0
+damping_min = 150.0
+damping_max = 210.0
+scale_amount_min = 0.8
+scale_amount_max = 1.5
+color = Color(0.3, 0.82, 1, 0.55)
+
+[node name="IonMist" type="CPUParticles2D" parent="."]
+emitting = true
+amount = 12
+lifetime = 0.16
+preprocess = 0.16
+speed_scale = 1.0
+randomness = 0.32
+lifetime_randomness = 0.4
+local_coords = true
+direction = Vector2(0, 1)
+spread = 17.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 22.0
+initial_velocity_max = 42.0
+damping_min = 145.0
+damping_max = 205.0
+scale_amount_min = 1.1
+scale_amount_max = 2.0
+color = Color(0.4, 0.18, 1, 0.22)
+
+[node name="RedTailParticles" type="CPUParticles2D" parent="."]
+position = Vector2(0, 12)
+emitting = true
+amount = 10
+lifetime = 0.12
+preprocess = 0.12
+speed_scale = 1.0
+randomness = 0.35
+lifetime_randomness = 0.45
+local_coords = true
+direction = Vector2(0, 1)
+spread = 20.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 16.0
+initial_velocity_max = 32.0
+damping_min = 120.0
+damping_max = 190.0
+scale_amount_min = 0.8
+scale_amount_max = 1.5
+color = Color(1, 0.2, 0.06, 0.48)

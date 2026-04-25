@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/effects/starfield_particles.gd" id="1_6a4ix"]
+
+[node name="StarfieldParticles" type="Node2D"]
+script = ExtResource("1_6a4ix")
+
+[node name="FarStars" type="GPUParticles2D" parent="."]
+amount = 920
+lifetime = 9.0
+preprocess = 9.0
+
+[node name="MidStars" type="GPUParticles2D" parent="."]
+amount = 420
+lifetime = 7.6
+preprocess = 7.6
+
+[node name="BrightStars" type="GPUParticles2D" parent="."]
+amount = 150
+lifetime = 6.4
+preprocess = 6.4
+
+[node name="WarmSparks" type="GPUParticles2D" parent="."]
+amount = 52
+lifetime = 8.8
+preprocess = 8.8

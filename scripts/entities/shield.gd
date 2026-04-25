@@ -11,12 +11,12 @@ func configure(player: PlayerShip) -> void:
 	collision_mask = 2 | 8
 	var ring := Polygon2D.new()
 	ring.name = "Ring"
-	ring.polygon = _circle_points(46, 48)
+	ring.polygon = _circle_points(46, DisplaySettings.scale_value(72))
 	ring.color = Color(0.2, 0.85, 1.0, 0.25)
 	add_child(ring)
 	var shape := CollisionShape2D.new()
 	shape.shape = CircleShape2D.new()
-	(shape.shape as CircleShape2D).radius = 58
+	(shape.shape as CircleShape2D).radius = DisplaySettings.scale_value(87)
 	add_child(shape)
 
 func _process(_delta: float) -> void:

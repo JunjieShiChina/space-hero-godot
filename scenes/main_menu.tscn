@@ -3,11 +3,8 @@
 [ext_resource type="Script" uid="uid://dhbw0rfb7ednt" path="res://scripts/game/menu.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://cqj2osehu2ov" path="res://assets/sprites/Background_01.png" id="2"]
 [ext_resource type="Texture2D" uid="uid://dr5jku2dpl35y" path="res://assets/sprites/Nebula Red.png" id="3"]
-[ext_resource type="Texture2D" uid="uid://bg3ucq8anwfsp" path="res://assets/sprites/Stars.png" id="4"]
 [ext_resource type="Texture2D" uid="uid://djh40bd3c1ppx" path="res://assets/sprites/duat font corporal.png" id="5"]
 [ext_resource type="Texture2D" uid="uid://dvqw574exfk7j" path="res://assets/sprites/Spaceship_Enemy - SingleShot.png" id="6"]
-[ext_resource type="Texture2D" uid="uid://da7duljiw0k00" path="res://assets/sprites/Spaceship_Protagonist - P1.png" id="7"]
-[ext_resource type="Texture2D" uid="uid://r74s8mmrxra4" path="res://assets/sprites/friendplane.png" id="8"]
 [ext_resource type="Texture2D" uid="uid://bugd7etkda8mr" path="res://assets/sprites/Asteroids 08.png" id="9"]
 [ext_resource type="Texture2D" uid="uid://c0uxhyk4eln6f" path="res://assets/sprites/Asteroids 03.png" id="10"]
 [ext_resource type="Texture2D" uid="uid://68sumtg7o65x" path="res://assets/sprites/Asteroids 15.png" id="11"]
@@ -16,6 +13,8 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/Asteroids 11.png" id="14"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Asteroids 14.png" id="15"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Asteroids 16.png" id="16"]
+[ext_resource type="PackedScene" path="res://scenes/components/menu_ship_formation.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://scenes/components/starfield_particles.tscn" id="18"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1"]
 atlas = ExtResource("5")
@@ -144,151 +143,120 @@ grow_vertical = 2
 texture = ExtResource("3")
 expand_mode = 1
 
-[node name="Stars" type="TextureRect" parent="." unique_id=261639109]
-modulate = Color(1, 1, 1, 0.42)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4")
-expand_mode = 1
-
-[node name="DimStars" type="TextureRect" parent="."]
-modulate = Color(0.55, 0.62, 0.78, 0.22)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4")
-expand_mode = 1
-
-[node name="BrightStars" type="TextureRect" parent="."]
-modulate = Color(1, 1, 1, 0.72)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("4")
-expand_mode = 1
+[node name="Starfield" parent="." instance=ExtResource("18")]
 
 [node name="Rocks" type="Node2D" parent="." unique_id=501427726]
 
 [node name="Rock1" type="Sprite2D" parent="Rocks" unique_id=1886246776]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
-position = Vector2(80, -40)
-scale = Vector2(0.28, 0.28)
+position = Vector2(120, -60)
+scale = Vector2(0.42, 0.42)
 texture = ExtResource("9")
-metadata/velocity = Vector2(-4, 72)
+metadata/velocity = Vector2(-6, 108)
 
 [node name="Rock2" type="Sprite2D" parent="Rocks" unique_id=260075393]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
-position = Vector2(768, -110)
-scale = Vector2(0.18, 0.18)
+position = Vector2(1152, -165)
+scale = Vector2(0.27, 0.27)
 texture = ExtResource("10")
-metadata/velocity = Vector2(6, 48)
+metadata/velocity = Vector2(9, 72)
 
 [node name="Rock3" type="Sprite2D" parent="Rocks" unique_id=1736503466]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
-position = Vector2(1040, -260)
-scale = Vector2(0.32, 0.32)
+position = Vector2(1560, -390)
+scale = Vector2(0.48, 0.48)
 texture = ExtResource("11")
-metadata/velocity = Vector2(-8, 64)
+metadata/velocity = Vector2(-12, 96)
 
 [node name="Rock4" type="Sprite2D" parent="Rocks" unique_id=1600377361]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
-position = Vector2(1180, -520)
-scale = Vector2(0.22, 0.22)
+position = Vector2(1770, -780)
+scale = Vector2(0.33, 0.33)
 texture = ExtResource("12")
-metadata/velocity = Vector2(2, 56)
+metadata/velocity = Vector2(3, 84)
 
 [node name="Rock5" type="Sprite2D" parent="Rocks"]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
-position = Vector2(320, -210)
-scale = Vector2(0.2, 0.2)
+position = Vector2(480, -315)
+scale = Vector2(0.3, 0.3)
 texture = ExtResource("13")
-metadata/velocity = Vector2(8, 62)
+metadata/velocity = Vector2(12, 93)
 
 [node name="Rock6" type="Sprite2D" parent="Rocks"]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
-position = Vector2(620, -410)
-scale = Vector2(0.16, 0.16)
+position = Vector2(930, -615)
+scale = Vector2(0.24, 0.24)
 texture = ExtResource("14")
-metadata/velocity = Vector2(-6, 52)
+metadata/velocity = Vector2(-9, 78)
 
 [node name="Rock7" type="Sprite2D" parent="Rocks"]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
-position = Vector2(930, -90)
-scale = Vector2(0.26, 0.26)
+position = Vector2(1395, -135)
+scale = Vector2(0.39, 0.39)
 texture = ExtResource("15")
-metadata/velocity = Vector2(4, 76)
+metadata/velocity = Vector2(6, 114)
 
 [node name="Rock8" type="Sprite2D" parent="Rocks"]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
-position = Vector2(1210, -310)
-scale = Vector2(0.18, 0.18)
+position = Vector2(1815, -465)
+scale = Vector2(0.27, 0.27)
 texture = ExtResource("16")
-metadata/velocity = Vector2(-9, 58)
+metadata/velocity = Vector2(-13.5, 87)
 
 [node name="Title" type="Node2D" parent="." unique_id=1051883334]
 modulate = Color(1, 0.56, 0.22, 1)
-position = Vector2(184, 131)
+position = Vector2(276, 196.5)
 
 [node name="Letter1" type="Sprite2D" parent="Title" unique_id=1324162484]
-scale = Vector2(2.05, 2.05)
+scale = Vector2(3.075, 3.075)
 texture = SubResource("AtlasTexture_1")
 centered = false
 
 [node name="Letter2" type="Sprite2D" parent="Title" unique_id=439773431]
-position = Vector2(98.4, 0)
-scale = Vector2(2.05, 2.05)
+position = Vector2(147.6, 0)
+scale = Vector2(3.075, 3.075)
 texture = SubResource("AtlasTexture_2")
 centered = false
 
 [node name="Letter3" type="Sprite2D" parent="Title" unique_id=529693559]
-position = Vector2(194.75, 0)
-scale = Vector2(2.05, 2.05)
+position = Vector2(292.125, 0)
+scale = Vector2(3.075, 3.075)
 texture = SubResource("AtlasTexture_3")
 centered = false
 
 [node name="Letter4" type="Sprite2D" parent="Title" unique_id=1498104704]
-position = Vector2(293.15, 0)
-scale = Vector2(2.05, 2.05)
+position = Vector2(439.725, 0)
+scale = Vector2(3.075, 3.075)
 texture = SubResource("AtlasTexture_4")
 centered = false
 
 [node name="Letter5" type="Sprite2D" parent="Title" unique_id=51797534]
-position = Vector2(391.55, 0)
-scale = Vector2(2.05, 2.05)
+position = Vector2(587.325, 0)
+scale = Vector2(3.075, 3.075)
 texture = SubResource("AtlasTexture_5")
 centered = false
 
 [node name="Letter6" type="Sprite2D" parent="Title" unique_id=716098419]
-position = Vector2(580.15, 0)
-scale = Vector2(2.05, 2.05)
+position = Vector2(870.225, 0)
+scale = Vector2(3.075, 3.075)
 texture = SubResource("AtlasTexture_6")
 centered = false
 
 [node name="Letter7" type="Sprite2D" parent="Title" unique_id=614662459]
-position = Vector2(676.5, 0)
-scale = Vector2(2.05, 2.05)
+position = Vector2(1014.75, 0)
+scale = Vector2(3.075, 3.075)
 texture = SubResource("AtlasTexture_7")
 centered = false
 
 [node name="Letter8" type="Sprite2D" parent="Title" unique_id=1806324903]
-position = Vector2(774.9, 0)
-scale = Vector2(2.05, 2.05)
+position = Vector2(1162.35, 0)
+scale = Vector2(3.075, 3.075)
 texture = SubResource("AtlasTexture_8")
 centered = false
 
 [node name="Letter9" type="Sprite2D" parent="Title" unique_id=510287447]
-position = Vector2(873.3, 0)
-scale = Vector2(2.05, 2.05)
+position = Vector2(1309.95, 0)
+scale = Vector2(3.075, 3.075)
 texture = SubResource("AtlasTexture_9")
 centered = false
 
@@ -296,117 +264,109 @@ centered = false
 
 [node name="NewGame" type="Node2D" parent="MenuItems" unique_id=1295429742]
 modulate = Color(0.55, 0.72, 1, 1)
-position = Vector2(514, 320)
+position = Vector2(771, 480)
 
 [node name="Letter1" type="Sprite2D" parent="MenuItems/NewGame" unique_id=835674561]
-scale = Vector2(0.72, 0.72)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_10")
 centered = false
 
 [node name="Letter2" type="Sprite2D" parent="MenuItems/NewGame" unique_id=241207895]
-position = Vector2(37.44, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(56.16, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_11")
 centered = false
 
 [node name="Letter3" type="Sprite2D" parent="MenuItems/NewGame" unique_id=922513162]
-position = Vector2(71.28, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(106.92, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_12")
 centered = false
 
 [node name="Letter4" type="Sprite2D" parent="MenuItems/NewGame" unique_id=1618639015]
-position = Vector2(131.04, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(196.56, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_13")
 centered = false
 
 [node name="Letter5" type="Sprite2D" parent="MenuItems/NewGame" unique_id=1821239549]
-position = Vector2(161.28, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(241.92, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_14")
 centered = false
 
 [node name="Letter6" type="Sprite2D" parent="MenuItems/NewGame" unique_id=1340179380]
-position = Vector2(193.68, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(290.52, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_15")
 centered = false
 
 [node name="Letter7" type="Sprite2D" parent="MenuItems/NewGame" unique_id=1553331849]
-position = Vector2(227.52, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(341.28, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_16")
 centered = false
 
 [node name="QuitGame" type="Node2D" parent="MenuItems" unique_id=1758700879]
 modulate = Color(0.55, 0.72, 1, 1)
-position = Vector2(509, 389)
+position = Vector2(763.5, 673.5)
 
 [node name="Letter1" type="Sprite2D" parent="MenuItems/QuitGame" unique_id=83194453]
-scale = Vector2(0.72, 0.72)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_17")
 centered = false
 
 [node name="Letter2" type="Sprite2D" parent="MenuItems/QuitGame" unique_id=612047561]
-position = Vector2(30.24, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(45.36, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_18")
 centered = false
 
 [node name="Letter3" type="Sprite2D" parent="MenuItems/QuitGame" unique_id=486513586]
-position = Vector2(59.76, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(89.64, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_19")
 centered = false
 
 [node name="Letter4" type="Sprite2D" parent="MenuItems/QuitGame" unique_id=387778525]
-position = Vector2(88.56, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(132.84, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_20")
 centered = false
 
 [node name="Letter5" type="Sprite2D" parent="MenuItems/QuitGame" unique_id=2076346016]
-position = Vector2(130.32, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(195.48, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_21")
 centered = false
 
 [node name="Letter6" type="Sprite2D" parent="MenuItems/QuitGame" unique_id=589317752]
-position = Vector2(160.56, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(240.84, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_22")
 centered = false
 
 [node name="Letter7" type="Sprite2D" parent="MenuItems/QuitGame" unique_id=607364392]
-position = Vector2(194.4, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(291.6, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_23")
 centered = false
 
 [node name="Letter8" type="Sprite2D" parent="MenuItems/QuitGame" unique_id=145585275]
-position = Vector2(226.8, 0)
-scale = Vector2(0.72, 0.72)
+position = Vector2(340.2, 0)
+scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_24")
 centered = false
 
+[node name="Resolution" type="Node2D" parent="MenuItems"]
+modulate = Color(0.55, 0.72, 1, 1)
+position = Vector2(835, 583.5)
+
 [node name="Selector" type="Sprite2D" parent="." unique_id=1932184729]
-position = Vector2(467, 339)
+position = Vector2(700.5, 508.5)
 rotation = 1.5708
-scale = Vector2(0.92, 0.92)
+scale = Vector2(1.38, 1.38)
 texture = ExtResource("6")
 
-[node name="Ships" type="Node2D" parent="." unique_id=1554998561]
-
-[node name="HeroShip" type="Sprite2D" parent="Ships" unique_id=2039634333]
-position = Vector2(180, 588)
-scale = Vector2(1.8, 1.8)
-texture = ExtResource("7")
-
-[node name="Wingman1" type="Sprite2D" parent="Ships" unique_id=416946482]
-scale = Vector2(1.13, 1.13)
-texture = ExtResource("8")
-
-[node name="Wingman2" type="Sprite2D" parent="Ships" unique_id=1119310533]
-scale = Vector2(1.13, 1.13)
-texture = ExtResource("8")
+[node name="Ships" parent="." instance=ExtResource("17")]
+position = Vector2(270, 882)

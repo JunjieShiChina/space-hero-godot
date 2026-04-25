@@ -24,13 +24,19 @@ config/icon="res://icon.svg"
 GameData="*res://autoload/game_data.gd"
 AudioBus="*res://autoload/audio_bus.gd"
 SceneFlow="*res://autoload/scene_flow.gd"
+DisplaySettings="*res://autoload/display_settings.gd"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
-window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1920
+window/size/window_height_override=1080
+window/size/mode=0
+window/size/resizable=true
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+window/stretch/scale_mode="fractional"
 
 [dotnet]
 
@@ -93,5 +99,6 @@ pause={
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"

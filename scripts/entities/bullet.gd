@@ -17,12 +17,12 @@ func setup(type_name: String, team: String, pos: Vector2, direction: Vector2) ->
 	global_position = pos
 	rotation = direction.angle() + PI / 2.0
 	var info := bullet_info(type_name)
-	damage = info.damage
-	velocity = direction.normalized() * info.speed
-	life_time = info.life
-	pierce = info.pierce
-	homing = info.homing
-	spin = info.spin
+	damage = float(info.damage)
+	velocity = direction.normalized() * DisplaySettings.scale_value(float(info.speed))
+	life_time = float(info.life)
+	pierce = bool(info.pierce)
+	homing = bool(info.homing)
+	spin = float(info.spin)
 	collision_layer = 4 if team == "player" else 8
 	collision_mask = 2 | 32 if team == "player" else 1 | 32
 	_make_visual(info)
@@ -31,15 +31,15 @@ func setup(type_name: String, team: String, pos: Vector2, direction: Vector2) ->
 
 static func bullet_info(type_name: String) -> Dictionary:
 	var map := {
-		"Bullet1": {"speed": 720.0, "damage": 15.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/bullet.png", "scale": 0.18, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
-		"Bullet2": {"speed": 430.0, "damage": 45.0, "interval": 2.0, "life": 4.0, "texture": "res://assets/sprites/bullet3.png", "scale": 0.22, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot2"},
-		"BulletArrow": {"speed": 650.0, "damage": 18.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/bullet4.png", "scale": 0.2, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
-		"BulletMissile": {"speed": 380.0, "damage": 80.0, "interval": 1.5, "life": 5.0, "texture": "res://assets/sprites/spr_missile.png", "scale": 0.18, "pierce": false, "homing": false, "spin": 0.0, "sfx": "missile"},
-		"BulletLaser": {"speed": 0.0, "damage": 5.0, "interval": 2.0, "life": 1.2, "texture": "res://assets/sprites/bosslaser.png", "scale": 1.0, "pierce": true, "homing": false, "spin": 0.0, "sfx": "laser"},
-		"BulletFire": {"speed": 470.0, "damage": 32.0, "interval": 1.0, "life": 3.0, "texture": "res://assets/sprites/bullet5.png", "scale": 0.22, "pierce": false, "homing": false, "spin": 5.0, "sfx": "shoot"},
-		"BulletYue": {"speed": 750.0, "damage": 11.0, "interval": 0.2, "life": 3.0, "texture": "res://assets/sprites/bullet6.png", "scale": 0.2, "pierce": false, "homing": false, "spin": 7.5, "sfx": "shoot"},
-		"Bullet3": {"speed": 780.0, "damage": 14.0, "interval": 0.18, "life": 3.0, "texture": "res://assets/sprites/bullet3.png", "scale": 0.16, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
-		"FollowBullet": {"speed": 520.0, "damage": 10.0, "interval": 0.1, "life": 4.0, "texture": "res://assets/sprites/bullet5.png", "scale": 0.16, "pierce": false, "homing": true, "spin": 4.0, "sfx": "shoot"},
+		"Bullet1": {"speed": 1080.0, "damage": 15.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/bullet.png", "scale": 0.27, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
+		"Bullet2": {"speed": 645.0, "damage": 45.0, "interval": 2.0, "life": 4.0, "texture": "res://assets/sprites/bullet3.png", "scale": 0.33, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot2"},
+		"BulletArrow": {"speed": 975.0, "damage": 18.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/bullet4.png", "scale": 0.3, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
+		"BulletMissile": {"speed": 570.0, "damage": 80.0, "interval": 1.5, "life": 5.0, "texture": "res://assets/sprites/spr_missile.png", "scale": 0.27, "pierce": false, "homing": false, "spin": 0.0, "sfx": "missile"},
+		"BulletLaser": {"speed": 0.0, "damage": 5.0, "interval": 2.0, "life": 1.2, "texture": "res://assets/sprites/bosslaser.png", "scale": 1.5, "pierce": true, "homing": false, "spin": 0.0, "sfx": "laser"},
+		"BulletFire": {"speed": 705.0, "damage": 32.0, "interval": 1.0, "life": 3.0, "texture": "res://assets/sprites/bullet5.png", "scale": 0.33, "pierce": false, "homing": false, "spin": 5.0, "sfx": "shoot"},
+		"BulletYue": {"speed": 1125.0, "damage": 11.0, "interval": 0.2, "life": 3.0, "texture": "res://assets/sprites/bullet6.png", "scale": 0.3, "pierce": false, "homing": false, "spin": 7.5, "sfx": "shoot"},
+		"Bullet3": {"speed": 1170.0, "damage": 14.0, "interval": 0.18, "life": 3.0, "texture": "res://assets/sprites/bullet3.png", "scale": 0.24, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
+		"FollowBullet": {"speed": 780.0, "damage": 10.0, "interval": 0.1, "life": 4.0, "texture": "res://assets/sprites/bullet5.png", "scale": 0.24, "pierce": false, "homing": true, "spin": 4.0, "sfx": "shoot"},
 	}
 	return map.get(type_name, map["Bullet1"])
 
@@ -87,10 +87,10 @@ func _make_visual(info: Dictionary) -> void:
 		add_child(new_sprite)
 	var sprite := get_node("Sprite2D") as Sprite2D
 	sprite.texture = load(info.texture)
-	sprite.scale = Vector2.ONE * info.scale
+	sprite.scale = Vector2.ONE * float(info.scale) * DisplaySettings.scale_factor()
 	sprite.modulate = Color(0.55, 0.9, 1.0) if shooter_team == "player" else Color(1.0, 0.45, 0.45)
 	if bullet_type == "BulletLaser":
-		sprite.scale = Vector2(0.22, 2.5)
+		sprite.scale = Vector2(0.33, 3.75) * DisplaySettings.scale_factor()
 	if get_node_or_null("CollisionShape2D") == null:
 		var shape := CollisionShape2D.new()
 		shape.name = "CollisionShape2D"
@@ -98,11 +98,11 @@ func _make_visual(info: Dictionary) -> void:
 		add_child(shape)
 	var collision := get_node("CollisionShape2D") as CollisionShape2D
 	if bullet_type == "BulletLaser":
-		(collision.shape as CapsuleShape2D).radius = 12
-		(collision.shape as CapsuleShape2D).height = 360
+		(collision.shape as CapsuleShape2D).radius = DisplaySettings.scale_value(18)
+		(collision.shape as CapsuleShape2D).height = DisplaySettings.scale_value(540)
 	else:
-		(collision.shape as CapsuleShape2D).radius = 9
-		(collision.shape as CapsuleShape2D).height = 28
+		(collision.shape as CapsuleShape2D).radius = DisplaySettings.scale_value(13.5)
+		(collision.shape as CapsuleShape2D).height = DisplaySettings.scale_value(42)
 
 func _find_target() -> CombatBody:
 	var best: CombatBody = null

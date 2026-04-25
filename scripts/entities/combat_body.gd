@@ -13,6 +13,11 @@ var hp_drop_chance := 0.03
 var dead := false
 var retired := false
 
+const GAMEPLAY_ENTITY_SCALE := 0.62
+const PLAYER_VISUAL_TARGET := 68.0
+const ENEMY_VISUAL_TARGET := 56.0
+const BOSS_VISUAL_TARGET := 150.0
+
 @onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
 
 func setup(texture_path: String, radius: float, body_team: String, hp: float) -> void:
@@ -30,9 +35,10 @@ func setup(texture_path: String, radius: float, body_team: String, hp: float) ->
 	sprite = get_node("Sprite2D")
 	sprite.texture = load(texture_path)
 	if sprite.texture:
-		var target := 86.0 if team == "player" else 72.0
+		var target := PLAYER_VISUAL_TARGET if team == "player" else ENEMY_VISUAL_TARGET
 		if hp >= 800:
-			target = 170.0
+			target = BOSS_VISUAL_TARGET
+		target = DisplaySettings.scale_value(target)
 		var size := sprite.texture.get_size()
 		if size.x > 0:
 			sprite.scale = Vector2.ONE * (target / max(size.x, size.y))
@@ -42,7 +48,7 @@ func setup(texture_path: String, radius: float, body_team: String, hp: float) ->
 		shape_node.shape = CircleShape2D.new()
 		add_child(shape_node)
 	var shape := get_node("CollisionShape2D") as CollisionShape2D
-	(shape.shape as CircleShape2D).radius = radius
+	(shape.shape as CircleShape2D).radius = DisplaySettings.scale_value(radius * GAMEPLAY_ENTITY_SCALE)
 	if not area_entered.is_connected(_on_area_entered):
 		area_entered.connect(_on_area_entered)
 
@@ -93,10 +99,10 @@ func _spawn_burst() -> void:
 	burst.lifetime = 0.45
 	burst.one_shot = true
 	burst.explosiveness = 1.0
-	burst.initial_velocity_min = 70
-	burst.initial_velocity_max = 170
-	burst.scale_amount_min = 2
-	burst.scale_amount_max = 4
+	burst.initial_velocity_min = 105
+	burst.initial_velocity_max = 255
+	burst.scale_amount_min = 3
+	burst.scale_amount_max = 6
 	burst.color = Color(1.0, 0.55, 0.18)
 	_spawn_parent().add_child(burst)
 	burst.global_position = global_position

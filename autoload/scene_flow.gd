@@ -7,7 +7,7 @@ const THANKS := "res://scenes/thanks.tscn"
 
 func start_new_game() -> void:
 	GameData.reset_run()
-	call_deferred("_change_scene", GameData.stage_path())
+	call_deferred("_change_scene", TRANSITION)
 
 func go_main_menu() -> void:
 	call_deferred("_change_scene", MAIN_MENU)

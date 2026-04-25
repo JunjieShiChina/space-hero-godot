@@ -21,12 +21,12 @@ func configure(id: int, target_player: PlayerShip, owner_stage: Node) -> void:
 	elif id == 3:
 		texture = "res://assets/sprites/Spaceship_Boss 3.png"
 		hp = 1500.0
-	global_position = Vector2(640, -130)
-	setup(texture, 78, "enemy", hp)
+	global_position = DisplaySettings.to_current(Vector2(960, -195))
+	setup(texture, 84, "enemy", hp)
 	stat_key = "boss%d" % id
 	add_to_group("enemy")
 	died.connect(_on_boss_died)
-	target = Vector2(640, 135)
+	target = DisplaySettings.to_current(Vector2(960, 202.5))
 
 func _process(delta: float) -> void:
 	if dead:
@@ -46,14 +46,17 @@ func _process(delta: float) -> void:
 func _move(delta: float) -> void:
 	match boss_id:
 		1:
-			target = Vector2(170 + abs(sin(Time.get_ticks_msec() * 0.0006)) * 940, 145)
+			target = DisplaySettings.to_current(Vector2(255 + abs(sin(Time.get_ticks_msec() * 0.0006)) * 1410, 217.5))
 		2:
-			if global_position.distance_to(target) < 12:
-				target = Vector2(randf_range(160, 1120), randf_range(95, 260))
+			if global_position.distance_to(target) < DisplaySettings.scale_value(18):
+				target = Vector2(
+					randf_range(DisplaySettings.scale_value(240), DisplaySettings.scale_value(1680)),
+					randf_range(DisplaySettings.scale_value(142.5), DisplaySettings.scale_value(390))
+				)
 		3:
 			if player:
-				target = Vector2(clamp(player.global_position.x, 160, 1120), 130)
-	global_position = global_position.move_toward(target, delta * (110 + boss_id * 40))
+				target = Vector2(clamp(player.global_position.x, DisplaySettings.scale_value(240), DisplaySettings.scale_value(1680)), DisplaySettings.scale_value(195))
+	global_position = global_position.move_toward(target, delta * DisplaySettings.scale_value(165 + boss_id * 60))
 
 func _shoot_primary() -> void:
 	var count := 10 if boss_id == 1 else 18 if boss_id == 2 else 16
@@ -65,25 +68,25 @@ func _shoot_primary() -> void:
 		var bullet_type := "Bullet2" if boss_id != 3 else "Bullet3"
 		var bullet := SpaceBullet.new()
 		_spawn_parent().add_child(bullet)
-		bullet.setup(bullet_type, "enemy", global_position + Vector2(0, 58), dir)
+		bullet.setup(bullet_type, "enemy", global_position + DisplaySettings.to_current(Vector2(0, 62)), dir)
 
 func _shoot_special() -> void:
 	if boss_id == 1:
 		for angle in [-50, -30, -10, 10, 30, 50]:
 			var bullet := SpaceBullet.new()
 			_spawn_parent().add_child(bullet)
-			bullet.setup("BulletYue", "enemy", global_position + Vector2(0, 62), Vector2.DOWN.rotated(deg_to_rad(angle)))
+			bullet.setup("BulletYue", "enemy", global_position + DisplaySettings.to_current(Vector2(0, 66)), Vector2.DOWN.rotated(deg_to_rad(angle)))
 	elif boss_id == 2:
 		if player:
 			var dir := (player.global_position - global_position).normalized()
 			var laser := SpaceBullet.new()
 			_spawn_parent().add_child(laser)
-			laser.setup("BulletLaser", "enemy", global_position + dir * 150, dir)
+			laser.setup("BulletLaser", "enemy", global_position + dir * DisplaySettings.scale_value(165), dir)
 	else:
-		for offset in [-72, 72]:
+		for offset in [-108, 108]:
 			var missile := SpaceBullet.new()
 			_spawn_parent().add_child(missile)
-			missile.setup("BulletMissile", "enemy", global_position + Vector2(offset, 80), Vector2.DOWN)
+			missile.setup("BulletMissile", "enemy", global_position + DisplaySettings.to_current(Vector2(offset, 64)), Vector2.DOWN)
 
 func _on_boss_died(_body: CombatBody) -> void:
 	if stage and stage.has_method("on_boss_defeated"):

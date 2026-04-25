@@ -3,7 +3,7 @@ class_name PickupItem
 
 var kind := "coin1"
 var amount := 10
-var velocity := Vector2.DOWN * 130.0
+var velocity := Vector2.DOWN * 195.0
 var price := 0
 var product_type := ""
 var bullet_type := ""
@@ -14,13 +14,15 @@ func configure_coin(type_name: String, pos: Vector2, value: int) -> void:
 	kind = type_name
 	amount = value
 	global_position = pos
-	_setup_visual(_coin_texture(type_name), 0.34, 18, 16)
+	velocity = Vector2.DOWN * DisplaySettings.scale_value(195.0)
+	_setup_visual(_coin_texture(type_name), 0.51, 27, 16)
 
 func configure_hp(pos: Vector2) -> void:
 	kind = "hp"
 	amount = 50
 	global_position = pos
-	_setup_visual("res://assets/sprites/PowerUp_HP.png", 0.35, 18, 16)
+	velocity = Vector2.DOWN * DisplaySettings.scale_value(195.0)
+	_setup_visual("res://assets/sprites/PowerUp_HP.png", 0.525, 27, 16)
 
 func configure_goods(pos: Vector2, product: String, item_price: int, item_bullet := "") -> void:
 	kind = "goods"
@@ -29,17 +31,18 @@ func configure_goods(pos: Vector2, product: String, item_price: int, item_bullet
 	bullet_type = item_bullet
 	global_position = pos
 	velocity = Vector2.ZERO
-	_setup_visual("res://assets/sprites/goods.png", 0.33, 24, 16)
+	_setup_visual("res://assets/sprites/goods.png", 0.495, 36, 16)
 	var label := Label.new()
 	label.text = "%s\n%d" % [item_bullet if product == "bullet" else product.to_upper(), price]
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.position = Vector2(-42, 28)
+	label.position = DisplaySettings.to_current(Vector2(-63, 42))
+	label.add_theme_font_size_override("font_size", DisplaySettings.scale_font_size(16))
 	add_child(label)
 
 func _physics_process(delta: float) -> void:
 	global_position += velocity * delta
 	rotation += delta * 1.8
-	if global_position.y > 800:
+	if global_position.y > DisplaySettings.scale_value(1200):
 		call_deferred("_retire")
 
 func _on_area_entered(area: Area2D) -> void:
@@ -80,11 +83,11 @@ func _setup_visual(texture_path: String, scale_value: float, radius: float, laye
 	collision_mask = 1
 	var sprite := Sprite2D.new()
 	sprite.texture = load(texture_path)
-	sprite.scale = Vector2.ONE * scale_value
+	sprite.scale = Vector2.ONE * scale_value * DisplaySettings.scale_factor()
 	add_child(sprite)
 	var shape := CollisionShape2D.new()
 	shape.shape = CircleShape2D.new()
-	(shape.shape as CircleShape2D).radius = radius
+	(shape.shape as CircleShape2D).radius = DisplaySettings.scale_value(radius)
 	add_child(shape)
 	area_entered.connect(_on_area_entered)
 
