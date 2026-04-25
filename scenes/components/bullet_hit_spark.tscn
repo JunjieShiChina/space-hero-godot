@@ -1,0 +1,170 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/effects/particle_effect_auto_free.gd" id="1_auto"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_hot_dot"]
+offsets = PackedFloat32Array(0, 0.22, 0.62, 1)
+colors = PackedColorArray(1, 1, 0.72, 1, 1, 0.83, 0.12, 0.92, 1, 0.28, 0.02, 0.42, 1, 0.04, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_hot_dot"]
+gradient = SubResource("Gradient_hot_dot")
+width = 18
+height = 18
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_falling_streak"]
+offsets = PackedFloat32Array(0, 0.14, 0.52, 1)
+colors = PackedColorArray(1, 1, 0.65, 0.95, 1, 0.78, 0.08, 0.86, 1, 0.24, 0.02, 0.48, 0.55, 0.02, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_falling_streak"]
+gradient = SubResource("Gradient_falling_streak")
+width = 2
+height = 28
+fill = 0
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="Animation" id="Animation_hit_flash"]
+resource_name = "hit_flash"
+length = 0.22
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ImpactStar:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06, 0.22),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0.35, 0.35), Vector2(0.72, 0.72), Vector2(0.2, 0.2)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ImpactStar:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.06, 0.22),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0.95), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hit"]
+_data = {
+"hit_flash": SubResource("Animation_hit_flash")
+}
+
+[node name="BulletHitSpark" type="Node2D"]
+z_index = 55
+script = ExtResource("1_auto")
+lifetime = 0.38
+
+[node name="ImpactStar" type="Polygon2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+color = Color(1, 0.88, 0.16, 0.9)
+polygon = PackedVector2Array(-16, 0, -4, -2.5, 0, -13, 4, -2.5, 16, 0, 4, 2.5, 0, 13, -4, 2.5)
+
+[node name="ImpactFlash" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+texture = SubResource("GradientTexture2D_hot_dot")
+emitting = false
+amount = 5
+lifetime = 0.08
+one_shot = true
+explosiveness = 1.0
+randomness = 0.3
+lifetime_randomness = 0.2
+local_coords = false
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 25.0
+initial_velocity_max = 85.0
+damping_min = 200.0
+damping_max = 320.0
+scale_amount_min = 0.8
+scale_amount_max = 1.6
+color = Color(1, 0.92, 0.2, 0.92)
+
+[node name="YellowSparks" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+texture = SubResource("GradientTexture2D_hot_dot")
+emitting = false
+amount = 18
+lifetime = 0.26
+one_shot = true
+explosiveness = 0.92
+randomness = 0.44
+lifetime_randomness = 0.22
+local_coords = false
+direction = Vector2(0, 1)
+spread = 120.0
+gravity = Vector2(0, 240)
+initial_velocity_min = 90.0
+initial_velocity_max = 260.0
+damping_min = 120.0
+damping_max = 260.0
+scale_amount_min = 0.45
+scale_amount_max = 1.05
+color = Color(1, 0.78, 0.1, 0.9)
+
+[node name="FallingStreaks" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+texture = SubResource("GradientTexture2D_falling_streak")
+emitting = false
+amount = 22
+lifetime = 0.22
+one_shot = true
+explosiveness = 0.98
+randomness = 0.5
+lifetime_randomness = 0.18
+local_coords = false
+angle_min = -5.0
+angle_max = 5.0
+direction = Vector2(0, 1)
+spread = 24.0
+gravity = Vector2(0, 560)
+initial_velocity_min = 75.0
+initial_velocity_max = 185.0
+damping_min = 190.0
+damping_max = 340.0
+scale_amount_min = 0.32
+scale_amount_max = 0.66
+particle_flag_align_y = true
+color = Color(1, 0.24, 0.02, 0.7)
+
+[node name="RedEmbers" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+texture = SubResource("GradientTexture2D_hot_dot")
+emitting = false
+amount = 12
+lifetime = 0.24
+one_shot = true
+explosiveness = 0.78
+randomness = 0.42
+lifetime_randomness = 0.18
+local_coords = false
+direction = Vector2(0, 1)
+spread = 24.0
+gravity = Vector2(0, 360)
+initial_velocity_min = 55.0
+initial_velocity_max = 145.0
+damping_min = 170.0
+damping_max = 290.0
+scale_amount_min = 0.24
+scale_amount_max = 0.55
+color = Color(1, 0.13, 0.02, 0.48)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_hit")
+}
+autoplay = "hit_flash"

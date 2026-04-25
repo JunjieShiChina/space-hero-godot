@@ -28,4 +28,8 @@ func continue_after_transition() -> void:
 
 func _change_scene(path: String) -> void:
 	if get_tree():
-		get_tree().change_scene_to_file(path)
+		var transition_layer := get_node_or_null("/root/ScreenTransition")
+		if transition_layer and transition_layer.has_method("change_scene"):
+			transition_layer.call("change_scene", path)
+		else:
+			get_tree().change_scene_to_file(path)

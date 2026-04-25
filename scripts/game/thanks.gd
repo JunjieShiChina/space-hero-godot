@@ -2,15 +2,21 @@ extends Control
 
 const StarfieldScene := preload("res://scenes/components/starfield_particles.tscn")
 
+var navigation_requested := false
+
 
 func _ready() -> void:
 	AudioBus.play_music("success")
 	_build()
 
 func _input(event: InputEvent) -> void:
+	if navigation_requested:
+		return
 	if event.is_action_pressed("ui_accept"):
+		navigation_requested = true
 		SceneFlow.start_new_game()
 	elif event.is_action_pressed("pause"):
+		navigation_requested = true
 		SceneFlow.go_main_menu()
 
 func _build() -> void:

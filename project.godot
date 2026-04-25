@@ -25,6 +25,7 @@ GameData="*res://autoload/game_data.gd"
 AudioBus="*res://autoload/audio_bus.gd"
 SceneFlow="*res://autoload/scene_flow.gd"
 DisplaySettings="*res://autoload/display_settings.gd"
+ScreenTransition="*res://scenes/components/scene_transition_overlay.tscn"
 
 [display]
 
@@ -102,3 +103,7 @@ pause={
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[space_hero]
+
+debug/player_invincible=false

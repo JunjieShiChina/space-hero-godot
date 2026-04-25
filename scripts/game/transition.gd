@@ -1,7 +1,7 @@
 extends Control
 
 const FONT_TEXTURE := preload("res://assets/sprites/duat font corporal.png")
-const WAIT_SECONDS := 1.5
+const WAIT_SECONDS := 3.0
 const TEXT_BASE_SCALE := 1.28
 const TEXT_BASE_Y := 432.0
 const GLYPH_SPACING := 6.0
@@ -26,7 +26,13 @@ var anim_time := 0.0
 
 func _ready() -> void:
 	_render_stage_text()
-	await get_tree().create_timer(WAIT_SECONDS).timeout
+	await _wait_for_screen_transition()
+	var tree := get_tree()
+	if tree == null:
+		return
+	await tree.create_timer(WAIT_SECONDS).timeout
+	if not is_inside_tree():
+		return
 	SceneFlow.continue_after_transition()
 
 
@@ -76,3 +82,16 @@ func _measure_text(text_value: String, scale_value: float) -> float:
 		if region.size != Vector2.ZERO:
 			width += region.size.x + GLYPH_SPACING
 	return max(0.0, width - GLYPH_SPACING) * scale_value
+
+
+func _wait_for_screen_transition() -> void:
+	if not is_inside_tree():
+		return
+	var tree := get_tree()
+	if tree == null:
+		return
+	while is_inside_tree():
+		var transition_layer := tree.root.get_node_or_null("ScreenTransition")
+		if not transition_layer or not transition_layer.has_method("is_transitioning") or not transition_layer.call("is_transitioning"):
+			return
+		await tree.process_frame

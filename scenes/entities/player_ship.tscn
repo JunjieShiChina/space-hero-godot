@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://cyp6c3ws0abr7"]
+
+[ext_resource type="Script" uid="uid://blydwyrv3u6yi" path="res://scripts/entities/player.gd" id="1_twqdq"]
+[ext_resource type="Texture2D" uid="uid://da7duljiw0k00" path="res://assets/sprites/Spaceship_Protagonist - P1.png" id="2_ym7oj"]
+[ext_resource type="PackedScene" path="res://scenes/components/ship_tail_jet.tscn" id="3_fdu8s"]
+
+[node name="Player" type="Area2D" unique_id=1338198903]
+script = ExtResource("1_twqdq")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=713925111]
+texture = ExtResource("2_ym7oj")
+
+[node name="TailJet" parent="Sprite2D" unique_id=702289295 instance=ExtResource("3_fdu8s")]
+position = Vector2(0, 22)
+scale = Vector2(0.48, 0.48)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=2128712851]
+polygon = PackedVector2Array(0, -22, 4.719919, -15.234428, 8, -5, 15, 3, 13.856207, 10.434647, 12, 15, 5, 22, 0, 19, -5, 22, -11, 15, -13.791735, 10.853718, -15, 3, -8, -5, -4.630581, -15.400349)

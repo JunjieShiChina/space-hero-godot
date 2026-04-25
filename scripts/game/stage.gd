@@ -1,19 +1,40 @@
 extends Node2D
 
 @export var stage_number := 1
+@export var camera_path: NodePath = ^"Camera2D"
+@export var background_layer_path: NodePath = ^"BackgroundLayer"
+@export var hud_path: NodePath = ^"BattleHud"
+@export var player_path: NodePath = ^"Player"
+@export var player_start_path: NodePath = ^"PlayerStart"
+@export var shop_drop_manager_path: NodePath = ^"ShopDropManager"
 
-const HudScene := preload("res://scripts/ui/hud.gd")
+const BattleHudScene := preload("res://scenes/ui/battle_hud.tscn")
+const PlayerShipScene := preload("res://scenes/entities/player_ship.tscn")
 const StarfieldScene := preload("res://scenes/components/starfield_particles.tscn")
+const ScrollingBackgroundScene := preload("res://scenes/components/scrolling_background.tscn")
+const BackgroundAsteroidsScene := preload("res://scenes/components/background_asteroids.tscn")
+const ShopDropManagerScene := preload("res://scenes/components/shop_drop_manager.tscn")
+const MeteorScene := preload("res://scenes/entities/meteor.tscn")
+const STAGE_BACKGROUNDS := {
+	1: preload("res://assets/sprites/bkblue.png"),
+	2: preload("res://assets/sprites/Nebula Aqua-Pink.png"),
+	3: preload("res://assets/sprites/Nebula Red.png"),
+}
+const STAGE_BACKGROUND_SCROLL_SPEED := {
+	1: 0.035,
+	2: 0.1,
+	3: 0.1,
+}
 
 var player: PlayerShip
 var hud: BattleHud
 var boss: BossShip
+var shop_drop_manager: Node
 var elapsed := 0.0
 var ship_accum := 0.0
 var ep2_accum := 0.0
 var meteor_enemy_accum := 0.0
 var meteor_accum := 0.0
-var pickup_accum := 0.0
 var rotation_spawned := false
 var small_boss_spawned := false
 var boss_spawned := false
@@ -21,19 +42,19 @@ var warning_sent := false
 var stage_done := false
 
 var configs := {
-	1: {"boss_time": 120.0, "ship_delay": 0.0, "ship_prob": 0.8, "ep2_delay": 10.0, "ep2_prob": 0.6, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.1, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 0.0, "boss": 1},
-	2: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 2},
+	1: {"boss_time": 120.0, "ship_delay": 0.0, "ship_prob": 0.8, "ep2_delay": 10.0, "ep2_prob": 0.6, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.1, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": -1.0, "boss": 1},
+	2: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": 120.0, "boss": 2},
 	3: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 3},
 }
 
 func _ready() -> void:
 	randomize()
 	AudioBus.play_music("stage")
-	_create_camera()
-	_create_background()
-	_create_hud()
-	_create_player()
-	_create_shop()
+	_ensure_camera()
+	_ensure_background()
+	_ensure_hud()
+	_ensure_player()
+	_ensure_shop_drop_manager()
 
 func _process(delta: float) -> void:
 	if stage_done:
@@ -43,11 +64,7 @@ func _process(delta: float) -> void:
 	ep2_accum += delta
 	meteor_enemy_accum += delta
 	meteor_accum += delta
-	pickup_accum += delta
 	var cfg: Dictionary = configs[stage_number]
-	if pickup_accum >= 12:
-		pickup_accum = 0
-		_spawn_pickup()
 	if not warning_sent:
 		_update_enemy_spawns(cfg)
 	if not warning_sent and elapsed >= cfg.boss_time:
@@ -75,48 +92,83 @@ func spawn_shield() -> void:
 	add_child(shield)
 	shield.configure(player)
 
-func _create_camera() -> void:
-	var camera := Camera2D.new()
+func flash_shop_failure() -> void:
+	if hud and hud.has_method("flash_coin_count"):
+		hud.flash_coin_count()
+
+func _ensure_camera() -> void:
+	var camera := get_node_or_null(camera_path) as Camera2D
+	if camera == null:
+		camera = Camera2D.new()
+		camera.name = "Camera2D"
+		add_child(camera)
 	camera.position = DisplaySettings.logical_center()
-	add_child(camera)
 	camera.make_current()
 
-func _create_background() -> void:
-	var background_layer := CanvasLayer.new()
-	background_layer.layer = -100
-	add_child(background_layer)
-	var bg := ColorRect.new()
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color.BLACK
-	background_layer.add_child(bg)
-	var starfield := StarfieldScene.instantiate()
-	starfield.name = "Starfield"
-	background_layer.add_child(starfield)
+func _ensure_background() -> void:
+	var background_layer := get_node_or_null(background_layer_path) as CanvasLayer
+	if background_layer == null:
+		background_layer = CanvasLayer.new()
+		background_layer.name = "BackgroundLayer"
+		background_layer.layer = -100
+		add_child(background_layer)
+	if background_layer.get_node_or_null("ScrollingBackground") == null and background_layer.get_node_or_null("Background") == null:
+		if STAGE_BACKGROUNDS.has(stage_number):
+			var bg := ScrollingBackgroundScene.instantiate()
+			if bg.has_method("configure"):
+				bg.configure(STAGE_BACKGROUNDS[stage_number], float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035)))
+			background_layer.add_child(bg)
+		else:
+			var bg := ColorRect.new()
+			bg.name = "Background"
+			bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+			bg.color = Color.BLACK
+			background_layer.add_child(bg)
+	if background_layer.get_node_or_null("Starfield") == null:
+		var starfield := StarfieldScene.instantiate()
+		starfield.name = "Starfield"
+		starfield.modulate = Color(0.72, 0.86, 1.0, 0.34)
+		if starfield.has_method("configure_scroll"):
+			starfield.configure_scroll(float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035)), Vector2(0.0, -1.0))
+		background_layer.add_child(starfield)
+	if background_layer.get_node_or_null("BackgroundAsteroids") == null:
+		var asteroids := BackgroundAsteroidsScene.instantiate()
+		asteroids.name = "BackgroundAsteroids"
+		background_layer.add_child(asteroids)
 
-func _create_hud() -> void:
-	hud = HudScene.new()
+func _ensure_hud() -> void:
+	hud = get_node_or_null(hud_path) as BattleHud
+	if hud != null:
+		return
+	hud = BattleHudScene.instantiate() as BattleHud
+	hud.name = "BattleHud"
 	add_child(hud)
 
-func _create_player() -> void:
-	player = PlayerShip.new()
-	add_child(player)
+func _ensure_player() -> void:
+	player = get_node_or_null(player_path) as PlayerShip
+	if player == null:
+		player = PlayerShipScene.instantiate() as PlayerShip
+		player.name = "Player"
+		add_child(player)
 	player.stage = self
-	player.global_position = DisplaySettings.to_current(Vector2(960, 900))
-	player.health_changed.connect(hud.set_player_health)
-	player.weapon_changed.connect(hud.refresh)
+	var player_start := get_node_or_null(player_start_path) as Node2D
+	if player_start:
+		player.global_position = DisplaySettings.to_current(player_start.position)
+	elif player.global_position.is_zero_approx():
+		player.global_position = DisplaySettings.to_current(Vector2(960, 900))
+	if hud and not player.health_changed.is_connected(hud.set_player_health):
+		player.health_changed.connect(hud.set_player_health)
+	if hud and not player.weapon_changed.is_connected(hud.refresh):
+		player.weapon_changed.connect(hud.refresh)
 
-func _create_shop() -> void:
-	var goods := [
-		["bullet", 40, "BulletArrow", DisplaySettings.to_current(Vector2(1545, 885))],
-		["bullet", 70, "Bullet3", DisplaySettings.to_current(Vector2(1702.5, 885))],
-		["friend", 90, "", DisplaySettings.to_current(Vector2(1545, 1012.5))],
-		["shield", 110, "", DisplaySettings.to_current(Vector2(1702.5, 1012.5))],
-	]
-	for g in goods:
-		var item := PickupItem.new()
-		add_child(item)
-		item.stage = self
-		item.configure_goods(g[3], g[0], g[1], g[2])
+func _ensure_shop_drop_manager() -> void:
+	shop_drop_manager = get_node_or_null(shop_drop_manager_path)
+	if shop_drop_manager == null:
+		shop_drop_manager = ShopDropManagerScene.instantiate()
+		shop_drop_manager.name = "ShopDropManager"
+		add_child(shop_drop_manager)
+	if "stage" in shop_drop_manager:
+		shop_drop_manager.stage = self
 
 func _update_enemy_spawns(cfg: Dictionary) -> void:
 	if ship_accum >= 1.0:
@@ -133,13 +185,16 @@ func _update_enemy_spawns(cfg: Dictionary) -> void:
 			_spawn_enemy("meteor_enemy")
 	if meteor_accum >= 0.5:
 		meteor_accum = 0
-		if elapsed >= cfg.meteor_delay and randf() <= cfg.meteor_prob:
+		var meteor_delay := float(cfg.get("meteor_delay", -1.0))
+		var meteor_prob := float(cfg.get("meteor_prob", 0.0))
+		if meteor_delay >= 0.0 and meteor_prob > 0.0 and elapsed >= meteor_delay and randf() <= meteor_prob:
 			_spawn_enemy("meteor")
 	if not rotation_spawned and elapsed >= cfg.rotation_delay:
 		rotation_spawned = true
 		if randf() <= cfg.rotation_prob:
 			_spawn_rotation_pair()
-	if not small_boss_spawned and elapsed >= cfg.small_boss_delay:
+	var small_boss_delay := float(cfg.get("small_boss_delay", -1.0))
+	if small_boss_delay >= 0.0 and not small_boss_spawned and elapsed >= small_boss_delay:
 		small_boss_spawned = true
 		_spawn_enemy("small_boss")
 
@@ -151,13 +206,17 @@ func _spawn_enemy(kind: String) -> void:
 	_spawn_enemy_at(kind, Vector2(randf_range(DisplaySettings.scale_value(105), DisplaySettings.scale_value(1815)), DisplaySettings.scale_value(-90)))
 
 func _spawn_enemy_at(kind: String, pos: Vector2) -> void:
-	var enemy := EnemyShip.new()
+	var enemy: EnemyShip
+	if kind == "meteor":
+		enemy = MeteorScene.instantiate() as EnemyShip
+	else:
+		enemy = EnemyShip.new()
 	add_child(enemy)
 	enemy.configure(kind, pos, player)
 	enemy.died.connect(_on_enemy_died)
 
 func _unity_x_to_screen(unity_x: float) -> float:
-	return DisplaySettings.scale_value(960.0 + unity_x * 192.0)
+	return DisplaySettings.scale_value(960.0 + unity_x * 108.0)
 
 func _spawn_boss(id: int) -> void:
 	boss_spawned = true
@@ -167,24 +226,25 @@ func _spawn_boss(id: int) -> void:
 	add_child(boss)
 	boss.configure(id, player, self)
 
-func _spawn_pickup() -> void:
-	var item := PickupItem.new()
-	add_child(item)
-	if randf() < 0.2:
-		item.configure_hp(Vector2(randf_range(DisplaySettings.scale_value(120), DisplaySettings.scale_value(1800)), DisplaySettings.scale_value(-60)))
-	else:
-		var type_name: String = ["coin1", "coin2", "coin3"].pick_random()
-		var value: int = 10 if type_name == "coin1" else 20 if type_name == "coin2" else 30
-		item.configure_coin(type_name, Vector2(randf_range(DisplaySettings.scale_value(120), DisplaySettings.scale_value(1800)), DisplaySettings.scale_value(-60)), value)
-
 func _on_enemy_died(enemy: CombatBody) -> void:
-	if randf() < enemy.coin_drop_chance:
+	if enemy.coin_type != "" and randf() < enemy.coin_drop_chance:
 		var coin := PickupItem.new()
 		add_child(coin)
-		var type_name: String = ["coin1", "coin2", "coin3"].pick_random()
-		var value: int = 10 if type_name == "coin1" else 20 if type_name == "coin2" else 30
-		coin.configure_coin(type_name, enemy.global_position, value)
+		coin.configure_coin(enemy.coin_type, enemy.global_position, _coin_value(enemy.coin_type), _enemy_drop_velocity(enemy))
 	elif randf() < enemy.hp_drop_chance:
 		var hp := PickupItem.new()
 		add_child(hp)
 		hp.configure_hp(enemy.global_position)
+
+func _coin_value(type_name: String) -> int:
+	match type_name:
+		"coin2":
+			return 40
+		"coin3":
+			return 200
+	return 20
+
+func _enemy_drop_velocity(enemy: CombatBody) -> Vector2:
+	if enemy is EnemyShip:
+		return (enemy as EnemyShip).velocity
+	return Vector2.ZERO

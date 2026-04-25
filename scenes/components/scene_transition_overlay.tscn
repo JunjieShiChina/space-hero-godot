@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://space_hero_scene_transition_overlay"]
+
+[ext_resource type="Script" path="res://scripts/ui/scene_transition_overlay.gd" id="1_scene_transition_overlay"]
+
+[node name="ScreenTransition" type="CanvasLayer"]
+layer = 128
+process_mode = 3
+script = ExtResource("1_scene_transition_overlay")
+
+[node name="FadeRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)

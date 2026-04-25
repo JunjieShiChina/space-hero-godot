@@ -14,6 +14,7 @@ const LAYER_SETTINGS := {
 		"color": Color(0.54, 0.66, 0.95, 0.40),
 		"seed": 1207,
 		"twinkle": 0.58,
+		"scroll_multiplier": 0.48,
 	},
 	"MidStars": {
 		"amount": 420,
@@ -27,6 +28,7 @@ const LAYER_SETTINGS := {
 		"color": Color(0.72, 0.84, 1.0, 0.62),
 		"seed": 4913,
 		"twinkle": 0.78,
+		"scroll_multiplier": 0.72,
 	},
 	"BrightStars": {
 		"amount": 150,
@@ -40,6 +42,7 @@ const LAYER_SETTINGS := {
 		"color": Color(0.95, 0.97, 1.0, 0.92),
 		"seed": 8021,
 		"twinkle": 1.0,
+		"scroll_multiplier": 0.95,
 	},
 	"WarmSparks": {
 		"amount": 52,
@@ -53,6 +56,7 @@ const LAYER_SETTINGS := {
 		"color": Color(1.0, 0.88, 0.58, 0.56),
 		"seed": 9511,
 		"twinkle": 0.88,
+		"scroll_multiplier": 0.58,
 	},
 }
 
@@ -64,6 +68,8 @@ const LAYER_SETTINGS := {
 ]
 
 var _last_view_size := Vector2.ZERO
+var _scroll_speed := 0.035
+var _scroll_axis := Vector2(0.0, -1.0)
 
 
 func _ready() -> void:
@@ -81,6 +87,15 @@ func _process(_delta: float) -> void:
 
 func _on_display_settings_changed() -> void:
 	_resize_layers(false)
+	_update_layer_motion()
+
+
+func configure_scroll(speed: float, axis: Vector2 = Vector2(0.0, -1.0)) -> void:
+	_scroll_speed = speed
+	_scroll_axis = axis
+	if particle_layers.is_empty():
+		return
+	_update_layer_motion()
 
 
 func _configure_layers() -> void:
@@ -101,6 +116,7 @@ func _configure_layers() -> void:
 		particles.material = _make_canvas_material()
 		particles.process_material = _make_process_material(settings)
 		particles.emitting = true
+	_update_layer_motion()
 
 
 func _resize_layers(force_restart: bool) -> void:
@@ -111,16 +127,32 @@ func _resize_layers(force_restart: bool) -> void:
 	position = view_size * 0.5
 	for particles in particle_layers:
 		var margin := DisplaySettings.scale_value(BOX_MARGIN)
-		var material := particles.process_material as ParticleProcessMaterial
-		if material == null:
+		var process_material := particles.process_material as ParticleProcessMaterial
+		if process_material == null:
 			continue
-		material.emission_box_extents = Vector3(view_size.x * 0.5 + margin, view_size.y * 0.5 + margin, 1.0)
+		process_material.emission_box_extents = Vector3(view_size.x * 0.5 + margin, view_size.y * 0.5 + margin, 1.0)
 		particles.visibility_rect = Rect2(
 			Vector2(-view_size.x * 0.5 - margin, -view_size.y * 0.5 - margin),
 			view_size + Vector2.ONE * margin * 2.0
 		)
 		if force_restart:
 			particles.restart()
+
+
+func _update_layer_motion() -> void:
+	var visual_axis := -_scroll_axis.normalized()
+	if visual_axis.is_zero_approx():
+		visual_axis = Vector2.DOWN
+	var scroll_pixels_per_second := DisplaySettings.scale_value(maxf(30.0, _scroll_speed * 1500.0))
+	for particles in particle_layers:
+		var settings: Dictionary = LAYER_SETTINGS[particles.name]
+		var process_material := particles.process_material as ParticleProcessMaterial
+		if process_material == null:
+			continue
+		var multiplier := float(settings["scroll_multiplier"])
+		process_material.direction = Vector3(visual_axis.x, visual_axis.y, 0.0).normalized()
+		process_material.initial_velocity_min = scroll_pixels_per_second * multiplier + float(settings["velocity_min"])
+		process_material.initial_velocity_max = scroll_pixels_per_second * (multiplier + 0.22) + float(settings["velocity_max"])
 
 
 func _view_size() -> Vector2:
@@ -131,30 +163,30 @@ func _view_size() -> Vector2:
 
 
 func _make_canvas_material() -> CanvasItemMaterial:
-	var material := CanvasItemMaterial.new()
-	material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-	return material
+	var canvas_material := CanvasItemMaterial.new()
+	canvas_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	return canvas_material
 
 
 func _make_process_material(settings: Dictionary) -> ParticleProcessMaterial:
-	var material := ParticleProcessMaterial.new()
-	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
-	material.emission_box_extents = Vector3(960.0, 540.0, 1.0)
-	material.direction = Vector3(0.06, 1.0, 0.0).normalized()
-	material.spread = float(settings["spread"])
-	material.gravity = Vector3.ZERO
-	material.initial_velocity_min = float(settings["velocity_min"])
-	material.initial_velocity_max = float(settings["velocity_max"])
-	material.scale_min = float(settings["scale_min"])
-	material.scale_max = float(settings["scale_max"])
-	material.color = settings["color"]
-	material.color_ramp = _make_color_ramp(settings["color"], float(settings["twinkle"]))
-	material.scale_curve = _make_scale_curve(float(settings["twinkle"]))
-	material.angular_velocity_min = -12.0
-	material.angular_velocity_max = 12.0
-	material.lifetime_randomness = 0.34
-	material.particle_flag_disable_z = true
-	return material
+	var process_material := ParticleProcessMaterial.new()
+	process_material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	process_material.emission_box_extents = Vector3(960.0, 540.0, 1.0)
+	process_material.direction = Vector3(0.0, 1.0, 0.0)
+	process_material.spread = float(settings["spread"])
+	process_material.gravity = Vector3.ZERO
+	process_material.initial_velocity_min = float(settings["velocity_min"])
+	process_material.initial_velocity_max = float(settings["velocity_max"])
+	process_material.scale_min = float(settings["scale_min"])
+	process_material.scale_max = float(settings["scale_max"])
+	process_material.color = settings["color"]
+	process_material.color_ramp = _make_color_ramp(settings["color"], float(settings["twinkle"]))
+	process_material.scale_curve = _make_scale_curve(float(settings["twinkle"]))
+	process_material.angular_velocity_min = -12.0
+	process_material.angular_velocity_max = 12.0
+	process_material.lifetime_randomness = 0.34
+	process_material.particle_flag_disable_z = true
+	return process_material
 
 
 func _make_color_ramp(base_color: Color, twinkle: float) -> GradientTexture1D:

@@ -1,0 +1,73 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/shop_drop_manager.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/entities/shop_drop_definition.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/entities/shop_item.tscn" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/WyvernHornBow.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bullet6.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/spr_missile.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/friendplane.png" id="7"]
+[ext_resource type="Texture2D" path="res://assets/sprites/PowerUp_HP.png" id="8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png" id="9"]
+
+[node name="ShopDropManager" type="Node2D"]
+script = ExtResource("1")
+item_scene = ExtResource("3")
+drop_interval = 15.0
+drop_speed = 576.0
+unity_x_min = -4.0
+unity_x_max = 4.0
+spawn_y = -192.0
+
+[node name="BulletArrowGoods" type="Node" parent="."]
+script = ExtResource("2")
+product_type = "bullet"
+bullet_type = "BulletArrow"
+price = 60
+icon_texture = ExtResource("4")
+icon_scale = 0.18
+item_scale = 1.0
+
+[node name="Bullet3Goods" type="Node" parent="."]
+script = ExtResource("2")
+product_type = "bullet"
+bullet_type = "Bullet3"
+price = 200
+icon_texture = ExtResource("5")
+icon_scale = 0.16
+item_scale = 1.0
+
+[node name="BulletMissileGoods" type="Node" parent="."]
+script = ExtResource("2")
+product_type = "bullet"
+bullet_type = "BulletMissile"
+price = 180
+icon_texture = ExtResource("6")
+icon_scale = 0.62
+item_scale = 1.0
+
+[node name="FriendGoods" type="Node" parent="."]
+script = ExtResource("2")
+product_type = "friend"
+price = 320
+icon_texture = ExtResource("7")
+icon_scale = 0.88
+item_scale = 1.0
+
+[node name="ShieldGoods" type="Node" parent="."]
+script = ExtResource("2")
+product_type = "shield"
+price = 360
+icon_texture = ExtResource("8")
+icon_scale = 0.38
+item_scale = 1.0
+
+[node name="BulletFollowGoods" type="Node" parent="."]
+script = ExtResource("2")
+product_type = "bullet"
+bullet_type = "FollowBullet"
+price = 200
+icon_texture = ExtResource("9")
+icon_region = Rect2(96, 48, 16, 16)
+icon_scale = 2.0
+item_scale = 1.0

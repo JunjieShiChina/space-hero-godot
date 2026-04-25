@@ -8,8 +8,9 @@ var max_health := 100.0
 var health := 100.0
 var contact_damage := 30.0
 var stat_key := ""
-var coin_drop_chance := 0.35
-var hp_drop_chance := 0.03
+var coin_drop_chance := 0.4
+var coin_type := "coin1"
+var hp_drop_chance := 0.02
 var dead := false
 var retired := false
 
@@ -17,6 +18,7 @@ const GAMEPLAY_ENTITY_SCALE := 0.62
 const PLAYER_VISUAL_TARGET := 68.0
 const ENEMY_VISUAL_TARGET := 56.0
 const BOSS_VISUAL_TARGET := 150.0
+const ShipExplosionScene := preload("res://scenes/components/ship_explosion.tscn")
 
 @onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
 
@@ -42,13 +44,7 @@ func setup(texture_path: String, radius: float, body_team: String, hp: float) ->
 		var size := sprite.texture.get_size()
 		if size.x > 0:
 			sprite.scale = Vector2.ONE * (target / max(size.x, size.y))
-	if get_node_or_null("CollisionShape2D") == null:
-		var shape_node := CollisionShape2D.new()
-		shape_node.name = "CollisionShape2D"
-		shape_node.shape = CircleShape2D.new()
-		add_child(shape_node)
-	var shape := get_node("CollisionShape2D") as CollisionShape2D
-	(shape.shape as CircleShape2D).radius = DisplaySettings.scale_value(radius * GAMEPLAY_ENTITY_SCALE)
+	_configure_collision(texture_path, radius, hp)
 	if not area_entered.is_connected(_on_area_entered):
 		area_entered.connect(_on_area_entered)
 
@@ -94,20 +90,13 @@ func _flash_hit() -> void:
 	tween.tween_property(sprite, "modulate", Color.WHITE, 0.12)
 
 func _spawn_burst() -> void:
-	var burst := CPUParticles2D.new()
-	burst.amount = 18
-	burst.lifetime = 0.45
-	burst.one_shot = true
-	burst.explosiveness = 1.0
-	burst.initial_velocity_min = 105
-	burst.initial_velocity_max = 255
-	burst.scale_amount_min = 3
-	burst.scale_amount_max = 6
-	burst.color = Color(1.0, 0.55, 0.18)
-	_spawn_parent().add_child(burst)
-	burst.global_position = global_position
-	burst.emitting = true
-	burst.finished.connect(burst.queue_free)
+	var explosion := ShipExplosionScene.instantiate() as Node2D
+	_spawn_parent().add_child(explosion)
+	explosion.global_position = global_position
+	if max_health >= 800.0:
+		explosion.scale = Vector2.ONE * 1.75
+	elif team == "player":
+		explosion.scale = Vector2.ONE * 1.12
 
 func _retire() -> void:
 	if is_queued_for_deletion() or retired:
@@ -118,6 +107,9 @@ func _retire() -> void:
 	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if collision:
 		collision.set_deferred("disabled", true)
+	var polygon := get_node_or_null("CollisionPolygon2D") as CollisionPolygon2D
+	if polygon:
+		polygon.set_deferred("disabled", true)
 	visible = false
 	set_process(false)
 	set_physics_process(false)
@@ -127,3 +119,136 @@ func _emit_died_signal() -> void:
 
 func _spawn_parent() -> Node:
 	return get_tree().current_scene if get_tree().current_scene else get_tree().root
+
+func _configure_collision(texture_path: String, radius: float, hp: float) -> void:
+	var round_collision := _uses_round_collision(texture_path)
+	var shape_node := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	var polygon_node := get_node_or_null("CollisionPolygon2D") as CollisionPolygon2D
+	if round_collision:
+		if polygon_node:
+			polygon_node.free()
+		if shape_node == null:
+			shape_node = CollisionShape2D.new()
+			shape_node.name = "CollisionShape2D"
+			add_child(shape_node)
+		if shape_node.shape == null or not shape_node.shape is CircleShape2D:
+			shape_node.shape = CircleShape2D.new()
+		(shape_node.shape as CircleShape2D).radius = DisplaySettings.scale_value(radius * GAMEPLAY_ENTITY_SCALE)
+		shape_node.position = Vector2.ZERO
+		shape_node.disabled = false
+		return
+	if shape_node:
+		shape_node.free()
+	if polygon_node == null:
+		polygon_node = CollisionPolygon2D.new()
+		polygon_node.name = "CollisionPolygon2D"
+		add_child(polygon_node)
+	polygon_node.position = Vector2.ZERO
+	polygon_node.rotation = 0.0
+	polygon_node.scale = Vector2.ONE
+	polygon_node.polygon = _ship_collision_polygon(texture_path, hp)
+	polygon_node.disabled = false
+
+func _uses_round_collision(texture_path: String) -> bool:
+	var lower := texture_path.to_lower()
+	return lower.contains("meteor") or lower.contains("quadshot")
+
+func _ship_collision_polygon(texture_path: String, hp: float) -> PackedVector2Array:
+	var size := _current_sprite_size()
+	var lower := texture_path.to_lower()
+	if hp >= 800.0:
+		return _boss_collision_polygon(size)
+	if team == "player":
+		return _player_collision_polygon(size)
+	if lower.contains("dualshot"):
+		return _wide_enemy_collision_polygon(size)
+	if lower.contains("arcshot"):
+		return _dive_enemy_collision_polygon(size)
+	return _single_enemy_collision_polygon(size)
+
+func _current_sprite_size() -> Vector2:
+	if sprite == null or sprite.texture == null:
+		return Vector2.ONE * DisplaySettings.scale_value(60.0)
+	return sprite.texture.get_size() * sprite.scale
+
+func _player_collision_polygon(size: Vector2) -> PackedVector2Array:
+	var half_w := size.x * 0.5
+	var half_h := size.y * 0.5
+	return PackedVector2Array([
+		Vector2(0.0, -half_h * 0.96),
+		Vector2(half_w * 0.28, -half_h * 0.45),
+		Vector2(half_w * 0.82, half_h * 0.08),
+		Vector2(half_w * 0.52, half_h * 0.62),
+		Vector2(half_w * 0.18, half_h * 0.88),
+		Vector2(0.0, half_h * 0.78),
+		Vector2(-half_w * 0.18, half_h * 0.88),
+		Vector2(-half_w * 0.52, half_h * 0.62),
+		Vector2(-half_w * 0.82, half_h * 0.08),
+		Vector2(-half_w * 0.28, -half_h * 0.45),
+	])
+
+func _single_enemy_collision_polygon(size: Vector2) -> PackedVector2Array:
+	var half_w := size.x * 0.5
+	var half_h := size.y * 0.5
+	return PackedVector2Array([
+		Vector2(0.0, -half_h * 0.92),
+		Vector2(half_w * 0.34, -half_h * 0.22),
+		Vector2(half_w * 0.88, half_h * 0.2),
+		Vector2(half_w * 0.42, half_h * 0.58),
+		Vector2(half_w * 0.18, half_h * 0.88),
+		Vector2(0.0, half_h * 0.7),
+		Vector2(-half_w * 0.18, half_h * 0.88),
+		Vector2(-half_w * 0.42, half_h * 0.58),
+		Vector2(-half_w * 0.88, half_h * 0.2),
+		Vector2(-half_w * 0.34, -half_h * 0.22),
+	])
+
+func _wide_enemy_collision_polygon(size: Vector2) -> PackedVector2Array:
+	var half_w := size.x * 0.5
+	var half_h := size.y * 0.5
+	return PackedVector2Array([
+		Vector2(0.0, -half_h * 0.9),
+		Vector2(half_w * 0.28, -half_h * 0.28),
+		Vector2(half_w * 0.94, -half_h * 0.04),
+		Vector2(half_w * 0.72, half_h * 0.36),
+		Vector2(half_w * 0.28, half_h * 0.54),
+		Vector2(half_w * 0.1, half_h * 0.86),
+		Vector2(0.0, half_h * 0.68),
+		Vector2(-half_w * 0.1, half_h * 0.86),
+		Vector2(-half_w * 0.28, half_h * 0.54),
+		Vector2(-half_w * 0.72, half_h * 0.36),
+		Vector2(-half_w * 0.94, -half_h * 0.04),
+		Vector2(-half_w * 0.28, -half_h * 0.28),
+	])
+
+func _dive_enemy_collision_polygon(size: Vector2) -> PackedVector2Array:
+	var half_w := size.x * 0.5
+	var half_h := size.y * 0.5
+	return PackedVector2Array([
+		Vector2(0.0, -half_h * 0.96),
+		Vector2(half_w * 0.22, -half_h * 0.42),
+		Vector2(half_w * 0.78, -half_h * 0.04),
+		Vector2(half_w * 0.64, half_h * 0.42),
+		Vector2(half_w * 0.18, half_h * 0.72),
+		Vector2(0.0, half_h * 0.92),
+		Vector2(-half_w * 0.18, half_h * 0.72),
+		Vector2(-half_w * 0.64, half_h * 0.42),
+		Vector2(-half_w * 0.78, -half_h * 0.04),
+		Vector2(-half_w * 0.22, -half_h * 0.42),
+	])
+
+func _boss_collision_polygon(size: Vector2) -> PackedVector2Array:
+	var half_w := size.x * 0.5
+	var half_h := size.y * 0.5
+	return PackedVector2Array([
+		Vector2(0.0, -half_h * 0.92),
+		Vector2(half_w * 0.45, -half_h * 0.55),
+		Vector2(half_w * 0.96, -half_h * 0.08),
+		Vector2(half_w * 0.82, half_h * 0.36),
+		Vector2(half_w * 0.36, half_h * 0.72),
+		Vector2(0.0, half_h * 0.92),
+		Vector2(-half_w * 0.36, half_h * 0.72),
+		Vector2(-half_w * 0.82, half_h * 0.36),
+		Vector2(-half_w * 0.96, -half_h * 0.08),
+		Vector2(-half_w * 0.45, -half_h * 0.55),
+	])

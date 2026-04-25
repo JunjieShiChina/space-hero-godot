@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/effects/scrolling_background.gd" id="1_6hwx3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bkblue.png" id="2_r51va"]
+
+[node name="ScrollingBackground" type="TextureRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_r51va")
+script = ExtResource("1_6hwx3")
+scroll_texture = ExtResource("2_r51va")

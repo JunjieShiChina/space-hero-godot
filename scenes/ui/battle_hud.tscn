@@ -1,0 +1,59 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_mg2r8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Blue.png" id="2_083er"]
+[ext_resource type="Texture2D" path="res://assets/sprites/friendplane.png" id="3_s1ufe"]
+[ext_resource type="PackedScene" path="res://scenes/ui/coin_hud_icon.tscn" id="4_lyflv"]
+[ext_resource type="Script" path="res://scripts/ui/pixel_number_display.gd" id="5_lm6aj"]
+
+[node name="BattleHud" type="CanvasLayer"]
+script = ExtResource("1_mg2r8")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Health" type="Sprite2D" parent="Root"]
+
+[node name="Slot0" type="Sprite2D" parent="Root"]
+texture = ExtResource("2_083er")
+modulate = Color(0.55, 1, 1, 0.86)
+
+[node name="SlotIcon0" type="Sprite2D" parent="Root"]
+
+[node name="Slot1" type="Sprite2D" parent="Root"]
+texture = ExtResource("2_083er")
+modulate = Color(0.55, 1, 1, 0.86)
+
+[node name="SlotIcon1" type="Sprite2D" parent="Root"]
+
+[node name="Slot2" type="Sprite2D" parent="Root"]
+texture = ExtResource("2_083er")
+modulate = Color(0.55, 1, 1, 0.86)
+
+[node name="SlotIcon2" type="Sprite2D" parent="Root"]
+
+[node name="SlotFrame" type="Panel" parent="Root"]
+
+[node name="FriendIcon" type="Sprite2D" parent="Root"]
+texture = ExtResource("3_s1ufe")
+
+[node name="FriendCount" type="Node2D" parent="Root"]
+script = ExtResource("5_lm6aj")
+text = "0/2"
+
+[node name="CoinIcon" parent="Root" instance=ExtResource("4_lyflv")]
+
+[node name="CoinCount" type="Node2D" parent="Root"]
+script = ExtResource("5_lm6aj")
+
+[node name="BossBar" type="ProgressBar" parent="Root"]
+visible = false
+max_value = 1.0
+
+[node name="Warning" type="Label" parent="Root"]
+horizontal_alignment = 1

@@ -101,6 +101,7 @@ var selected := 0
 var rock_rng := RandomNumberGenerator.new()
 var confirm_active := false
 var confirm_timer := 0.0
+var navigation_requested := false
 var anim_time := 0.0
 
 
@@ -123,6 +124,8 @@ func _process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if navigation_requested:
+		return
 	if event.is_action_pressed("move_up"):
 		selected = max(0, selected - 1)
 		AudioBus.play_sfx("select")
@@ -252,6 +255,7 @@ func _update_item_flash(delta: float) -> void:
 		var pulse := (1.0 - cos(anim_time * 34.0)) * 0.5
 		items[selected].modulate = Color(1.0, 1.0, 1.0, lerp(ITEM_CONFIRM_MIN_ALPHA, 1.0, pulse))
 		if confirm_timer <= 0.0:
+			navigation_requested = true
 			SceneFlow.start_new_game()
 		return
 	for index in items.size():
@@ -263,6 +267,8 @@ func _update_item_flash(delta: float) -> void:
 
 
 func _start_confirm_flash() -> void:
+	if navigation_requested:
+		return
 	confirm_active = true
 	confirm_timer = 1.5
 	AudioBus.play_sfx("game_start", 0.0)

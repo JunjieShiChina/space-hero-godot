@@ -1,6 +1,33 @@
-[gd_scene load_steps=2 format=3 uid="uid://wts3pnqmm6cj"]
+[gd_scene format=3 uid="uid://wts3pnqmm6cj"]
 
 [ext_resource type="Script" uid="uid://dl0xjhdmc30f6" path="res://scripts/game/stage.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/components/scrolling_background.tscn" id="2_oh1tq"]
+[ext_resource type="PackedScene" path="res://scenes/components/starfield_particles.tscn" id="3_8ycmi"]
+[ext_resource type="PackedScene" path="res://scenes/ui/battle_hud.tscn" id="4_3soqk"]
+[ext_resource type="PackedScene" path="res://scenes/entities/player_ship.tscn" id="5_r2qk8"]
+[ext_resource type="PackedScene" path="res://scenes/components/shop_drop_manager.tscn" id="6_wx4jp"]
 
-[node name="Stage1" type="Node2D"]
+[node name="Stage1" type="Node2D" unique_id=1898984850]
 script = ExtResource("1")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1927170630]
+position = Vector2(960, 540)
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=1190010123]
+layer = -100
+
+[node name="ScrollingBackground" parent="BackgroundLayer" unique_id=1583694614 instance=ExtResource("2_oh1tq")]
+
+[node name="Starfield" parent="BackgroundLayer" unique_id=235219006 instance=ExtResource("3_8ycmi")]
+modulate = Color(0.72, 0.86, 1, 0.34)
+
+[node name="BattleHud" parent="." unique_id=1063357184 instance=ExtResource("4_3soqk")]
+
+[node name="PlayerStart" type="Marker2D" parent="." unique_id=219181187]
+position = Vector2(960, 900)
+
+[node name="Player" parent="." unique_id=1120350645 instance=ExtResource("5_r2qk8")]
+position = Vector2(960, 900)
+debug_invincible = true
+
+[node name="ShopDropManager" parent="." unique_id=305462302 instance=ExtResource("6_wx4jp")]

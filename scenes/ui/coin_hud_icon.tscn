@@ -1,0 +1,69 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/gdb-coinsgemsetc-1.png" id="1_sx4e2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coin_0"]
+atlas = ExtResource("1_sx4e2")
+region = Rect2(16, 113, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coin_1"]
+atlas = ExtResource("1_sx4e2")
+region = Rect2(32, 113, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coin_2"]
+atlas = ExtResource("1_sx4e2")
+region = Rect2(48, 113, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coin_3"]
+atlas = ExtResource("1_sx4e2")
+region = Rect2(64, 113, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coin_4"]
+atlas = ExtResource("1_sx4e2")
+region = Rect2(80, 113, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coin_5"]
+atlas = ExtResource("1_sx4e2")
+region = Rect2(96, 113, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_coin_6"]
+atlas = ExtResource("1_sx4e2")
+region = Rect2(112, 113, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_coin_shine"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_coin_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_coin_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_coin_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_coin_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_coin_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_coin_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_coin_6")
+}],
+"loop": true,
+"name": &"shine",
+"speed": 7.0
+}]
+
+[node name="CoinHudIcon" type="Node2D"]
+texture_filter = 1
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_coin_shine")
+animation = &"shine"
+autoplay = "shine"

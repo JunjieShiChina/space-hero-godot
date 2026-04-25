@@ -1,7 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://space_hero_stage_3"]
+[gd_scene load_steps=3 format=3 uid="uid://space_hero_stage_3"]
 
 [ext_resource type="Script" path="res://scripts/game/stage.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/components/shop_drop_manager.tscn" id="2_ubxwy"]
 
 [node name="Stage3" type="Node2D"]
 script = ExtResource("1")
 stage_number = 3
+
+[node name="ShopDropManager" parent="." instance=ExtResource("2_ubxwy")]

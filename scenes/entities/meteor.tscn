@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://djjnrn4cvbn88"]
+
+[ext_resource type="Script" uid="uid://b7lmmp8mv31po" path="res://scripts/entities/enemy.gd" id="1_dsuoc"]
+[ext_resource type="Texture2D" uid="uid://jb6fg7v60780" path="res://assets/sprites/meteor0001.png" id="2_6lehe"]
+[ext_resource type="Texture2D" uid="uid://c2iqry4otkpnk" path="res://assets/sprites/meteor0002.png" id="3_6b35h"]
+[ext_resource type="Texture2D" uid="uid://byky8r5kc2s1e" path="res://assets/sprites/meteor0003.png" id="4_io4l2"]
+[ext_resource type="Texture2D" uid="uid://7msarv62ix7g" path="res://assets/sprites/meteor0004.png" id="5_pkkly"]
+[ext_resource type="Texture2D" uid="uid://dxoosded8vdt3" path="res://assets/sprites/meteor0005.png" id="6_arhxt"]
+[ext_resource type="Texture2D" uid="uid://v7xnunyntsin" path="res://assets/sprites/meteor0006.png" id="7_5jqpy"]
+[ext_resource type="Texture2D" uid="uid://bhuh0ngtesdth" path="res://assets/sprites/meteor0007.png" id="8_tgq2h"]
+[ext_resource type="Texture2D" uid="uid://ksqp6p7i72rs" path="res://assets/sprites/meteor0008.png" id="9_2hmsj"]
+[ext_resource type="Texture2D" uid="uid://cck0qea2lu426" path="res://assets/sprites/meteor0009.png" id="10_vc4wq"]
+[ext_resource type="Texture2D" uid="uid://mep6w5hb61yc" path="res://assets/sprites/meteor0010.png" id="11_xqcsf"]
+[ext_resource type="Texture2D" uid="uid://qtfj34nh0fbg" path="res://assets/sprites/meteor0011.png" id="12_ji7ui"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6mh61"]
+radius = 49.0
+
+[sub_resource type="Animation" id="Animation_meteor_burn"]
+resource_name = "meteor_burn"
+length = 0.9166667
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0833333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333, 0.666667, 0.75, 0.833333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("2_6lehe"), ExtResource("3_6b35h"), ExtResource("4_io4l2"), ExtResource("5_pkkly"), ExtResource("6_arhxt"), ExtResource("7_5jqpy"), ExtResource("8_tgq2h"), ExtResource("9_2hmsj"), ExtResource("10_vc4wq"), ExtResource("11_xqcsf"), ExtResource("12_ji7ui")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_meteor"]
+_data = {
+&"meteor_burn": SubResource("Animation_meteor_burn")
+}
+
+[node name="Meteor" type="Area2D" unique_id=1534962555]
+script = ExtResource("1_dsuoc")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=22307930]
+texture = ExtResource("7_5jqpy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=651229940]
+position = Vector2(-1, 119)
+shape = SubResource("CircleShape2D_6mh61")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=296134918]
+libraries/ = SubResource("AnimationLibrary_meteor")
+autoplay = &"meteor_burn"

@@ -12,7 +12,7 @@ var coin_count := 0
 var current_stage_index := 0
 var player_health := 200.0
 var max_health := 200.0
-var bullet_slots := ["Bullet1", "EMPTY", "EMPTY"]
+var bullet_slots := ["EMPTY", "EMPTY", "EMPTY"]
 var current_bullet_index := 0
 var friend_plane_count := 0
 var friend_plane_limit := 2
@@ -25,7 +25,7 @@ func reset_run() -> void:
 	coin_count = 0
 	current_stage_index = 0
 	player_health = max_health
-	bullet_slots = ["Bullet1", "EMPTY", "EMPTY"]
+	bullet_slots = ["EMPTY", "EMPTY", "EMPTY"]
 	current_bullet_index = 0
 	friend_plane_count = 0
 	stats = {

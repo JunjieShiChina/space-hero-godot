@@ -4,6 +4,14 @@ class_name PlayerShip
 signal health_changed(current: float, max_value: float)
 signal weapon_changed
 
+const DEBUG_INVINCIBLE_SETTING := "space_hero/debug/player_invincible"
+const MOVE_BOUND_LEFT := 34.0
+const MOVE_BOUND_RIGHT := 1886.0
+const MOVE_BOUND_TOP := 48.0
+const MOVE_BOUND_BOTTOM := 1032.0
+
+@export var debug_invincible := false
+
 var speed := 645.0
 var fire_timer := 0.0
 var mouse_drag := false
@@ -31,37 +39,48 @@ func _process(delta: float) -> void:
 		weapon_changed.emit()
 
 func take_damage(amount: float) -> void:
+	if is_invincible():
+		return
 	super.take_damage(amount)
 	GameData.player_health = max(0.0, health)
 	health_changed.emit(health, max_health)
+
+func is_invincible() -> bool:
+	return debug_invincible or bool(ProjectSettings.get_setting(DEBUG_INVINCIBLE_SETTING, false))
 
 func shoot_current_weapon() -> void:
 	var bullet_type := GameData.current_bullet()
 	var interval: float = SpaceBullet.bullet_info(bullet_type).interval
 	fire_timer = interval
-	_fire_pattern(bullet_type, global_position + DisplaySettings.to_current(Vector2(0, -34)), Vector2.UP, "player")
+	_fire_pattern(bullet_type, global_position, Vector2.UP, "player")
 	for i in min(GameData.friend_plane_count, friends.size()):
-		_fire_pattern(bullet_type, friends[i].global_position + DisplaySettings.to_current(Vector2(0, -24)), Vector2.UP, "player")
+		_fire_pattern(bullet_type, friends[i].global_position, Vector2.UP, "player")
 	var sfx_key: String = SpaceBullet.bullet_info(bullet_type).sfx
 	AudioBus.play_sfx(sfx_key, -12.0)
 
 func _fire_pattern(bullet_type: String, origin: Vector2, direction: Vector2, team_name: String) -> void:
 	match bullet_type:
 		"BulletArrow":
-			for angle in [-24.0, 0.0, 24.0]:
-				_spawn_bullet(bullet_type, origin, direction.rotated(deg_to_rad(angle)), team_name)
+			_spawn_bullet(bullet_type, origin + _shot_offset(Vector2(-34, -68)), Vector2(-1, -1).normalized(), team_name)
+			_spawn_bullet(bullet_type, origin + _shot_offset(Vector2(0, -68)), direction, team_name)
+			_spawn_bullet(bullet_type, origin + _shot_offset(Vector2(34, -68)), Vector2(1, -1).normalized(), team_name)
 		"Bullet3":
-			for offset in [-36.0, 0.0, 36.0]:
-				_spawn_bullet(bullet_type, origin + Vector2(DisplaySettings.scale_value(offset), 0), direction, team_name)
+			for offset in [-14.0, 0.0, 14.0]:
+				_spawn_bullet(bullet_type, origin + _shot_offset(Vector2(offset, -34)), direction, team_name)
 		"BulletLaser":
-			_spawn_bullet(bullet_type, origin + DisplaySettings.to_current(Vector2(0, -225)), direction, team_name)
+			_spawn_bullet(bullet_type, origin + _shot_offset(Vector2(0, -34)), direction, team_name)
+		"Bullet2":
+			_spawn_bullet(bullet_type, origin + _shot_offset(Vector2(0, -68)), direction, team_name)
 		_:
-			_spawn_bullet(bullet_type, origin, direction, team_name)
+			_spawn_bullet(bullet_type, origin + _shot_offset(Vector2(0, -34)), direction, team_name)
 
 func _spawn_bullet(type_name: String, origin: Vector2, direction: Vector2, team_name: String) -> void:
 	var bullet := SpaceBullet.new()
 	_spawn_parent().add_child(bullet)
 	bullet.setup(type_name, team_name, origin, direction)
+
+func _shot_offset(design_offset: Vector2) -> Vector2:
+	return DisplaySettings.to_current(design_offset)
 
 func _move(delta: float) -> void:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
@@ -75,8 +94,8 @@ func _move(delta: float) -> void:
 		mouse_drag = false
 	var input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	global_position += input * DisplaySettings.scale_value(speed) * delta
-	global_position.x = clamp(global_position.x, DisplaySettings.scale_value(75.0), DisplaySettings.scale_value(1845.0))
-	global_position.y = clamp(global_position.y, DisplaySettings.scale_value(135.0), DisplaySettings.scale_value(990.0))
+	global_position.x = clamp(global_position.x, DisplaySettings.scale_value(MOVE_BOUND_LEFT), DisplaySettings.scale_value(MOVE_BOUND_RIGHT))
+	global_position.y = clamp(global_position.y, DisplaySettings.scale_value(MOVE_BOUND_TOP), DisplaySettings.scale_value(MOVE_BOUND_BOTTOM))
 
 func sync_friends() -> void:
 	while friends.size() < GameData.friend_plane_count:

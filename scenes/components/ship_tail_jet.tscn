@@ -1,4 +1,113 @@
-[gd_scene format=3]
+[gd_scene load_steps=4 format=3]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Animation" id="Animation_jet_pulse"]
+resource_name = "jet_pulse"
+length = 0.58
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("OuterJet:polygon")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.25, 0.41, 0.58),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [PackedVector2Array(-11, 0, 11, 0, 6, 5, 3, 13, 0, 24, -3, 13, -6, 5), PackedVector2Array(-11.4, 0, 11.4, 0, 6.3, 5, 3.2, 15, 0, 30, -3.2, 15, -6.3, 5), PackedVector2Array(-10.6, 0, 10.6, 0, 5.7, 5, 2.7, 11.5, 0, 18, -2.7, 11.5, -5.7, 5), PackedVector2Array(-11.2, 0, 11.2, 0, 6.1, 5, 3.1, 14, 0, 27, -3.1, 14, -6.1, 5), PackedVector2Array(-11, 0, 11, 0, 6, 5, 3, 13, 0, 24, -3, 13, -6, 5)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("MidJet:polygon")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.27, 0.43, 0.58),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [PackedVector2Array(-7, 0, 7, 0, 4, 5, 1.8, 12, 0, 19, -1.8, 12, -4, 5), PackedVector2Array(-7.5, 0, 7.5, 0, 4.4, 5, 2.1, 14, 0, 25, -2.1, 14, -4.4, 5), PackedVector2Array(-6.4, 0, 6.4, 0, 3.5, 5, 1.4, 10, 0, 14, -1.4, 10, -3.5, 5), PackedVector2Array(-7.2, 0, 7.2, 0, 4.1, 5, 1.9, 13, 0, 22, -1.9, 13, -4.1, 5), PackedVector2Array(-7, 0, 7, 0, 4, 5, 1.8, 12, 0, 19, -1.8, 12, -4, 5)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("CoreJet:polygon")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.25, 0.41, 0.58),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [PackedVector2Array(-3.5, 0, 3.5, 0, 1.8, 5, 0, 13, -1.8, 5), PackedVector2Array(-4.1, 0, 4.1, 0, 2.2, 5, 0, 18, -2.2, 5), PackedVector2Array(-3.1, 0, 3.1, 0, 1.5, 5, 0, 10, -1.5, 5), PackedVector2Array(-3.8, 0, 3.8, 0, 2, 5, 0, 16, -2, 5), PackedVector2Array(-3.5, 0, 3.5, 0, 1.8, 5, 0, 13, -1.8, 5)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("BlueJetParticles:amount")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.25, 0.41, 0.58),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [22, 34, 20, 30, 22]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("BlueJetParticles:initial_velocity_max")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.25, 0.41, 0.58),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [58.0, 82.0, 54.0, 76.0, 58.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("IonMist:amount")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.25, 0.41, 0.58),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [8, 15, 7, 13, 8]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("CoreJet:modulate")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.25, 0.41, 0.58),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0.78), Color(1, 1, 1, 1), Color(1, 1, 1, 0.62), Color(1, 1, 1, 0.9), Color(1, 1, 1, 0.78)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("OuterJet:modulate")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.25, 0.41, 0.58),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0.72), Color(1, 1, 1, 0.95), Color(1, 1, 1, 0.56), Color(1, 1, 1, 0.84), Color(1, 1, 1, 0.72)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ship_tail"]
+_data = {
+"jet_pulse": SubResource("Animation_jet_pulse")
+}
 
 [node name="ShipTailJet" type="Node2D"]
 z_index = 2
@@ -19,19 +128,20 @@ polygon = PackedVector2Array(-3.5, 0, 3.5, 0, 1.8, 5, 0, 13, -1.8, 5)
 vertex_colors = PackedColorArray(0.38, 0.9, 1, 0.9, 0.38, 0.9, 1, 0.9, 0.32, 0.66, 1, 0.72, 1, 0.38, 0.1, 0.72, 0.32, 0.66, 1, 0.72)
 
 [node name="BlueJetParticles" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
 emitting = true
-amount = 22
-lifetime = 0.13
-preprocess = 0.13
+amount = 26
+lifetime = 0.14
+preprocess = 0.14
 speed_scale = 1.0
-randomness = 0.18
-lifetime_randomness = 0.25
+randomness = 0.24
+lifetime_randomness = 0.32
 local_coords = true
 direction = Vector2(0, 1)
 spread = 8.0
 gravity = Vector2(0, 0)
-initial_velocity_min = 44.0
-initial_velocity_max = 62.0
+initial_velocity_min = 42.0
+initial_velocity_max = 66.0
 damping_min = 150.0
 damping_max = 210.0
 scale_amount_min = 0.8
@@ -39,6 +149,7 @@ scale_amount_max = 1.5
 color = Color(0.3, 0.82, 1, 0.55)
 
 [node name="IonMist" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
 emitting = true
 amount = 12
 lifetime = 0.16
@@ -58,23 +169,8 @@ scale_amount_min = 1.1
 scale_amount_max = 2.0
 color = Color(0.4, 0.18, 1, 0.22)
 
-[node name="RedTailParticles" type="CPUParticles2D" parent="."]
-position = Vector2(0, 12)
-emitting = true
-amount = 10
-lifetime = 0.12
-preprocess = 0.12
-speed_scale = 1.0
-randomness = 0.35
-lifetime_randomness = 0.45
-local_coords = true
-direction = Vector2(0, 1)
-spread = 20.0
-gravity = Vector2(0, 0)
-initial_velocity_min = 16.0
-initial_velocity_max = 32.0
-damping_min = 120.0
-damping_max = 190.0
-scale_amount_min = 0.8
-scale_amount_max = 1.5
-color = Color(1, 0.2, 0.06, 0.48)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_ship_tail")
+}
+autoplay = "jet_pulse"
