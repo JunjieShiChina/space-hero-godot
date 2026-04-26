@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://brydlriskaajn"]
+
+[ext_resource type="Script" uid="uid://cmpgctq5dqxgy" path="res://scripts/entities/bullet.gd" id="1_bullet"]
+[ext_resource type="Texture2D" uid="uid://bme7ghewhj5ru" path="res://assets/sprites/bullet5.png" id="2_texture"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bullet_1"]
+radius = 2.0
+height = 16.0
+
+[node name="Bullet1" type="Area2D" unique_id=593142359]
+texture_filter = 1
+script = ExtResource("1_bullet")
+use_scene_template = true
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1534224283]
+scale = Vector2(0.58, 0.58)
+texture = ExtResource("2_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1185239180]
+position = Vector2(-0.5, 1)
+shape = SubResource("CapsuleShape2D_bullet_1")

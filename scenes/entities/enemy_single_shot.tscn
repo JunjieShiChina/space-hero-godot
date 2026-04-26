@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://ci2gijcktbovg"]
+
+[ext_resource type="Script" uid="uid://b7lmmp8mv31po" path="res://scripts/entities/enemy.gd" id="1_enemy"]
+[ext_resource type="Texture2D" uid="uid://dvqw574exfk7j" path="res://assets/sprites/Spaceship_Enemy - SingleShot.png" id="2_texture"]
+
+[node name="EnemySingleShot" type="Area2D" unique_id=615488802]
+script = ExtResource("1_enemy")
+random_velocity_x_design = Vector2(-324, 324)
+random_velocity_y_design = Vector2(108, 324)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1948845141]
+texture = ExtResource("2_texture")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=1192194180]
+polygon = PackedVector2Array(0, -19, 9.52, -5.24, 20, -2, 20, 2, 10, 14, 3, 17, 0, 16.66, -4, 17, -9, 15, -20, 2, -20, -2, -9.52, -5.24)

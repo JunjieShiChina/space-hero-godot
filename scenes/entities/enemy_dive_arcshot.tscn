@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://dx0dfnqresgm7"]
+
+[ext_resource type="Script" uid="uid://b7lmmp8mv31po" path="res://scripts/entities/enemy.gd" id="1_enemy"]
+[ext_resource type="Texture2D" uid="uid://goi5akd30plh" path="res://assets/sprites/Spaceship_Enemy - ArcShot.png" id="2_texture"]
+[ext_resource type="PackedScene" path="res://scenes/components/enemy_fire_tail.tscn" id="3_tail"]
+
+[node name="EnemyDiveArcShot" type="Area2D" unique_id=1615646944]
+script = ExtResource("1_enemy")
+enemy_kind = "meteor_enemy"
+enemy_health = 20.0
+collision_radius = 28.0
+statistic_key = "meteor_enemy"
+random_velocity_y_design = Vector2(540, 1080)
+ai_mode = "meteor_enemy"
+starting_bullet_type = "Bullet1"
+starting_shoot_interval = 0.0
+starting_coin_type = "coin3"
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1358626680]
+texture = ExtResource("2_texture")
+
+[node name="FireTail" parent="Sprite2D" unique_id=1740539861 instance=ExtResource("3_tail")]
+position = Vector2(0, 22)
+rotation = 3.14159
+scale = Vector2(1.05, 1.05)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=661165329]
+polygon = PackedVector2Array(-8, -17, 8, -17, 8, -5, 25, -5, 25, 4, 14, 17, 12, 15, -8, 15, -14, 17, -25, 4, -25, -5, -8, -5)

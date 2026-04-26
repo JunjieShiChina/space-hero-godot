@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://b878it4v6rb8t"]
+
+[ext_resource type="Script" uid="uid://b7lmmp8mv31po" path="res://scripts/entities/enemy.gd" id="1_enemy"]
+[ext_resource type="Texture2D" uid="uid://by8yi6d2bkmhf" path="res://assets/sprites/Spaceship_Enemy - QuadShot.png" id="2_texture"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pdhr1"]
+radius = 23.345236
+
+[node name="EnemySmallBoss" type="Area2D" unique_id=1755477539]
+script = ExtResource("1_enemy")
+enemy_kind = "small_boss"
+enemy_health = 500.0
+collision_radius = 40.0
+statistic_key = "small_boss"
+base_velocity_design = Vector2(0, 105)
+ai_mode = "small_boss"
+starting_shoot_interval = 1.0
+starting_coin_type = "coin3"
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1603791088]
+texture = ExtResource("2_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1988973265]
+shape = SubResource("CircleShape2D_pdhr1")

@@ -15,29 +15,32 @@ var small_laser_paused := false
 var rotation_ready := false
 var rotation_target_y := 0.0
 
+@export var enemy_kind := "ship"
+@export var enemy_health := 5.0
+@export var collision_radius := 25.0
+@export var statistic_key := "ship"
+@export var base_velocity_design := Vector2.ZERO
+@export var random_velocity_x_design := Vector2.ZERO
+@export var random_velocity_y_design := Vector2.ZERO
+@export var ai_mode := "drift"
+@export var starting_bullet_type := "Bullet2"
+@export var starting_shoot_interval := 2.0
+@export var starting_coin_type := "coin1"
+
 const UNITY_UNIT := 108.0
 const METEOR_VISUAL_TARGET := 82.0
 const EnemyFireTailScene := preload("res://scenes/components/enemy_fire_tail.tscn")
 
-func configure(kind: String, pos: Vector2, target: PlayerShip) -> void:
+func configure(_kind: String, pos: Vector2, target: PlayerShip) -> void:
 	player = target
-	var config := {
-		"ship": ["res://assets/sprites/Spaceship_Enemy - SingleShot.png", 5.0, 25.0, "ship", Vector2(randf_range(-UNITY_UNIT * 3.0, UNITY_UNIT * 3.0), randf_range(UNITY_UNIT, UNITY_UNIT * 3.0)), "drift", "Bullet2", 2.0, "coin1"],
-		"ep2": ["res://assets/sprites/Spaceship_Enemy - DualShot.png", 10.0, 26.0, "ep2", Vector2(randf_range(-UNITY_UNIT * 3.0, UNITY_UNIT * 3.0), randf_range(UNITY_UNIT, UNITY_UNIT * 3.0)), "chase", "Bullet2", 2.0, "coin2"],
-		"rotation_ep": ["res://assets/sprites/Spaceship_Enemy - QuadShot.png", 50.0, 30.0, "rotation_ep", Vector2(0, UNITY_UNIT), "rotate", "BulletYue", 0.2, "coin3"],
-		"meteor_enemy": ["res://assets/sprites/Spaceship_Enemy - ArcShot.png", 20.0, 28.0, "meteor_enemy", Vector2(0, randf_range(UNITY_UNIT * 5.0, UNITY_UNIT * 10.0)), "meteor_enemy", "Bullet1", 0.0, "coin3"],
-		"meteor": ["res://assets/sprites/meteor0001.png", 30.0, 30.0, "meteor", Vector2(0, randf_range(324, 864)), "meteor", "Bullet1", 0.0, ""],
-		"small_boss": ["res://assets/sprites/Spaceship_Enemy - QuadShot.png", 500.0, 40.0, "small_boss", Vector2(0, 105), "small_boss", "Bullet2", 1.0, "coin3"],
-	}
-	var c: Array = config[kind]
 	global_position = pos
-	setup(c[0], c[2], "enemy", c[1])
-	stat_key = c[3]
-	velocity = DisplaySettings.to_current(c[4])
-	ai = c[5]
-	bullet_type = c[6]
-	shoot_interval = c[7] if c.size() > 7 else 1.4
-	coin_type = str(c[8]) if c.size() > 8 else "coin1"
+	setup(_scene_texture_path(), collision_radius, "enemy", enemy_health)
+	stat_key = statistic_key
+	velocity = DisplaySettings.to_current(_roll_initial_velocity())
+	ai = ai_mode
+	bullet_type = starting_bullet_type
+	shoot_interval = starting_shoot_interval
+	coin_type = starting_coin_type
 	can_shoot = shoot_interval > 0.0
 	if ai == "rotate":
 		can_shoot = false
@@ -56,6 +59,21 @@ func configure(kind: String, pos: Vector2, target: PlayerShip) -> void:
 	shoot_timer = shoot_interval if ai == "small_boss" else 0.5
 	rotation = 0.0 if ai in ["rotate", "small_boss", "meteor"] else PI
 	add_to_group("enemy")
+
+func _scene_texture_path() -> String:
+	if sprite == null:
+		sprite = get_node_or_null("Sprite2D")
+	if sprite and sprite.texture:
+		return sprite.texture.resource_path
+	return ""
+
+func _roll_initial_velocity() -> Vector2:
+	var result := base_velocity_design
+	if not is_equal_approx(random_velocity_x_design.x, random_velocity_x_design.y):
+		result.x += randf_range(random_velocity_x_design.x, random_velocity_x_design.y)
+	if not is_equal_approx(random_velocity_y_design.x, random_velocity_y_design.y):
+		result.y += randf_range(random_velocity_y_design.x, random_velocity_y_design.y)
+	return result
 
 func _process(delta: float) -> void:
 	match ai:
@@ -137,7 +155,7 @@ func _shoot_small_boss_laser() -> void:
 	_spawn_bullet("BulletLaser", global_position + direction * DisplaySettings.scale_value(90.0), direction, {"life": 3.0})
 
 func _spawn_bullet(type_name: String, origin: Vector2, direction: Vector2, overrides := {}) -> SpaceBullet:
-	var bullet := SpaceBullet.new()
+	var bullet := SpaceBullet.create(type_name)
 	_spawn_parent().add_child(bullet)
 	bullet.setup(type_name, "enemy", origin, direction, overrides)
 	return bullet

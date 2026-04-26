@@ -1,7 +1,9 @@
 extends Area2D
 class_name SpaceBullet
 
-var bullet_type := "Bullet1"
+@export var bullet_type := "Bullet1"
+@export var use_scene_template := false
+
 var shooter_team := "player"
 var velocity := Vector2.ZERO
 var damage := 10.0
@@ -10,30 +12,58 @@ var pierce := false
 var homing := false
 var homing_range := 0.0
 var homing_direct := false
+var homing_delay_timer := 0.0
+var base_speed := 0.0
+var visual_angle_offset := PI / 2.0
 var damage_tick_interval := 0.0
 var damage_tick_timer := 0.0
 var spin := 0.0
 var spin_angle := 0.0
 var retired := false
 var hit_spark_timer := 0.0
+var _template_node_states: Dictionary = {}
+var _template_shape_states: Dictionary = {}
 
 const BulletHitSparkScene := preload("res://scenes/components/bullet_hit_spark.tscn")
+const BULLET_SCENE_PATHS := {
+	"Bullet1": "res://scenes/entities/bullets/bullet_1.tscn",
+	"Bullet2": "res://scenes/entities/bullets/bullet_2.tscn",
+	"BulletArrow": "res://scenes/entities/bullets/bullet_arrow.tscn",
+	"BulletMissile": "res://scenes/entities/bullets/bullet_missile.tscn",
+	"BulletLaser": "res://scenes/entities/bullets/bullet_laser.tscn",
+	"BulletFire": "res://scenes/entities/bullets/bullet_fire.tscn",
+	"BulletYue": "res://scenes/entities/bullets/bullet_yue.tscn",
+	"Bullet3": "res://scenes/entities/bullets/bullet_3.tscn",
+	"FollowBullet": "res://scenes/entities/bullets/follow_bullet.tscn",
+}
+
+static func create(type_name: String) -> SpaceBullet:
+	var scene_path := String(BULLET_SCENE_PATHS.get(type_name, BULLET_SCENE_PATHS["Bullet1"]))
+	var scene := load(scene_path) as PackedScene
+	if scene == null:
+		return SpaceBullet.new()
+	var bullet := scene.instantiate() as SpaceBullet
+	return bullet if bullet != null else SpaceBullet.new()
 
 func setup(type_name: String, team: String, pos: Vector2, direction: Vector2, overrides := {}) -> void:
 	bullet_type = type_name
 	shooter_team = team
 	global_position = pos
-	rotation = direction.angle() + PI / 2.0
+	var safe_direction := _safe_direction(direction)
+	rotation = _rotation_for_direction(safe_direction)
 	var info := bullet_info(type_name)
 	for key in overrides.keys():
 		info[key] = overrides[key]
 	damage = float(info.damage)
-	velocity = direction.normalized() * DisplaySettings.scale_value(float(info.speed))
+	base_speed = DisplaySettings.scale_value(float(info.speed))
+	velocity = safe_direction * base_speed
 	life_time = float(info.life)
 	pierce = bool(info.pierce)
 	homing = bool(info.homing)
 	homing_range = DisplaySettings.scale_value(float(info.get("homing_range", 0.0)))
 	homing_direct = bool(info.get("homing_direct", false))
+	homing_delay_timer = float(info.get("homing_delay", 0.0))
+	visual_angle_offset = float(info.get("visual_angle_offset", PI / 2.0))
 	damage_tick_interval = float(info.get("tick_interval", 0.0))
 	damage_tick_timer = damage_tick_interval
 	spin = float(info.spin)
@@ -48,13 +78,13 @@ static func bullet_info(type_name: String) -> Dictionary:
 	var map := {
 		"Bullet1": {"speed": 1080.0, "damage": 5.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/bullet5.png", "scale": 0.58, "radius": 7.0, "height": 30.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
 		"Bullet2": {"speed": 540.0, "damage": 5.0, "interval": 2.0, "life": 4.0, "texture": "res://assets/sprites/bullet4.png", "scale": 0.58, "radius": 10.0, "height": 32.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot2"},
-		"BulletArrow": {"speed": 1080.0, "damage": 3.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/WyvernHornBow.png", "scale": 0.30, "radius": 16.0, "height": 48.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "arrow"},
+		"BulletArrow": {"speed": 1080.0, "damage": 3.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/WyvernHornBow.png", "scale": 0.30, "radius": 16.0, "height": 48.0, "pierce": false, "homing": false, "spin": 0.0, "visual_angle_offset": PI / 4.0, "sfx": "arrow"},
 		"BulletMissile": {"speed": 540.0, "damage": 50.0, "interval": 1.5, "life": 5.0, "texture": "res://assets/sprites/spr_missile.png", "scale": 0.70, "radius": 10.0, "height": 42.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "missile"},
 		"BulletLaser": {"speed": 0.0, "damage": 1.0, "interval": 2.0, "life": 1.5, "tick_interval": 0.08, "texture": "res://assets/sprites/bosslaser.png", "scale": 1.0, "radius": 18.0, "height": 810.0, "pierce": true, "homing": false, "spin": 0.0, "sfx": "laser"},
 		"BulletFire": {"speed": 540.0, "damage": 10.0, "interval": 1.0, "life": 3.0, "texture": "res://assets/sprites/bullet5.png", "scale": 0.72, "radius": 12.0, "height": 34.0, "pierce": false, "homing": false, "spin": 5.0, "sfx": "bullet_fire"},
 		"BulletYue": {"speed": 540.0, "damage": 6.0, "interval": 0.2, "life": 3.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(576, 16, 16, 17), Rect2(592, 16, 16, 17), Rect2(608, 16, 16, 17), Rect2(624, 16, 16, 17)], "scale": 1.35, "radius": 8.0, "height": 24.0, "pierce": false, "homing": false, "spin": 8.0, "sfx": "bullet_yue"},
 		"Bullet3": {"speed": 1080.0, "damage": 5.0, "interval": 0.18, "life": 3.0, "texture": "res://assets/sprites/bullet6.png", "scale": 0.50, "radius": 8.0, "height": 34.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
-		"FollowBullet": {"speed": 1080.0, "damage": 2.0, "interval": 0.1, "life": 4.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(96, 48, 16, 16), Rect2(112, 48, 16, 16), Rect2(128, 48, 16, 16), Rect2(144, 48, 16, 16)], "scale": 1.2, "radius": 8.0, "height": 22.0, "pierce": false, "homing": true, "homing_range": 576.0, "homing_direct": true, "spin": 0.0, "sfx": "shoot"},
+		"FollowBullet": {"speed": 1080.0, "damage": 2.0, "interval": 0.1, "life": 4.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(96, 48, 16, 16), Rect2(112, 48, 16, 16), Rect2(128, 48, 16, 16), Rect2(144, 48, 16, 16)], "scale": 1.2, "radius": 8.0, "height": 22.0, "pierce": false, "homing": true, "homing_range": 576.0, "homing_direct": true, "homing_delay": 0.14, "visual_angle_offset": -PI / 4.0, "spin": 0.0, "sfx": "shoot"},
 	}
 	return map.get(type_name, map["Bullet1"])
 
@@ -65,15 +95,25 @@ func _physics_process(delta: float) -> void:
 		call_deferred("_retire")
 		return
 	if homing:
-		var target := _find_target()
-		if target:
-			var desired := (target.global_position - global_position).normalized() * velocity.length()
-			velocity = desired if homing_direct else velocity.lerp(desired, 4.0 * delta)
+		if homing_delay_timer > 0.0:
+			homing_delay_timer -= delta
+		else:
+			var target := _find_target()
+			if target:
+				var target_delta := target.global_position - global_position
+				if target_delta.length_squared() > 1.0:
+					var current_speed := velocity.length()
+					if current_speed <= 0.0:
+						current_speed = base_speed
+					var desired := target_delta.normalized() * current_speed
+					velocity = desired if homing_direct else velocity.lerp(desired, 4.0 * delta)
+	if velocity.is_zero_approx() and base_speed > 0.0:
+		velocity = Vector2.UP * base_speed
 	if velocity != Vector2.ZERO:
 		global_position += velocity * delta
 		if spin != 0.0:
 			spin_angle += spin * delta
-		rotation = velocity.angle() + PI / 2.0 + spin_angle
+		rotation = _rotation_for_direction(velocity)
 	elif spin != 0.0:
 		rotation += spin * delta
 	if damage_tick_interval > 0.0:
@@ -112,6 +152,9 @@ func _retire() -> void:
 	call_deferred("queue_free")
 
 func _make_visual(info: Dictionary) -> void:
+	if use_scene_template:
+		_apply_scene_template()
+		return
 	var animated := get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
 	if info.has("frames"):
 		var sprite := get_node_or_null("Sprite2D") as Sprite2D
@@ -166,18 +209,81 @@ func _make_visual(info: Dictionary) -> void:
 		capsule.height = DisplaySettings.scale_value(float(info.height))
 		collision.position = Vector2.ZERO
 
+func _apply_scene_template() -> void:
+	for node_name in ["Sprite2D", "AnimatedSprite2D", "MissileTrail"]:
+		var visual_node := get_node_or_null(node_name) as Node2D
+		if visual_node:
+			_apply_template_node_state(visual_node)
+			if visual_node is AnimatedSprite2D:
+				(visual_node as AnimatedSprite2D).play()
+	if bullet_type == "BulletMissile":
+		_ensure_missile_trail()
+	_apply_template_collision()
+
+func _apply_template_node_state(node: Node2D) -> void:
+	var key := str(node.get_path())
+	if not _template_node_states.has(key):
+		_template_node_states[key] = {
+			"position": node.position,
+			"scale": node.scale,
+		}
+	var state: Dictionary = _template_node_states[key]
+	var scale_factor := DisplaySettings.scale_factor()
+	node.position = (state["position"] as Vector2) * scale_factor
+	node.scale = (state["scale"] as Vector2) * scale_factor
+
+func _apply_template_collision() -> void:
+	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision == null or collision.shape == null:
+		return
+	var key := str(collision.get_path())
+	if not _template_shape_states.has(key):
+		_template_shape_states[key] = {
+			"shape": collision.shape.duplicate(),
+			"position": collision.position,
+		}
+		collision.shape = collision.shape.duplicate()
+	var state: Dictionary = _template_shape_states[key]
+	var base_shape := state["shape"] as Shape2D
+	var active_shape := collision.shape
+	var scale_factor := DisplaySettings.scale_factor()
+	if base_shape is CapsuleShape2D and active_shape is CapsuleShape2D:
+		var base_capsule := base_shape as CapsuleShape2D
+		var active_capsule := active_shape as CapsuleShape2D
+		active_capsule.radius = base_capsule.radius * scale_factor
+		active_capsule.height = base_capsule.height * scale_factor
+	elif base_shape is CircleShape2D and active_shape is CircleShape2D:
+		(active_shape as CircleShape2D).radius = (base_shape as CircleShape2D).radius * scale_factor
+	collision.position = (state["position"] as Vector2) * scale_factor
+	collision.disabled = false
+
 func _find_target() -> CombatBody:
 	var best: CombatBody = null
 	var best_dist := INF
-	for node in get_tree().get_nodes_in_group("enemy"):
+	var target_group := "enemy" if shooter_team == "player" else "player"
+	for node in get_tree().get_nodes_in_group(target_group):
 		if node is CombatBody:
-			var dist := global_position.distance_squared_to(node.global_position)
+			var body := node as CombatBody
+			if body.dead or body.team == shooter_team:
+				continue
+			var dist := global_position.distance_squared_to(body.global_position)
+			if dist <= DisplaySettings.scale_value(12.0) * DisplaySettings.scale_value(12.0):
+				continue
 			if homing_range > 0.0 and dist > homing_range * homing_range:
 				continue
 			if dist < best_dist:
-				best = node
+				best = body
 				best_dist = dist
 	return best
+
+func _safe_direction(direction: Vector2) -> Vector2:
+	if direction.is_zero_approx():
+		return Vector2.UP
+	return direction.normalized()
+
+func _rotation_for_direction(direction: Vector2) -> float:
+	var safe_direction := _safe_direction(direction)
+	return safe_direction.angle() + visual_angle_offset + spin_angle
 
 func _damage_overlapping_targets() -> void:
 	for area in get_overlapping_areas():

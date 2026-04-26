@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://cessq8j1odr3x"]
+
+[ext_resource type="Script" uid="uid://cmpgctq5dqxgy" path="res://scripts/entities/bullet.gd" id="1_bullet"]
+[ext_resource type="Texture2D" uid="uid://cau38ierb64sv" path="res://assets/sprites/spr_missile.png" id="2_texture"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bullet_missile"]
+radius = 7.0
+height = 42.0
+
+[node name="BulletMissile" type="Area2D" unique_id=1704345337]
+texture_filter = 1
+script = ExtResource("1_bullet")
+bullet_type = "BulletMissile"
+use_scene_template = true
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1908052061]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("2_texture")
+
+[node name="MissileTrail" type="CPUParticles2D" parent="." unique_id=1584046988]
+position = Vector2(0, 26)
+amount = 14
+lifetime = 0.18
+preprocess = 0.18
+local_coords = true
+direction = Vector2(0, 1)
+spread = 14.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 35.0
+initial_velocity_max = 60.0
+damping_min = 120.0
+damping_max = 190.0
+scale_amount_min = 0.8
+scale_amount_max = 1.6
+color = Color(1, 0.48, 0.14, 0.58)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=91091589]
+shape = SubResource("CapsuleShape2D_bullet_missile")

@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://cigfxavg6h4m6"]
+
+[ext_resource type="Script" uid="uid://cmpgctq5dqxgy" path="res://scripts/entities/bullet.gd" id="1_bullet"]
+[ext_resource type="Texture2D" uid="uid://c11hgis3qcede" path="res://assets/sprites/WyvernHornBow.png" id="2_texture"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bullet_arrow"]
+radius = 7.071069
+height = 62.225403
+
+[node name="BulletArrow" type="Area2D" unique_id=513825559]
+texture_filter = 1
+script = ExtResource("1_bullet")
+bullet_type = "BulletArrow"
+use_scene_template = true
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1691270446]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=820482482]
+position = Vector2(1, 0)
+rotation = 0.7853982
+shape = SubResource("CapsuleShape2D_bullet_arrow")

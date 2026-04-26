@@ -10,6 +10,7 @@ var boss1_special_wait := 3.0
 var boss1_special_timer := 0.0
 var boss1_special_index := 0
 var boss1_special_active := false
+var boss1_moving_right := true
 var boss2_needs_target := true
 var boss2_laser_timer := 1.0
 var boss2_laser_count := 0
@@ -27,7 +28,8 @@ func configure(id: int, target_player: PlayerShip, owner_stage: Node) -> void:
 	player = target_player
 	stage = owner_stage
 	var texture := "res://assets/sprites/boss1.png"
-	var hp := 900.0
+	var hp := 2000.0
+	scale = Vector2.ONE
 	if id == 2:
 		texture = "res://assets/sprites/Spaceship_Boss 1.png"
 		hp = 1200.0
@@ -36,6 +38,8 @@ func configure(id: int, target_player: PlayerShip, owner_stage: Node) -> void:
 		hp = 1500.0
 	global_position = DisplaySettings.to_current(Vector2(960, -195))
 	setup(texture, 84, "enemy", hp)
+	if id == 1:
+		scale = Vector2.ONE * 2.25
 	stat_key = "boss%d" % id
 	add_to_group("enemy")
 	died.connect(_on_boss_died)
@@ -59,13 +63,15 @@ func _process(delta: float) -> void:
 func _move(delta: float) -> void:
 	match boss_id:
 		1:
-			target = DisplaySettings.to_current(Vector2(255 + abs(sin(Time.get_ticks_msec() * 0.0006)) * 1410, 217.5))
+			_update_boss1_target()
 		2:
 			if boss2_needs_target:
 				_choose_boss2_target()
 		3:
 			pass
 	var speed := DisplaySettings.scale_value(225.0)
+	if boss_id == 1:
+		speed = DisplaySettings.scale_value(UNITY_UNIT * 1.25)
 	if boss_id == 2:
 		speed = DisplaySettings.scale_value(UNITY_UNIT * 3.0)
 	elif boss_id == 3:
@@ -78,6 +84,7 @@ func _reset_attack_state() -> void:
 	boss1_special_timer = 0.0
 	boss1_special_index = 0
 	boss1_special_active = false
+	boss1_moving_right = true
 	boss2_needs_target = boss_id == 2
 	boss2_laser_timer = 1.0
 	boss2_laser_count = 0
@@ -170,9 +177,25 @@ func _shoot_boss1_primary() -> void:
 		_spawn_bullet("Bullet2", global_position + DisplaySettings.to_current(Vector2(0, UNITY_UNIT * 0.5)), Vector2.DOWN.rotated(deg_to_rad(angle)))
 
 func _shoot_boss1_special_step() -> void:
-	_play_bullet_sfx("BulletFire")
+	_play_bullet_sfx("BulletYue")
 	var angle := -50.0 + float(boss1_special_index) * 10.0
-	_spawn_bullet("BulletFire", global_position + DisplaySettings.to_current(Vector2(0, UNITY_UNIT * 0.5)), Vector2.DOWN.rotated(deg_to_rad(angle)))
+	_spawn_bullet("BulletYue", global_position + DisplaySettings.to_current(Vector2(0, UNITY_UNIT * 0.5)), Vector2.DOWN.rotated(deg_to_rad(angle)))
+
+func _update_boss1_target() -> void:
+	var target_y := DisplaySettings.scale_value(217.5)
+	if global_position.y < target_y - DisplaySettings.scale_value(8.0):
+		target = Vector2(global_position.x, target_y)
+		return
+	var left_x := DisplaySettings.scale_value(960.0 - 1.8 * UNITY_UNIT)
+	var right_x := DisplaySettings.scale_value(960.0 + 1.8 * UNITY_UNIT)
+	if boss1_moving_right:
+		target = Vector2(right_x, target_y)
+		if global_position.x >= right_x - DisplaySettings.scale_value(8.0):
+			boss1_moving_right = false
+	else:
+		target = Vector2(left_x, target_y)
+		if global_position.x <= left_x + DisplaySettings.scale_value(8.0):
+			boss1_moving_right = true
 
 func _shoot_boss2_ring() -> void:
 	_play_bullet_sfx("Bullet2")
@@ -214,7 +237,7 @@ func _choose_boss2_target() -> void:
 	)
 
 func _spawn_bullet(type_name: String, origin: Vector2, direction: Vector2, overrides := {}) -> SpaceBullet:
-	var bullet := SpaceBullet.new()
+	var bullet := SpaceBullet.create(type_name)
 	_spawn_parent().add_child(bullet)
 	bullet.setup(type_name, "enemy", origin, direction, overrides)
 	return bullet

@@ -1,0 +1,79 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/boss_warning.gd" id="1_warning"]
+[ext_resource type="Texture2D" uid="uid://buc275m3hqjib" path="res://assets/sprites/font.png" id="2_font"]
+[ext_resource type="AudioStream" uid="uid://cmxos3bcsg36j" path="res://assets/audio/warning.wav" id="3_audio"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w"]
+atlas = ExtResource("2_font")
+region = Rect2(18, 39, 9, 13)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a"]
+atlas = ExtResource("2_font")
+region = Rect2(0, 13, 9, 13)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r"]
+atlas = ExtResource("2_font")
+region = Rect2(63, 26, 9, 13)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n"]
+atlas = ExtResource("2_font")
+region = Rect2(27, 26, 9, 13)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i"]
+atlas = ExtResource("2_font")
+region = Rect2(72, 13, 9, 13)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g"]
+atlas = ExtResource("2_font")
+region = Rect2(54, 13, 9, 13)
+
+[node name="BossWarning" type="Node2D"]
+z_index = 180
+script = ExtResource("1_warning")
+
+[node name="W" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = SubResource("AtlasTexture_w")
+position = Vector2(-40.5, 0)
+scale = Vector2(5.4, 5.4)
+
+[node name="A" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = SubResource("AtlasTexture_a")
+position = Vector2(8.64, 0)
+scale = Vector2(5.4, 5.4)
+
+[node name="R" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = SubResource("AtlasTexture_r")
+position = Vector2(62.1, 0)
+scale = Vector2(5.4, 5.4)
+
+[node name="N1" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = SubResource("AtlasTexture_n")
+position = Vector2(115.56, 0)
+scale = Vector2(5.4, 5.4)
+
+[node name="I" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = SubResource("AtlasTexture_i")
+position = Vector2(153.36, 0)
+scale = Vector2(5.4, 5.4)
+
+[node name="N2" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = SubResource("AtlasTexture_n")
+position = Vector2(196.72, 0)
+scale = Vector2(5.4, 5.4)
+
+[node name="G" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = SubResource("AtlasTexture_g")
+position = Vector2(253.26, 0)
+scale = Vector2(5.4, 5.4)
+
+[node name="WarningAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_audio")
+volume_db = -16.25

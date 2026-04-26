@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/shop_drop_manager.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/entities/shop_drop_definition.gd" id="2"]
@@ -9,6 +9,12 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/friendplane.png" id="7"]
 [ext_resource type="Texture2D" path="res://assets/sprites/PowerUp_HP.png" id="8"]
 [ext_resource type="Texture2D" path="res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/entities/shop_items/shop_bullet_arrow.tscn" id="10_arrow_scene"]
+[ext_resource type="PackedScene" path="res://scenes/entities/shop_items/shop_bullet_3.tscn" id="11_bullet3_scene"]
+[ext_resource type="PackedScene" path="res://scenes/entities/shop_items/shop_bullet_missile.tscn" id="12_missile_scene"]
+[ext_resource type="PackedScene" path="res://scenes/entities/shop_items/shop_friend.tscn" id="13_friend_scene"]
+[ext_resource type="PackedScene" path="res://scenes/entities/shop_items/shop_shield.tscn" id="14_shield_scene"]
+[ext_resource type="PackedScene" path="res://scenes/entities/shop_items/shop_follow_bullet.tscn" id="15_follow_scene"]
 
 [node name="ShopDropManager" type="Node2D"]
 script = ExtResource("1")
@@ -27,6 +33,7 @@ price = 60
 icon_texture = ExtResource("4")
 icon_scale = 0.18
 item_scale = 1.0
+item_scene = ExtResource("10_arrow_scene")
 
 [node name="Bullet3Goods" type="Node" parent="."]
 script = ExtResource("2")
@@ -36,6 +43,7 @@ price = 200
 icon_texture = ExtResource("5")
 icon_scale = 0.16
 item_scale = 1.0
+item_scene = ExtResource("11_bullet3_scene")
 
 [node name="BulletMissileGoods" type="Node" parent="."]
 script = ExtResource("2")
@@ -45,6 +53,7 @@ price = 180
 icon_texture = ExtResource("6")
 icon_scale = 0.62
 item_scale = 1.0
+item_scene = ExtResource("12_missile_scene")
 
 [node name="FriendGoods" type="Node" parent="."]
 script = ExtResource("2")
@@ -53,6 +62,7 @@ price = 320
 icon_texture = ExtResource("7")
 icon_scale = 0.88
 item_scale = 1.0
+item_scene = ExtResource("13_friend_scene")
 
 [node name="ShieldGoods" type="Node" parent="."]
 script = ExtResource("2")
@@ -61,6 +71,7 @@ price = 360
 icon_texture = ExtResource("8")
 icon_scale = 0.38
 item_scale = 1.0
+item_scene = ExtResource("14_shield_scene")
 
 [node name="BulletFollowGoods" type="Node" parent="."]
 script = ExtResource("2")
@@ -71,3 +82,4 @@ icon_texture = ExtResource("9")
 icon_region = Rect2(96, 48, 16, 16)
 icon_scale = 2.0
 item_scale = 1.0
+item_scene = ExtResource("15_follow_scene")

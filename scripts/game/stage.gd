@@ -7,6 +7,7 @@ extends Node2D
 @export var player_path: NodePath = ^"Player"
 @export var player_start_path: NodePath = ^"PlayerStart"
 @export var shop_drop_manager_path: NodePath = ^"ShopDropManager"
+@export var debug_shop_mode := false
 
 const BattleHudScene := preload("res://scenes/ui/battle_hud.tscn")
 const PlayerShipScene := preload("res://scenes/entities/player_ship.tscn")
@@ -14,7 +15,21 @@ const StarfieldScene := preload("res://scenes/components/starfield_particles.tsc
 const ScrollingBackgroundScene := preload("res://scenes/components/scrolling_background.tscn")
 const BackgroundAsteroidsScene := preload("res://scenes/components/background_asteroids.tscn")
 const ShopDropManagerScene := preload("res://scenes/components/shop_drop_manager.tscn")
-const MeteorScene := preload("res://scenes/entities/meteor.tscn")
+const BossWarningScene := preload("res://scenes/components/boss_warning.tscn")
+const ShieldBubbleScene := preload("res://scenes/components/shield_bubble.tscn")
+const ENEMY_SCENES := {
+	"ship": preload("res://scenes/entities/enemy_single_shot.tscn"),
+	"ep2": preload("res://scenes/entities/enemy_dual_shot.tscn"),
+	"rotation_ep": preload("res://scenes/entities/enemy_rotation_quadshot.tscn"),
+	"meteor_enemy": preload("res://scenes/entities/enemy_dive_arcshot.tscn"),
+	"meteor": preload("res://scenes/entities/meteor.tscn"),
+	"small_boss": preload("res://scenes/entities/enemy_small_boss.tscn"),
+}
+const BOSS_SCENES := {
+	1: preload("res://scenes/entities/boss_1.tscn"),
+	2: preload("res://scenes/entities/boss_2.tscn"),
+	3: preload("res://scenes/entities/boss_3.tscn"),
+}
 const STAGE_BACKGROUNDS := {
 	1: preload("res://assets/sprites/bkblue.png"),
 	2: preload("res://assets/sprites/Nebula Aqua-Pink.png"),
@@ -25,6 +40,8 @@ const STAGE_BACKGROUND_SCROLL_SPEED := {
 	2: 0.1,
 	3: 0.1,
 }
+const DEBUG_SHOP_MODE_SETTING := "space_hero/debug/shop_mode"
+const DEBUG_SHOP_COIN_GRANT := 2000
 
 var player: PlayerShip
 var hud: BattleHud
@@ -40,6 +57,7 @@ var small_boss_spawned := false
 var boss_spawned := false
 var warning_sent := false
 var stage_done := false
+var _debug_shop_index := 0
 
 var configs := {
 	1: {"boss_time": 120.0, "ship_delay": 0.0, "ship_prob": 0.8, "ep2_delay": 10.0, "ep2_prob": 0.6, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.1, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": -1.0, "boss": 1},
@@ -55,6 +73,8 @@ func _ready() -> void:
 	_ensure_hud()
 	_ensure_player()
 	_ensure_shop_drop_manager()
+	if OS.is_debug_build():
+		print("Debug shop: F2 toggle, F3 drop next goods, F4 grant next goods, F5 +coins, F6 grant debug loadout.")
 
 func _process(delta: float) -> void:
 	if stage_done:
@@ -69,10 +89,31 @@ func _process(delta: float) -> void:
 		_update_enemy_spawns(cfg)
 	if not warning_sent and elapsed >= cfg.boss_time:
 		warning_sent = true
-		AudioBus.play_sfx("warning")
-		hud.show_warning("WARNING")
+		_show_boss_warning()
 	if not boss_spawned and elapsed >= cfg.boss_time + 6.0:
 		_spawn_boss(cfg.boss)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event is InputEventKey:
+		return
+	var key_event := event as InputEventKey
+	if not key_event.pressed or key_event.echo:
+		return
+	if key_event.keycode == KEY_F2 and OS.is_debug_build():
+		debug_shop_mode = not debug_shop_mode
+		_debug_log("shop mode %s" % ("ON" if debug_shop_mode else "OFF"))
+		return
+	if not _is_debug_shop_enabled():
+		return
+	match key_event.keycode:
+		KEY_F3:
+			_debug_drop_next_goods()
+		KEY_F4:
+			_debug_grant_next_goods()
+		KEY_F5:
+			_debug_add_coins()
+		KEY_F6:
+			_debug_grant_loadout()
 
 func update_boss_health(ratio: float) -> void:
 	if hud:
@@ -88,7 +129,7 @@ func on_boss_defeated() -> void:
 	SceneFlow.finish_stage()
 
 func spawn_shield() -> void:
-	var shield := ShieldBubble.new()
+	var shield := ShieldBubbleScene.instantiate() as ShieldBubble
 	add_child(shield)
 	shield.configure(player)
 
@@ -170,6 +211,110 @@ func _ensure_shop_drop_manager() -> void:
 	if "stage" in shop_drop_manager:
 		shop_drop_manager.stage = self
 
+func _is_debug_shop_enabled() -> bool:
+	return debug_shop_mode or bool(ProjectSettings.get_setting(DEBUG_SHOP_MODE_SETTING, false))
+
+func _debug_drop_next_goods() -> void:
+	var definition := _debug_next_shop_definition()
+	if definition == null:
+		_debug_log("no shop goods definitions")
+		return
+	var scene := definition.get("item_scene") as PackedScene
+	if scene == null and shop_drop_manager:
+		scene = shop_drop_manager.get("item_scene") as PackedScene
+	if scene == null:
+		_debug_log("missing shop goods scene")
+		return
+	var item := scene.instantiate()
+	if item == null:
+		return
+	add_child(item)
+	var origin := DisplaySettings.logical_center()
+	if player:
+		origin = player.global_position + DisplaySettings.to_current(Vector2(0, -155))
+	if item.has_method("configure_from_definition"):
+		item.configure_from_definition(definition, origin, 96.0, self)
+	var price := int(definition.get("price"))
+	if price > 0:
+		GameData.add_coins(price)
+	_debug_log("dropped %s" % _debug_goods_name(definition))
+
+func _debug_grant_next_goods() -> void:
+	var definition := _debug_next_shop_definition()
+	if definition == null:
+		_debug_log("no shop goods definitions")
+		return
+	if _debug_apply_goods_definition(definition):
+		_debug_log("granted %s" % _debug_goods_name(definition))
+
+func _debug_add_coins() -> void:
+	GameData.add_coins(DEBUG_SHOP_COIN_GRANT)
+	_debug_log("+%d coins" % DEBUG_SHOP_COIN_GRANT)
+
+func _debug_grant_loadout() -> void:
+	GameData.add_coins(DEBUG_SHOP_COIN_GRANT)
+	var definitions := _debug_shop_definitions()
+	var shield_granted := false
+	for definition in definitions:
+		if String(definition.get("product_type")) == "shield":
+			shield_granted = true
+		_debug_apply_goods_definition(definition)
+	while GameData.friend_plane_count < GameData.friend_plane_limit:
+		if not GameData.buy_friend():
+			break
+	if not shield_granted:
+		spawn_shield()
+	if hud:
+		hud.refresh()
+	_debug_log("granted debug loadout")
+
+func _debug_apply_goods_definition(definition: Node) -> bool:
+	var product_type := String(definition.get("product_type"))
+	match product_type:
+		"bullet":
+			var bullet_type := String(definition.get("bullet_type"))
+			if bullet_type == "":
+				return false
+			GameData.equip_bullet(bullet_type)
+		"friend":
+			if not GameData.buy_friend():
+				return false
+		"shield":
+			spawn_shield()
+		_:
+			return false
+	if hud:
+		hud.refresh()
+	AudioBus.play_sfx("consume")
+	return true
+
+func _debug_next_shop_definition() -> Node:
+	var definitions := _debug_shop_definitions()
+	if definitions.is_empty():
+		return null
+	var definition := definitions[_debug_shop_index % definitions.size()]
+	_debug_shop_index = (_debug_shop_index + 1) % definitions.size()
+	return definition
+
+func _debug_shop_definitions() -> Array[Node]:
+	var definitions: Array[Node] = []
+	if shop_drop_manager == null:
+		return definitions
+	for child in shop_drop_manager.get_children():
+		var product_type := String(child.get("product_type"))
+		if product_type in ["bullet", "friend", "shield"]:
+			definitions.append(child)
+	return definitions
+
+func _debug_goods_name(definition: Node) -> String:
+	var product_type := String(definition.get("product_type"))
+	if product_type == "bullet":
+		return "%s:%s" % [product_type, String(definition.get("bullet_type"))]
+	return product_type
+
+func _debug_log(message: String) -> void:
+	print("[debug-shop] %s" % message)
+
 func _update_enemy_spawns(cfg: Dictionary) -> void:
 	if ship_accum >= 1.0:
 		ship_accum = 0
@@ -206,11 +351,11 @@ func _spawn_enemy(kind: String) -> void:
 	_spawn_enemy_at(kind, Vector2(randf_range(DisplaySettings.scale_value(105), DisplaySettings.scale_value(1815)), DisplaySettings.scale_value(-90)))
 
 func _spawn_enemy_at(kind: String, pos: Vector2) -> void:
-	var enemy: EnemyShip
-	if kind == "meteor":
-		enemy = MeteorScene.instantiate() as EnemyShip
-	else:
-		enemy = EnemyShip.new()
+	var scene: PackedScene = ENEMY_SCENES.get(kind)
+	if scene == null:
+		push_warning("Missing enemy scene for kind: %s" % kind)
+		return
+	var enemy := scene.instantiate() as EnemyShip
 	add_child(enemy)
 	enemy.configure(kind, pos, player)
 	enemy.died.connect(_on_enemy_died)
@@ -222,9 +367,17 @@ func _spawn_boss(id: int) -> void:
 	boss_spawned = true
 	AudioBus.play_music("boss")
 	hud.show_boss_bar(true)
-	boss = BossShip.new()
+	var scene: PackedScene = BOSS_SCENES.get(id)
+	if scene == null:
+		push_warning("Missing boss scene for id: %s" % id)
+		return
+	boss = scene.instantiate() as BossShip
 	add_child(boss)
 	boss.configure(id, player, self)
+
+func _show_boss_warning() -> void:
+	var warning := BossWarningScene.instantiate() as BossWarning
+	add_child(warning)
 
 func _on_enemy_died(enemy: CombatBody) -> void:
 	if enemy.coin_type != "" and randf() < enemy.coin_drop_chance:

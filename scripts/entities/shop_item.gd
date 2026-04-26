@@ -10,10 +10,12 @@ const GOODS_FONT := preload("res://assets/font/STHUPO.TTF")
 @export var icon_region := Rect2()
 @export var icon_scale := 1.0
 @export var item_scale := 1.0
+@export var use_scene_template := false
 
 var velocity := Vector2.ZERO
 var stage: Node
 var retired := false
+var _template_collision_states: Dictionary = {}
 
 
 func _ready() -> void:
@@ -23,13 +25,14 @@ func _ready() -> void:
 
 
 func configure_from_definition(definition: Node, pos: Vector2, fall_speed: float, stage_ref: Node) -> void:
-	product_type = String(definition.get("product_type"))
-	bullet_type = String(definition.get("bullet_type"))
-	price = int(definition.get("price"))
-	icon_texture = definition.get("icon_texture") as Texture2D
-	icon_region = definition.get("icon_region")
-	icon_scale = float(definition.get("icon_scale"))
-	item_scale = float(definition.get("item_scale"))
+	if not use_scene_template:
+		product_type = String(definition.get("product_type"))
+		bullet_type = String(definition.get("bullet_type"))
+		price = int(definition.get("price"))
+		icon_texture = definition.get("icon_texture") as Texture2D
+		icon_region = definition.get("icon_region")
+		icon_scale = float(definition.get("icon_scale"))
+		item_scale = float(definition.get("item_scale"))
 	stage = stage_ref
 	global_position = pos
 	velocity = Vector2.DOWN * DisplaySettings.scale_value(fall_speed)
@@ -95,7 +98,25 @@ func _apply_visual() -> void:
 
 	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if collision and collision.shape is CircleShape2D:
-		(collision.shape as CircleShape2D).radius = DisplaySettings.scale_value(36)
+		if use_scene_template:
+			_apply_template_collision(collision)
+		else:
+			(collision.shape as CircleShape2D).radius = DisplaySettings.scale_value(36)
+
+
+func _apply_template_collision(collision: CollisionShape2D) -> void:
+	var key := str(collision.get_path())
+	if not _template_collision_states.has(key):
+		var circle := collision.shape as CircleShape2D
+		_template_collision_states[key] = {
+			"radius": circle.radius,
+			"position": collision.position,
+		}
+		collision.shape = circle.duplicate()
+	var state: Dictionary = _template_collision_states[key]
+	(collision.shape as CircleShape2D).radius = float(state["radius"]) * DisplaySettings.scale_factor()
+	collision.position = (state["position"] as Vector2) * DisplaySettings.scale_factor()
+	collision.disabled = false
 
 
 func _fail_purchase() -> void:

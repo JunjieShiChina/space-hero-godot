@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/entities/shield.gd" id="1_shield"]
+
+[node name="ShieldBubble" type="Area2D"]
+script = ExtResource("1_shield")
+
+[node name="AuraParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
+[node name="SparkParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
+[node name="ShieldRing" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="InnerRing" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]

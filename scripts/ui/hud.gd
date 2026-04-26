@@ -42,8 +42,8 @@ const FRIEND_ICON_POS := Vector2(1498, 994)
 const FRIEND_COUNT_POS := Vector2(1538, 968)
 const COIN_ICON_POS := Vector2(1684, 994)
 const COIN_COUNT_POS := Vector2(1738, 968)
-const BOSS_BAR_POS := Vector2(585, 33)
-const BOSS_BAR_SIZE := Vector2(750, 36)
+const BOSS_BAR_POS := Vector2(32, 18)
+const BOSS_BAR_SIZE := Vector2(1856, 34)
 
 var _root: Control
 var _health_sprite: Sprite2D
@@ -54,10 +54,15 @@ var _friend_icon: Sprite2D
 var _friend_count_display: Node2D
 var _coin_icon: Node2D
 var _coin_count_display: Node2D
-var _boss_bar: ProgressBar
+var _boss_bar: Control
+var _boss_bar_fill: ColorRect
+var _boss_bar_top_shine: ColorRect
+var _boss_bar_left_step: ColorRect
+var _boss_bar_right_step: ColorRect
 var _warning_label: Label
 var _current_health := 1.0
 var _current_max_health := 1.0
+var _boss_bar_ratio := 1.0
 var _coin_displayed_count := 0
 var _coin_target_count := 0
 var _coin_step_accum := 0.0
@@ -97,11 +102,13 @@ func set_player_health(value: float, max_value: float) -> void:
 
 func show_boss_bar(should_show: bool) -> void:
 	_boss_bar.visible = should_show
-	_boss_bar.value = 1.0
+	_boss_bar_ratio = 1.0
+	_apply_boss_bar_ratio()
 
 
 func update_boss(value: float) -> void:
-	_boss_bar.value = clamp(value, 0.0, 1.0)
+	_boss_bar_ratio = clamp(value, 0.0, 1.0)
+	_apply_boss_bar_ratio()
 
 
 func show_warning(text: String) -> void:
@@ -149,7 +156,10 @@ func _bind_scene_nodes() -> void:
 	_friend_count_display = _bind_pixel_display($Root/FriendCount, "FriendCount")
 	_coin_icon = $Root/CoinIcon as Node2D
 	_coin_count_display = _bind_pixel_display($Root/CoinCount, "CoinCount")
-	_boss_bar = $Root/BossBar
+	var old_boss_bar := $Root/BossBar
+	old_boss_bar.visible = false
+	old_boss_bar.name = "BossBarOld"
+	_ensure_boss_bar_nodes()
 	_warning_label = $Root/Warning
 	for slot in _slot_nodes:
 		slot.texture = SLOT_TEXTURE
@@ -157,7 +167,6 @@ func _bind_scene_nodes() -> void:
 	_friend_icon.texture = FRIEND_TEXTURE
 	_apply_label_theme(_warning_label, Color(1, 0.15, 0.1), 96)
 	_warning_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_boss_bar.max_value = 1.0
 	_boss_bar.visible = false
 
 
@@ -203,11 +212,8 @@ func _build_nodes() -> void:
 	_coin_count_display.name = "CoinCount"
 	_root.add_child(_coin_count_display)
 
-	_boss_bar = ProgressBar.new()
-	_boss_bar.name = "BossBar"
-	_boss_bar.max_value = 1.0
+	_ensure_boss_bar_nodes()
 	_boss_bar.visible = false
-	_root.add_child(_boss_bar)
 
 	_warning_label = _make_label(Color(1, 0.15, 0.1), 96)
 	_warning_label.name = "Warning"
@@ -243,6 +249,7 @@ func _layout() -> void:
 
 	_boss_bar.position = DisplaySettings.to_current(BOSS_BAR_POS)
 	_boss_bar.size = DisplaySettings.to_current(BOSS_BAR_SIZE)
+	_layout_boss_bar_children()
 
 	_warning_label.position = DisplaySettings.to_current(Vector2(0, 420))
 	_warning_label.size = Vector2(DisplaySettings.logical_size().x, DisplaySettings.scale_value(135))
@@ -336,6 +343,75 @@ func _bind_pixel_display(node: Node, display_name: String) -> Node2D:
 	display.name = display_name
 	_root.add_child(display)
 	return display
+
+
+func _ensure_boss_bar_nodes() -> void:
+	_boss_bar = _root.get_node_or_null("BossBarRoot") as Control
+	if _boss_bar == null:
+		_boss_bar = Control.new()
+		_boss_bar.name = "BossBarRoot"
+		_boss_bar.clip_contents = true
+		_root.add_child(_boss_bar)
+	var back := _boss_bar.get_node_or_null("Back") as ColorRect
+	if back == null:
+		back = ColorRect.new()
+		back.name = "Back"
+		back.color = Color(0.02, 0.0, 0.0, 0.82)
+		_boss_bar.add_child(back)
+	_boss_bar_fill = _boss_bar.get_node_or_null("Fill") as ColorRect
+	if _boss_bar_fill == null:
+		_boss_bar_fill = ColorRect.new()
+		_boss_bar_fill.name = "Fill"
+		_boss_bar_fill.color = Color(0.86, 0.10, 0.17, 1.0)
+		_boss_bar.add_child(_boss_bar_fill)
+	_boss_bar_top_shine = _boss_bar.get_node_or_null("TopShine") as ColorRect
+	if _boss_bar_top_shine == null:
+		_boss_bar_top_shine = ColorRect.new()
+		_boss_bar_top_shine.name = "TopShine"
+		_boss_bar_top_shine.color = Color(1.0, 0.24, 0.30, 0.38)
+		_boss_bar.add_child(_boss_bar_top_shine)
+	_boss_bar_left_step = _boss_bar.get_node_or_null("LeftStep") as ColorRect
+	if _boss_bar_left_step == null:
+		_boss_bar_left_step = ColorRect.new()
+		_boss_bar_left_step.name = "LeftStep"
+		_boss_bar_left_step.color = Color(0.0, 0.0, 0.0, 1.0)
+		_boss_bar.add_child(_boss_bar_left_step)
+	_boss_bar_right_step = _boss_bar.get_node_or_null("RightStep") as ColorRect
+	if _boss_bar_right_step == null:
+		_boss_bar_right_step = ColorRect.new()
+		_boss_bar_right_step.name = "RightStep"
+		_boss_bar_right_step.color = Color(0.0, 0.0, 0.0, 1.0)
+		_boss_bar.add_child(_boss_bar_right_step)
+	_layout_boss_bar_children()
+
+
+func _layout_boss_bar_children() -> void:
+	if _boss_bar == null:
+		return
+	var back := _boss_bar.get_node_or_null("Back") as ColorRect
+	if back:
+		back.position = Vector2.ZERO
+		back.size = _boss_bar.size
+	if _boss_bar_fill:
+		_boss_bar_fill.position = Vector2.ZERO
+		_boss_bar_fill.size = Vector2(_boss_bar.size.x * _boss_bar_ratio, _boss_bar.size.y)
+	if _boss_bar_top_shine:
+		_boss_bar_top_shine.position = Vector2(0.0, DisplaySettings.scale_value(2.0))
+		_boss_bar_top_shine.size = Vector2(_boss_bar.size.x * _boss_bar_ratio, DisplaySettings.scale_value(5.0))
+	var step_width := DisplaySettings.scale_value(72.0)
+	var step_height := DisplaySettings.scale_value(12.0)
+	if _boss_bar_left_step:
+		_boss_bar_left_step.position = Vector2(0.0, _boss_bar.size.y - step_height)
+		_boss_bar_left_step.size = Vector2(step_width, step_height)
+	if _boss_bar_right_step:
+		_boss_bar_right_step.position = Vector2(_boss_bar.size.x - step_width, _boss_bar.size.y - step_height)
+		_boss_bar_right_step.size = Vector2(step_width, step_height)
+
+
+func _apply_boss_bar_ratio() -> void:
+	if _boss_bar_fill == null:
+		return
+	_layout_boss_bar_children()
 
 
 func _make_label(color: Color, font_size: int) -> Label:

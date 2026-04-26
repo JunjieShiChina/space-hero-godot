@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://du5vtilwc21jp" path="res://assets/sprites/goods.png" id="2"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_shop"]
-radius = 30.0
+radius = 28.0
 
 [node name="ShopItem" type="Area2D" unique_id=941893935]
 z_index = 6

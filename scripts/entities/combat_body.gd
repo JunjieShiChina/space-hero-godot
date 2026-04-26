@@ -13,6 +13,8 @@ var coin_type := "coin1"
 var hp_drop_chance := 0.02
 var dead := false
 var retired := false
+var _authored_collision_polygons: Dictionary = {}
+var _authored_circle_collisions: Dictionary = {}
 
 const GAMEPLAY_ENTITY_SCALE := 0.62
 const PLAYER_VISUAL_TARGET := 68.0
@@ -35,7 +37,8 @@ func setup(texture_path: String, radius: float, body_team: String, hp: float) ->
 		s.name = "Sprite2D"
 		add_child(s)
 	sprite = get_node("Sprite2D")
-	sprite.texture = load(texture_path)
+	if texture_path != "":
+		sprite.texture = load(texture_path)
 	if sprite.texture:
 		var target := PLAYER_VISUAL_TARGET if team == "player" else ENEMY_VISUAL_TARGET
 		if hp >= 800:
@@ -66,7 +69,6 @@ func die() -> void:
 	dead = true
 	if stat_key != "":
 		GameData.record_stat(stat_key)
-	AudioBus.play_sfx("explosion")
 	_spawn_burst()
 	set_deferred("monitoring", false)
 	set_deferred("monitorable", false)
@@ -121,9 +123,17 @@ func _spawn_parent() -> Node:
 	return get_tree().current_scene if get_tree().current_scene else get_tree().root
 
 func _configure_collision(texture_path: String, radius: float, hp: float) -> void:
-	var round_collision := _uses_round_collision(texture_path)
 	var shape_node := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	var polygon_node := get_node_or_null("CollisionPolygon2D") as CollisionPolygon2D
+	if polygon_node != null and polygon_node.polygon.size() >= 3:
+		_apply_authored_collision_polygon(polygon_node)
+		if shape_node:
+			shape_node.disabled = true
+		return
+	if shape_node != null and shape_node.shape is CircleShape2D:
+		_apply_authored_circle_collision(shape_node)
+		return
+	var round_collision := _uses_round_collision(texture_path)
 	if round_collision:
 		if polygon_node:
 			polygon_node.free()
@@ -147,6 +157,36 @@ func _configure_collision(texture_path: String, radius: float, hp: float) -> voi
 	polygon_node.rotation = 0.0
 	polygon_node.scale = Vector2.ONE
 	polygon_node.polygon = _ship_collision_polygon(texture_path, hp)
+	polygon_node.disabled = false
+
+func _apply_authored_circle_collision(shape_node: CollisionShape2D) -> void:
+	var key := str(shape_node.get_path())
+	if not _authored_circle_collisions.has(key):
+		var circle := shape_node.shape as CircleShape2D
+		_authored_circle_collisions[key] = {
+			"radius": circle.radius,
+			"position": shape_node.position,
+		}
+		shape_node.shape = circle.duplicate()
+	var base: Dictionary = _authored_circle_collisions[key]
+	var active_circle := shape_node.shape as CircleShape2D
+	active_circle.radius = float(base["radius"]) * DisplaySettings.scale_factor()
+	shape_node.position = (base["position"] as Vector2) * DisplaySettings.scale_factor()
+	shape_node.disabled = false
+
+func _apply_authored_collision_polygon(polygon_node: CollisionPolygon2D) -> void:
+	var key := str(polygon_node.get_path())
+	if not _authored_collision_polygons.has(key):
+		_authored_collision_polygons[key] = polygon_node.polygon
+	var base_polygon: PackedVector2Array = _authored_collision_polygons[key]
+	var scaled_polygon := PackedVector2Array()
+	var scale_factor := DisplaySettings.scale_factor()
+	for point in base_polygon:
+		scaled_polygon.append(point * scale_factor)
+	polygon_node.position = Vector2.ZERO
+	polygon_node.rotation = 0.0
+	polygon_node.scale = Vector2.ONE
+	polygon_node.polygon = scaled_polygon
 	polygon_node.disabled = false
 
 func _uses_round_collision(texture_path: String) -> bool:

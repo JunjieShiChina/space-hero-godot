@@ -8,4 +8,5 @@ class_name ShopDropDefinition
 @export var icon_region := Rect2()
 @export var icon_scale := 1.0
 @export var item_scale := 1.0
+@export var item_scene: PackedScene
 @export var weight := 1.0

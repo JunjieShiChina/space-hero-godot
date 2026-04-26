@@ -17,10 +17,18 @@ var fire_timer := 0.0
 var mouse_drag := false
 var drag_offset := Vector2.ZERO
 var stage: Node
-var friend_offsets := [Vector2(-72, 39), Vector2(72, 39)]
 var friends: Array[Sprite2D] = []
+var friend_laser_timers: Array[float] = []
+var friend_orbit_angle := 0.0
 
 const TailJetScene := preload("res://scenes/components/ship_tail_jet.tscn")
+const FriendLaserScene := preload("res://scenes/components/friend_laser_beam.tscn")
+const FRIEND_ORBIT_X_RADIUS := 66.0
+const FRIEND_ORBIT_Y_RADIUS := 88.0
+const FRIEND_ORBIT_SPEED := 2.0
+const FRIEND_LASER_INTERVAL := 1.05
+const FRIEND_VISUAL_SCALE := 1.2
+const FRIEND_TAIL_JET_SCALE := 0.58
 
 func _ready() -> void:
 	setup("res://assets/sprites/Spaceship_Protagonist - P1.png", 30, "player", GameData.player_health)
@@ -53,8 +61,6 @@ func shoot_current_weapon() -> void:
 	var interval: float = SpaceBullet.bullet_info(bullet_type).interval
 	fire_timer = interval
 	_fire_pattern(bullet_type, global_position, Vector2.UP, "player")
-	for i in min(GameData.friend_plane_count, friends.size()):
-		_fire_pattern(bullet_type, friends[i].global_position, Vector2.UP, "player")
 	var sfx_key: String = SpaceBullet.bullet_info(bullet_type).sfx
 	AudioBus.play_sfx(sfx_key, -12.0)
 
@@ -75,7 +81,7 @@ func _fire_pattern(bullet_type: String, origin: Vector2, direction: Vector2, tea
 			_spawn_bullet(bullet_type, origin + _shot_offset(Vector2(0, -34)), direction, team_name)
 
 func _spawn_bullet(type_name: String, origin: Vector2, direction: Vector2, team_name: String) -> void:
-	var bullet := SpaceBullet.new()
+	var bullet := SpaceBullet.create(type_name)
 	_spawn_parent().add_child(bullet)
 	bullet.setup(type_name, team_name, origin, direction)
 
@@ -101,15 +107,32 @@ func sync_friends() -> void:
 	while friends.size() < GameData.friend_plane_count:
 		var friend := Sprite2D.new()
 		friend.texture = load("res://assets/sprites/friendplane.png")
-		friend.scale = Vector2.ONE * 0.30 * DisplaySettings.scale_factor()
-		_attach_tail_jet(friend, 1.55)
+		friend.scale = Vector2.ONE * FRIEND_VISUAL_SCALE * DisplaySettings.scale_factor()
+		_attach_tail_jet(friend, FRIEND_TAIL_JET_SCALE)
 		_spawn_parent().add_child(friend)
+		var index := friends.size()
+		var count: int = max(GameData.friend_plane_count, 1)
+		friend.global_position = global_position + _friend_orbit_offset(TAU * float(index) / float(count))
 		friends.append(friend)
+		friend_laser_timers.append(0.25 + float(index) * 0.33)
 
 func _update_friends(delta: float) -> void:
 	sync_friends()
+	var active_count: int = min(GameData.friend_plane_count, friends.size())
+	if active_count > 0:
+		friend_orbit_angle -= FRIEND_ORBIT_SPEED * delta
 	for i in friends.size():
-		friends[i].global_position = friends[i].global_position.lerp(global_position + DisplaySettings.to_current(friend_offsets[i]), min(1.0, delta * 8.0))
+		var friend := friends[i]
+		friend.visible = i < active_count
+		if not friend.visible:
+			continue
+		var angle := friend_orbit_angle + TAU * float(i) / float(active_count)
+		friend.global_position = global_position + _friend_orbit_offset(angle)
+		friend.rotation = 0.0
+		friend_laser_timers[i] -= delta
+		if friend_laser_timers[i] <= 0.0:
+			friend_laser_timers[i] = FRIEND_LASER_INTERVAL + float(i) * 0.18
+			_fire_friend_laser(friend)
 
 func _on_died(_body: CombatBody) -> void:
 	await get_tree().create_timer(0.8).timeout
@@ -117,6 +140,28 @@ func _on_died(_body: CombatBody) -> void:
 
 func _spawn_parent() -> Node:
 	return get_tree().current_scene if get_tree().current_scene else get_tree().root
+
+func _friend_orbit_offset(angle: float) -> Vector2:
+	return Vector2(
+		cos(angle) * DisplaySettings.scale_value(FRIEND_ORBIT_X_RADIUS),
+		sin(angle) * DisplaySettings.scale_value(FRIEND_ORBIT_Y_RADIUS)
+	)
+
+func _fire_friend_laser(friend: Sprite2D) -> void:
+	var laser := FriendLaserScene.instantiate()
+	_spawn_parent().add_child(laser)
+	if laser.has_method("fire_from_anchor"):
+		laser.call(
+			"fire_from_anchor",
+			friend,
+			DisplaySettings.to_current(Vector2(0, -32)),
+			Vector2.UP,
+			"player",
+			{"width": 7.0, "damage": 1.0, "life": 0.62, "extend_to_edge": true}
+		)
+	elif laser.has_method("fire"):
+		laser.call("fire", friend.global_position + DisplaySettings.to_current(Vector2(0, -28)), Vector2.UP, "player")
+	AudioBus.play_sfx("laser", -20.0)
 
 func _attach_tail_jet(target_sprite: Sprite2D, jet_scale: float) -> void:
 	if target_sprite == null or target_sprite.get_node_or_null("TailJet") != null:

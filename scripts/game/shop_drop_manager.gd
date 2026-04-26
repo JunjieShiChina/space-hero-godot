@@ -26,9 +26,14 @@ func _process(delta: float) -> void:
 
 func drop() -> Node:
 	var definition := _pick_definition()
-	if definition == null or item_scene == null:
+	if definition == null:
 		return null
-	var item := item_scene.instantiate()
+	var scene := definition.get("item_scene") as PackedScene
+	if scene == null:
+		scene = item_scene
+	if scene == null:
+		return null
+	var item := scene.instantiate()
 	if item == null:
 		return null
 	_spawn_parent().add_child(item)

@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/components/friend_laser_beam.gd" id="1_laser"]
+
+[node name="FriendLaserBeam" type="Area2D"]
+z_index = 42
+script = ExtResource("1_laser")
+
+[node name="GlowLine" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="CoreLine" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="BeamParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
+[node name="MuzzleParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
+[node name="ImpactParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]

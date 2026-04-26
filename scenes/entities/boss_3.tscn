@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://ddd320y3ma3hf"]
+
+[ext_resource type="Script" uid="uid://dxx2wpar4hxmv" path="res://scripts/entities/boss.gd" id="1_boss"]
+[ext_resource type="Texture2D" uid="uid://c75gy6msfjrlh" path="res://assets/sprites/Spaceship_Boss 3.png" id="2_texture"]
+
+[node name="Boss3" type="Area2D" unique_id=39230449]
+script = ExtResource("1_boss")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1545291818]
+texture = ExtResource("2_texture")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=1855542106]
+polygon = PackedVector2Array(-3, -16, 4, -16, 16, -26, 24, -27, 27, -23, 27, -18, 22, -8, 22, -1, 17, 1, 17, 24, 11, 26, 9, 7, 0, 20, -9, 10, -11, 27, -16, 22, -18, 0, -21, -1, -22, -7, -27, -19, -27, -24, -23, -27, -15, -27)
