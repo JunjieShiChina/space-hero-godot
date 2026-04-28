@@ -102,4 +102,5 @@ renderer/rendering_method.mobile="gl_compatibility"
 
 [space_hero]
 
+debug/mode=false
 debug/player_invincible=false

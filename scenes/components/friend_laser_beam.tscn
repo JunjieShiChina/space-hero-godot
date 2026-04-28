@@ -6,16 +6,25 @@
 z_index = 42
 script = ExtResource("1_laser")
 
+[node name="OuterGlowLine" type="Line2D" parent="."]
+texture_filter = 1
+
 [node name="GlowLine" type="Line2D" parent="."]
 texture_filter = 1
 
 [node name="CoreLine" type="Line2D" parent="."]
 texture_filter = 1
 
+[node name="HotLine" type="Line2D" parent="."]
+texture_filter = 1
+
 [node name="BeamParticles" type="GPUParticles2D" parent="."]
 texture_filter = 1
 
 [node name="MuzzleParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
+[node name="SideParticles" type="GPUParticles2D" parent="."]
 texture_filter = 1
 
 [node name="ImpactParticles" type="GPUParticles2D" parent="."]

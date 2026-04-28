@@ -3,7 +3,7 @@ class_name ShopItem
 
 const GOODS_FONT := preload("res://assets/font/STHUPO.TTF")
 
-@export_enum("friend", "bullet", "shield") var product_type := "bullet"
+@export_enum("friend", "bullet", "shield", "fire_rate") var product_type := "bullet"
 @export var bullet_type := ""
 @export var price := 0
 @export var icon_texture: Texture2D
@@ -51,26 +51,32 @@ func _on_area_entered(area: Area2D) -> void:
 	if retired or not (area is PlayerShip):
 		return
 	if GameData.coin_count < price:
-		_fail_purchase()
+		_fail_purchase("coin")
 		return
 
 	var ok := false
+	var failure_reason := "item"
 	match product_type:
 		"bullet":
-			GameData.equip_bullet(bullet_type)
-			ok = true
+			ok = GameData.equip_bullet(bullet_type)
+			if not ok:
+				failure_reason = "weapon"
 		"friend":
 			ok = GameData.buy_friend()
+			if not ok:
+				failure_reason = "friend"
 		"shield":
 			if stage and stage.has_method("spawn_shield"):
 				stage.spawn_shield()
 				ok = true
+		"fire_rate":
+			ok = GameData.add_fire_rate_to_current_bullet()
 
 	if ok and GameData.spend_coins(price):
 		AudioBus.play_sfx("consume")
 		_retire()
 	else:
-		_fail_purchase()
+		_fail_purchase(failure_reason)
 
 
 func _apply_visual() -> void:
@@ -119,10 +125,10 @@ func _apply_template_collision(collision: CollisionShape2D) -> void:
 	collision.disabled = false
 
 
-func _fail_purchase() -> void:
+func _fail_purchase(reason := "coin") -> void:
 	AudioBus.play_sfx("failed")
 	if stage and stage.has_method("flash_shop_failure"):
-		stage.flash_shop_failure()
+		stage.flash_shop_failure(reason)
 	var visual_root := get_node_or_null("VisualRoot") as Node2D
 	if visual_root:
 		var tween := create_tween()

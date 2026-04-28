@@ -1,0 +1,258 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/effects/boss_death_effect.gd" id="1_boss_death"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_hot_core"]
+offsets = PackedFloat32Array(0, 0.2, 0.58, 1)
+colors = PackedColorArray(1, 1, 0.82, 1, 1, 0.78, 0.08, 0.94, 1, 0.2, 0.03, 0.58, 1, 0.02, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_hot_core"]
+gradient = SubResource("Gradient_hot_core")
+width = 28
+height = 28
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_smoke"]
+offsets = PackedFloat32Array(0, 0.42, 1)
+colors = PackedColorArray(0.44, 0.37, 0.31, 0.42, 0.15, 0.1, 0.08, 0.22, 0.02, 0.015, 0.012, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_smoke"]
+gradient = SubResource("Gradient_smoke")
+width = 42
+height = 42
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_streak"]
+offsets = PackedFloat32Array(0, 0.24, 0.68, 1)
+colors = PackedColorArray(1, 1, 0.58, 0.98, 1, 0.5, 0.04, 0.88, 1, 0.1, 0.02, 0.5, 0.9, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_streak"]
+gradient = SubResource("Gradient_streak")
+width = 3
+height = 36
+fill = 0
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="Animation" id="Animation_boss_death"]
+resource_name = "boss_death"
+length = 1.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CoreFlash:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.28, 1.05),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.25, 0.25), Vector2(1.65, 1.65), Vector2(2.35, 2.35), Vector2(3.0, 3.0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CoreFlash:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.28, 1.05),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 0.98, 0.55, 0.95), Color(1, 0.86, 0.18, 0.9), Color(1, 0.24, 0.04, 0.42), Color(1, 0.02, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ShockRing:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.16, 0.55, 1.05),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.35, 0.35), Vector2(1.35, 1.35), Vector2(2.6, 2.6), Vector2(3.3, 3.3)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ShockRing:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.16, 0.55, 1.05),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 0.8, 0.16, 0.82), Color(1, 0.35, 0.05, 0.58), Color(1, 0.08, 0, 0.2), Color(1, 0.02, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_boss_death"]
+_data = {
+"boss_death": SubResource("Animation_boss_death")
+}
+
+[node name="BossDeathEffect" type="Node2D"]
+z_index = 80
+script = ExtResource("1_boss_death")
+lifetime = 3.65
+
+[node name="CoreFlash" type="Polygon2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+color = Color(1, 0.62, 0.08, 0.9)
+polygon = PackedVector2Array(-44, 0, -12, -7, 0, -42, 12, -7, 44, 0, 12, 7, 0, 42, -12, 7)
+
+[node name="ShockRing" type="Line2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+width = 4.0
+default_color = Color(1, 0.48, 0.05, 0.78)
+closed = true
+points = PackedVector2Array(42, 0, 36, 21, 21, 36, 0, 42, -21, 36, -36, 21, -42, 0, -36, -21, -21, -36, 0, -42, 21, -36, 36, -21)
+
+[node name="CoreBurst" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+texture = SubResource("GradientTexture2D_hot_core")
+emitting = false
+amount = 42
+lifetime = 0.42
+one_shot = true
+explosiveness = 1.0
+randomness = 0.45
+lifetime_randomness = 0.25
+local_coords = false
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 30)
+initial_velocity_min = 180.0
+initial_velocity_max = 520.0
+damping_min = 240.0
+damping_max = 460.0
+scale_amount_min = 0.55
+scale_amount_max = 1.45
+color = Color(1, 0.68, 0.08, 0.95)
+
+[node name="RadialSparks" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+texture = SubResource("GradientTexture2D_streak")
+emitting = false
+amount = 64
+lifetime = 0.58
+one_shot = true
+explosiveness = 0.96
+randomness = 0.5
+lifetime_randomness = 0.25
+local_coords = false
+angle_min = -12.0
+angle_max = 12.0
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 360)
+initial_velocity_min = 140.0
+initial_velocity_max = 460.0
+damping_min = 120.0
+damping_max = 280.0
+scale_amount_min = 0.52
+scale_amount_max = 1.05
+particle_flag_align_y = true
+color = Color(1, 0.38, 0.04, 0.82)
+
+[node name="SmokePuffs" type="CPUParticles2D" parent="."]
+texture = SubResource("GradientTexture2D_smoke")
+emitting = false
+amount = 28
+lifetime = 1.0
+one_shot = true
+explosiveness = 0.62
+randomness = 0.6
+lifetime_randomness = 0.22
+local_coords = false
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, -32)
+initial_velocity_min = 45.0
+initial_velocity_max = 190.0
+damping_min = 85.0
+damping_max = 160.0
+scale_amount_min = 1.1
+scale_amount_max = 2.5
+color = Color(0.38, 0.34, 0.3, 0.62)
+
+[node name="HeavySmoke" type="CPUParticles2D" parent="."]
+texture = SubResource("GradientTexture2D_smoke")
+emitting = false
+amount = 42
+lifetime = 2.15
+one_shot = true
+explosiveness = 0.42
+randomness = 0.74
+lifetime_randomness = 0.34
+local_coords = false
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, -18)
+initial_velocity_min = 28.0
+initial_velocity_max = 150.0
+damping_min = 38.0
+damping_max = 96.0
+scale_amount_min = 1.9
+scale_amount_max = 4.8
+color = Color(0.25, 0.23, 0.21, 0.58)
+
+[node name="DebrisStreaks" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+texture = SubResource("GradientTexture2D_streak")
+emitting = false
+amount = 36
+lifetime = 0.95
+one_shot = true
+explosiveness = 0.88
+randomness = 0.72
+lifetime_randomness = 0.34
+local_coords = false
+angle_min = -20.0
+angle_max = 20.0
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 520)
+initial_velocity_min = 210.0
+initial_velocity_max = 620.0
+damping_min = 70.0
+damping_max = 210.0
+scale_amount_min = 0.55
+scale_amount_max = 1.35
+particle_flag_align_y = true
+color = Color(1, 0.48, 0.08, 0.88)
+
+[node name="EmberRain" type="CPUParticles2D" parent="."]
+material = SubResource("CanvasItemMaterial_add")
+texture = SubResource("GradientTexture2D_hot_core")
+emitting = false
+amount = 34
+lifetime = 1.55
+one_shot = true
+explosiveness = 0.64
+randomness = 0.8
+lifetime_randomness = 0.42
+local_coords = false
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 420)
+initial_velocity_min = 80.0
+initial_velocity_max = 360.0
+damping_min = 42.0
+damping_max = 145.0
+scale_amount_min = 0.32
+scale_amount_max = 0.95
+color = Color(1, 0.35, 0.05, 0.82)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_boss_death")
+}
+autoplay = "boss_death"

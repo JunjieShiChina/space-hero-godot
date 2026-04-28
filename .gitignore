@@ -2,3 +2,5 @@
 .godot/
 /android/
 .temp/
+/tests/output/*.png
+/tests/output/*.png.import

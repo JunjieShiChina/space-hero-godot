@@ -3,6 +3,7 @@ class_name BackgroundAsteroids
 
 @export var extra_multiplier := 3
 @export var rng_seed := 240424
+@export_range(0.5, 4.0, 0.05) var fall_speed_multiplier := 1.55
 
 const ROCK_INITIAL_LAYERS := [0, 1, 2, 1, 0, 2, 1, 2]
 const ROCK_LAYER_DATA := [
@@ -124,6 +125,7 @@ func _apply_rock_layer(rock: Sprite2D, layer_index: int, respawn: bool) -> void:
 		_rng.randf_range(float(layer["drift_min"]), float(layer["drift_max"])),
 		_rng.randf_range(float(layer["speed_min"]), float(layer["speed_max"]))
 	)
+	velocity.y *= fall_speed_multiplier
 	rock.scale = Vector2.ONE * scale_value * DisplaySettings.scale_factor()
 	rock.modulate = layer["modulate"]
 	rock.z_index = int(layer["z_index"])

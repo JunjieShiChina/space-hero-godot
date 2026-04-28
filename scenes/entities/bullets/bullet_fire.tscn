@@ -1,11 +1,47 @@
 [gd_scene format=3 uid="uid://1fjtr1sl1xpn"]
 
 [ext_resource type="Script" uid="uid://cmpgctq5dqxgy" path="res://scripts/entities/bullet.gd" id="1_bullet"]
-[ext_resource type="Texture2D" uid="uid://bme7ghewhj5ru" path="res://assets/sprites/bullet5.png" id="2_texture"]
+[ext_resource type="Texture2D" uid="uid://do7dcodnlaeyf" path="res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png" id="2_texture"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bullet_fire_0"]
+atlas = ExtResource("2_texture")
+region = Rect2(416, 144, 16, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bullet_fire_1"]
+atlas = ExtResource("2_texture")
+region = Rect2(432, 144, 16, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bullet_fire_2"]
+atlas = ExtResource("2_texture")
+region = Rect2(448, 144, 16, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bullet_fire_3"]
+atlas = ExtResource("2_texture")
+region = Rect2(464, 144, 16, 17)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bullet_fire"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bullet_fire_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bullet_fire_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bullet_fire_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bullet_fire_3")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 12.0
+}]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bullet_fire"]
-radius = 3.0
-height = 20.0
+radius = 8.0
+height = 22.0
 
 [node name="BulletFire" type="Area2D" unique_id=1159537582]
 texture_filter = 1
@@ -13,10 +49,14 @@ script = ExtResource("1_bullet")
 bullet_type = "BulletFire"
 use_scene_template = true
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=448387876]
-scale = Vector2(0.72, 0.72)
-texture = ExtResource("2_texture")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=448387876]
+texture_filter = 1
+position = Vector2(-1, 0)
+scale = Vector2(1.35, 1.35)
+sprite_frames = SubResource("SpriteFrames_bullet_fire")
+animation = &"fly"
+autoplay = "fly"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=895611914]
-position = Vector2(-1, 1)
+position = Vector2(-1, 0)
 shape = SubResource("CapsuleShape2D_bullet_fire")

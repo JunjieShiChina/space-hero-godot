@@ -25,6 +25,7 @@ var anim_time := 0.0
 
 
 func _ready() -> void:
+	AudioBus.stop_music()
 	_render_stage_text()
 	await _wait_for_screen_transition()
 	var tree := get_tree()

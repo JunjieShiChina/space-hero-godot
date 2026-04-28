@@ -117,22 +117,31 @@ func _on_area_entered(area: Area2D) -> void:
 		call_deferred("_retire")
 	elif kind == "goods":
 		var ok := false
+		var failure_reason := "coin"
 		if GameData.spend_coins(price):
+			failure_reason = "item"
 			match product_type:
 				"bullet":
-					GameData.equip_bullet(bullet_type)
-					ok = true
+					ok = GameData.equip_bullet(bullet_type)
+					if not ok:
+						failure_reason = "weapon"
 				"friend":
 					ok = GameData.buy_friend()
+					if not ok:
+						failure_reason = "friend"
 				"shield":
 					ok = true
 					if stage and stage.has_method("spawn_shield"):
 						stage.spawn_shield()
+				"fire_rate":
+					ok = GameData.add_fire_rate_to_current_bullet()
 			if not ok:
 				GameData.add_coins(price)
 		AudioBus.play_sfx("consume" if ok else "failed")
 		if ok:
 			call_deferred("_retire")
+		elif stage and stage.has_method("flash_shop_failure"):
+			stage.flash_shop_failure(failure_reason)
 
 func _setup_visual(texture_path: String, scale_value: float, radius: float, layer: int) -> void:
 	collision_layer = layer
@@ -212,6 +221,8 @@ func _goods_icon_texture(product: String, item_bullet: String) -> String:
 		return "res://assets/sprites/friendplane.png"
 	if product == "shield":
 		return "res://assets/sprites/PowerUp_HP.png"
+	if product == "fire_rate":
+		return "res://assets/sprites/fire_rate_upgrade_icon.png"
 	match item_bullet:
 		"BulletArrow":
 			return "res://assets/sprites/WyvernHornBow.png"
@@ -228,6 +239,8 @@ func _goods_icon_scale(product: String, item_bullet: String) -> float:
 		return 0.88
 	if product == "shield":
 		return 0.38
+	if product == "fire_rate":
+		return 0.58
 	match item_bullet:
 		"BulletArrow":
 			return 0.18

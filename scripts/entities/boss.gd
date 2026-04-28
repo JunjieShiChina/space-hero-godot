@@ -22,6 +22,7 @@ var boss3_attack_timer := 1.0
 var boss3_follow_timer := 1.0
 
 const UNITY_UNIT := 108.0
+const BossDeathEffectScene := preload("res://scenes/components/boss_death_effect.tscn")
 
 func configure(id: int, target_player: PlayerShip, owner_stage: Node) -> void:
 	boss_id = id
@@ -177,17 +178,18 @@ func _shoot_boss1_primary() -> void:
 		_spawn_bullet("Bullet2", global_position + DisplaySettings.to_current(Vector2(0, UNITY_UNIT * 0.5)), Vector2.DOWN.rotated(deg_to_rad(angle)))
 
 func _shoot_boss1_special_step() -> void:
-	_play_bullet_sfx("BulletYue")
+	_play_bullet_sfx("BulletFire")
 	var angle := -50.0 + float(boss1_special_index) * 10.0
-	_spawn_bullet("BulletYue", global_position + DisplaySettings.to_current(Vector2(0, UNITY_UNIT * 0.5)), Vector2.DOWN.rotated(deg_to_rad(angle)))
+	_spawn_bullet("BulletFire", global_position + DisplaySettings.to_current(Vector2(0, UNITY_UNIT * 0.5)), Vector2.DOWN.rotated(deg_to_rad(angle)))
 
 func _update_boss1_target() -> void:
 	var target_y := DisplaySettings.scale_value(217.5)
 	if global_position.y < target_y - DisplaySettings.scale_value(8.0):
 		target = Vector2(global_position.x, target_y)
 		return
-	var left_x := DisplaySettings.scale_value(960.0 - 1.8 * UNITY_UNIT)
-	var right_x := DisplaySettings.scale_value(960.0 + 1.8 * UNITY_UNIT)
+	var half_width := _boss1_half_width()
+	var left_x := half_width
+	var right_x := DisplaySettings.logical_size().x - half_width
 	if boss1_moving_right:
 		target = Vector2(right_x, target_y)
 		if global_position.x >= right_x - DisplaySettings.scale_value(8.0):
@@ -246,9 +248,23 @@ func _play_bullet_sfx(type_name: String) -> void:
 	var sfx_key: String = SpaceBullet.bullet_info(type_name).sfx
 	AudioBus.play_sfx(sfx_key, -14.0)
 
+func _spawn_burst() -> void:
+	var effect := BossDeathEffectScene.instantiate() as Node2D
+	_spawn_parent().add_child(effect)
+	effect.global_position = global_position
+	effect.scale = Vector2.ONE * DisplaySettings.scale_factor()
+
 func _on_boss_died(_body: CombatBody) -> void:
+	if stage and stage.has_method("spawn_boss_rewards"):
+		stage.spawn_boss_rewards(global_position)
 	if stage and stage.has_method("on_boss_defeated"):
 		stage.on_boss_defeated()
 
 func _spawn_parent() -> Node:
 	return get_tree().current_scene if get_tree().current_scene else get_tree().root
+
+func _boss1_half_width() -> float:
+	if sprite and sprite.texture:
+		var sprite_width := sprite.texture.get_size().x * sprite.scale.x * scale.x
+		return max(DisplaySettings.scale_value(96.0), sprite_width * 0.5)
+	return DisplaySettings.scale_value(168.0)

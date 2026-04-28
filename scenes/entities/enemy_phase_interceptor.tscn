@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://bdbvosgoewq5n"]
+
+[ext_resource type="Script" uid="uid://b7lmmp8mv31po" path="res://scripts/entities/enemy.gd" id="1_enemy"]
+[ext_resource type="Texture2D" uid="uid://blqu5qutkduad" path="res://assets/sprites/enemy_phase_interceptor_hd.png" id="2_texture"]
+
+[node name="EnemyPhaseInterceptor" type="Area2D" unique_id=1664311814]
+script = ExtResource("1_enemy")
+enemy_kind = "phase_interceptor"
+enemy_health = 18.0
+collision_radius = 42.0
+statistic_key = "phase_interceptor"
+ai_mode = "phase_interceptor"
+starting_bullet_type = "BulletPhaseShard"
+starting_shoot_interval = 1.55
+starting_coin_type = "coin2"
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1134640174]
+texture_filter = 1
+scale = Vector2(0.74, 0.74)
+texture = ExtResource("2_texture")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=767674369]
+polygon = PackedVector2Array(0, -47, 9, -34, 18, -22, 25, -12, 42, 7, 44, 26, 31, 32, 19, 23, 12, 36, 4, 45, 0, 50, -4, 45, -12, 36, -19, 23, -31, 32, -44, 26, -42, 7, -25, -12, -18, -22, -9, -34)

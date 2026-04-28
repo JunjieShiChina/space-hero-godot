@@ -1,7 +1,7 @@
 extends Node
 class_name ShopDropDefinition
 
-@export_enum("friend", "bullet", "shield") var product_type := "bullet"
+@export_enum("friend", "bullet", "shield", "fire_rate") var product_type := "bullet"
 @export var bullet_type := ""
 @export var price := 0
 @export var icon_texture: Texture2D

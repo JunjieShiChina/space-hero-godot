@@ -14,6 +14,11 @@ var small_laser_pause_timer := 0.0
 var small_laser_paused := false
 var rotation_ready := false
 var rotation_target_y := 0.0
+var phase_time := 0.0
+var phase_dash_timer := 1.1
+var phase_dash_time_left := 0.0
+var phase_dash_direction := 1.0
+var phase_burst_side := 1.0
 
 @export var enemy_kind := "ship"
 @export var enemy_health := 5.0
@@ -56,8 +61,15 @@ func configure(_kind: String, pos: Vector2, target: PlayerShip) -> void:
 		hp_drop_chance = 0.0
 		_apply_meteor_visual_scale()
 		AudioBus.play_sfx("meteor", -12.0)
+	if ai == "phase_interceptor":
+		can_shoot = true
+		phase_time = randf_range(0.0, TAU)
+		phase_dash_timer = randf_range(0.55, 1.25)
+		phase_dash_time_left = 0.0
+		phase_dash_direction = -1.0 if global_position.x > DisplaySettings.logical_center().x else 1.0
+		phase_burst_side = 1.0
 	shoot_timer = shoot_interval if ai == "small_boss" else 0.5
-	rotation = 0.0 if ai in ["rotate", "small_boss", "meteor"] else PI
+	rotation = 0.0 if ai in ["rotate", "small_boss", "meteor", "phase_interceptor"] else PI
 	add_to_group("enemy")
 
 func _scene_texture_path() -> String:
@@ -86,9 +98,13 @@ func _process(delta: float) -> void:
 		"small_boss":
 			velocity.x = DisplaySettings.scale_value(sin(Time.get_ticks_msec() * 0.002) * 210)
 			velocity.y = DisplaySettings.scale_value(60)
+		"phase_interceptor":
+			_process_phase_interceptor(delta)
 	global_position += velocity * delta
 	if can_shoot:
-		if ai == "small_boss":
+		if ai == "phase_interceptor":
+			_process_phase_fire(delta)
+		elif ai == "small_boss":
 			_process_small_boss_fire(delta)
 		else:
 			shoot_timer -= delta
@@ -110,6 +126,57 @@ func _process_rotation_ep(delta: float) -> void:
 		return
 	rotation += delta * deg_to_rad(300.0)
 	velocity = Vector2.ZERO
+
+func _process_phase_interceptor(delta: float) -> void:
+	phase_time += delta
+	var drift_x := sin(phase_time * 2.35) * 255.0
+	var fall_y := 166.0 + sin(phase_time * 0.85) * 42.0
+	phase_dash_timer -= delta
+	if phase_dash_time_left > 0.0:
+		phase_dash_time_left -= delta
+		drift_x += phase_dash_direction * 720.0
+		if sprite:
+			sprite.modulate = Color(1.22, 1.4, 1.55, 1.0)
+	else:
+		if sprite:
+			sprite.modulate = sprite.modulate.lerp(Color.WHITE, 8.0 * delta)
+		if phase_dash_timer <= 0.0:
+			phase_dash_timer = randf_range(1.55, 2.25)
+			phase_dash_time_left = 0.18
+			if global_position.x < DisplaySettings.scale_value(420.0):
+				phase_dash_direction = 1.0
+			elif global_position.x > DisplaySettings.scale_value(1500.0):
+				phase_dash_direction = -1.0
+			else:
+				phase_dash_direction *= -1.0
+	velocity = DisplaySettings.to_current(Vector2(drift_x, fall_y))
+	rotation = clampf(velocity.x / DisplaySettings.scale_value(1600.0), -0.22, 0.22)
+
+func _process_phase_fire(delta: float) -> void:
+	shoot_timer -= delta
+	if shoot_timer > 0.0:
+		return
+	shoot_timer = shoot_interval
+	_shoot_phase_spread()
+
+func _shoot_phase_spread() -> void:
+	var base_direction := Vector2.DOWN
+	if player and not player.dead:
+		var to_player := player.global_position - global_position
+		if to_player.length_squared() > 1.0 and to_player.y > 0.0:
+			base_direction = to_player.normalized()
+	_play_bullet_sfx("BulletPhaseShard")
+	var origin := global_position + base_direction * DisplaySettings.scale_value(54.0)
+	phase_burst_side *= -1.0
+	for angle in [-0.44, -0.22, 0.0, 0.22, 0.44]:
+		var curve := 0.0 if is_zero_approx(angle) else 0.68 + absf(angle) * 0.55
+		var curve_direction := phase_burst_side
+		if angle < 0.0:
+			curve_direction *= -1.0
+		_spawn_bullet("BulletPhaseShard", origin, base_direction.rotated(angle), {
+			"curve_rate": curve,
+			"curve_direction": curve_direction,
+		})
 
 func _shoot() -> void:
 	var muzzle_distance := UNITY_UNIT if bullet_type == "Bullet2" else UNITY_UNIT * 0.5

@@ -7,6 +7,7 @@ extends Node2D
 @export var player_path: NodePath = ^"Player"
 @export var player_start_path: NodePath = ^"PlayerStart"
 @export var shop_drop_manager_path: NodePath = ^"ShopDropManager"
+@export var debug_mode := false
 @export var debug_shop_mode := false
 
 const BattleHudScene := preload("res://scenes/ui/battle_hud.tscn")
@@ -22,6 +23,7 @@ const ENEMY_SCENES := {
 	"ep2": preload("res://scenes/entities/enemy_dual_shot.tscn"),
 	"rotation_ep": preload("res://scenes/entities/enemy_rotation_quadshot.tscn"),
 	"meteor_enemy": preload("res://scenes/entities/enemy_dive_arcshot.tscn"),
+	"phase_interceptor": preload("res://scenes/entities/enemy_phase_interceptor.tscn"),
 	"meteor": preload("res://scenes/entities/meteor.tscn"),
 	"small_boss": preload("res://scenes/entities/enemy_small_boss.tscn"),
 }
@@ -40,8 +42,17 @@ const STAGE_BACKGROUND_SCROLL_SPEED := {
 	2: 0.1,
 	3: 0.1,
 }
+const BOSS_WARNING_TO_SPAWN_TIME := 6.0
+const BOSS_REWARD_PICKUP_DELAY := 5.0
+const VICTORY_EXIT_DELAY := 5.0
+const DEBUG_MODE_SETTING := "space_hero/debug/mode"
 const DEBUG_SHOP_MODE_SETTING := "space_hero/debug/shop_mode"
 const DEBUG_SHOP_COIN_GRANT := 2000
+const BOSS_REWARD_COUNTS := {
+	"coin3": 4,
+	"coin2": 10,
+	"coin1": 28,
+}
 
 var player: PlayerShip
 var hud: BattleHud
@@ -51,6 +62,7 @@ var elapsed := 0.0
 var ship_accum := 0.0
 var ep2_accum := 0.0
 var meteor_enemy_accum := 0.0
+var phase_accum := 0.0
 var meteor_accum := 0.0
 var rotation_spawned := false
 var small_boss_spawned := false
@@ -60,9 +72,9 @@ var stage_done := false
 var _debug_shop_index := 0
 
 var configs := {
-	1: {"boss_time": 120.0, "ship_delay": 0.0, "ship_prob": 0.8, "ep2_delay": 10.0, "ep2_prob": 0.6, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.1, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": -1.0, "boss": 1},
-	2: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": 120.0, "boss": 2},
-	3: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 3},
+	1: {"boss_time": 120.0, "ship_delay": 0.0, "ship_prob": 0.8, "ep2_delay": 10.0, "ep2_prob": 0.6, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.1, "phase_delay": 28.0, "phase_prob": 0.35, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": -1.0, "boss": 1},
+	2: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "phase_delay": -1.0, "phase_prob": 0.0, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": 120.0, "boss": 2},
+	3: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "phase_delay": -1.0, "phase_prob": 0.0, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 3},
 }
 
 func _ready() -> void:
@@ -74,7 +86,7 @@ func _ready() -> void:
 	_ensure_player()
 	_ensure_shop_drop_manager()
 	if OS.is_debug_build():
-		print("Debug shop: F2 toggle, F3 drop next goods, F4 grant next goods, F5 +coins, F6 grant debug loadout.")
+		print("Debug mode: F2 toggle, F3 drop goods, F4 grant goods, F5 +coins, F6 grant loadout, F7 boss warning, F8 boss battle, F9 clear combat.")
 
 func _process(delta: float) -> void:
 	if stage_done:
@@ -83,6 +95,7 @@ func _process(delta: float) -> void:
 	ship_accum += delta
 	ep2_accum += delta
 	meteor_enemy_accum += delta
+	phase_accum += delta
 	meteor_accum += delta
 	var cfg: Dictionary = configs[stage_number]
 	if not warning_sent:
@@ -90,7 +103,7 @@ func _process(delta: float) -> void:
 	if not warning_sent and elapsed >= cfg.boss_time:
 		warning_sent = true
 		_show_boss_warning()
-	if not boss_spawned and elapsed >= cfg.boss_time + 6.0:
+	if not boss_spawned and elapsed >= cfg.boss_time + BOSS_WARNING_TO_SPAWN_TIME:
 		_spawn_boss(cfg.boss)
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -100,10 +113,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not key_event.pressed or key_event.echo:
 		return
 	if key_event.keycode == KEY_F2 and OS.is_debug_build():
-		debug_shop_mode = not debug_shop_mode
-		_debug_log("shop mode %s" % ("ON" if debug_shop_mode else "OFF"))
+		debug_mode = not debug_mode
+		debug_shop_mode = debug_mode
+		_debug_log("mode %s" % ("ON" if _is_debug_enabled() else "OFF"))
 		return
-	if not _is_debug_shop_enabled():
+	if not _is_debug_enabled():
 		return
 	match key_event.keycode:
 		KEY_F3:
@@ -114,6 +128,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			_debug_add_coins()
 		KEY_F6:
 			_debug_grant_loadout()
+		KEY_F7:
+			debug_jump_to_phase("boss_warning")
+		KEY_F8:
+			debug_jump_to_phase("boss")
+		KEY_F9:
+			debug_jump_to_phase("clear_combat")
 
 func update_boss_health(ratio: float) -> void:
 	if hud:
@@ -123,9 +143,28 @@ func on_boss_defeated() -> void:
 	if stage_done:
 		return
 	stage_done = true
-	hud.show_boss_bar(false)
-	AudioBus.play_sfx("success")
-	await get_tree().create_timer(2.0).timeout
+	AudioBus.stop_music()
+	if hud:
+		hud.show_boss_bar(false)
+	var tree := get_tree()
+	if tree == null:
+		return
+	await tree.create_timer(BOSS_REWARD_PICKUP_DELAY).timeout
+	if not is_inside_tree():
+		return
+	AudioBus.play_sfx("pass_stage", -4.0)
+	if player:
+		GameData.player_health = max(1.0, player.health)
+		if player.has_method("start_victory_fly"):
+			player.call("start_victory_fly")
+	tree = get_tree()
+	if tree == null:
+		return
+	await tree.create_timer(VICTORY_EXIT_DELAY).timeout
+	if not is_inside_tree():
+		return
+	if player:
+		GameData.player_health = max(1.0, player.health)
 	SceneFlow.finish_stage()
 
 func spawn_shield() -> void:
@@ -133,9 +172,39 @@ func spawn_shield() -> void:
 	add_child(shield)
 	shield.configure(player)
 
-func flash_shop_failure() -> void:
+func spawn_boss_rewards(origin: Vector2) -> void:
+	AudioBus.play_sfx("coin_splash", -3.0)
+	for type_name in ["coin3", "coin2", "coin1"]:
+		var count := int(BOSS_REWARD_COUNTS.get(type_name, 0))
+		for _i in range(count):
+			_spawn_boss_reward_coin(type_name, origin)
+
+func flash_shop_failure(reason := "coin") -> void:
 	if hud and hud.has_method("flash_coin_count"):
-		hud.flash_coin_count()
+		match String(reason):
+			"weapon":
+				hud.flash_current_weapon_slot()
+			"friend":
+				hud.flash_friend_status()
+			"fire_rate":
+				hud.flash_fire_rate_status()
+			_:
+				hud.flash_coin_count()
+
+func debug_jump_to_phase(phase_name: StringName) -> void:
+	var phase := String(phase_name).strip_edges().to_lower()
+	match phase:
+		"mid", "middle", "mid_stage":
+			_debug_jump_to_time(_debug_mid_stage_time(), "mid stage")
+		"warning", "boss_warning":
+			_debug_jump_to_boss_warning()
+		"boss", "boss_battle":
+			_debug_jump_to_boss_battle()
+		"clear", "clear_combat":
+			_debug_clear_combat()
+			_debug_log("cleared combat nodes")
+		_:
+			push_warning("Unknown debug stage phase: %s" % phase_name)
 
 func _ensure_camera() -> void:
 	var camera := get_node_or_null(camera_path) as Camera2D
@@ -211,8 +280,107 @@ func _ensure_shop_drop_manager() -> void:
 	if "stage" in shop_drop_manager:
 		shop_drop_manager.stage = self
 
+func _is_debug_enabled() -> bool:
+	return debug_mode \
+		or debug_shop_mode \
+		or bool(ProjectSettings.get_setting(DEBUG_MODE_SETTING, false)) \
+		or bool(ProjectSettings.get_setting(DEBUG_SHOP_MODE_SETTING, false))
+
 func _is_debug_shop_enabled() -> bool:
-	return debug_shop_mode or bool(ProjectSettings.get_setting(DEBUG_SHOP_MODE_SETTING, false))
+	return _is_debug_enabled()
+
+func _debug_mid_stage_time() -> float:
+	var cfg: Dictionary = configs[stage_number]
+	var boss_time := float(cfg.boss_time)
+	var target_time := boss_time * 0.5
+	for key in ["phase_delay", "rotation_delay", "small_boss_delay", "meteor_delay"]:
+		var delay := float(cfg.get(key, -1.0))
+		if delay >= 0.0 and delay < boss_time:
+			target_time = maxf(target_time, delay)
+	return minf(target_time, maxf(0.0, boss_time - BOSS_WARNING_TO_SPAWN_TIME - 1.0))
+
+func _debug_jump_to_time(target_time: float, label: String) -> void:
+	if stage_done:
+		_debug_log("stage already done")
+		return
+	var cfg: Dictionary = configs[stage_number]
+	var boss_time := float(cfg.boss_time)
+	elapsed = clampf(maxf(elapsed, target_time), 0.0, maxf(0.0, boss_time - 0.1))
+	ship_accum = 999.0
+	ep2_accum = 999.0
+	meteor_enemy_accum = 999.0
+	phase_accum = 999.0
+	meteor_accum = 999.0
+	_debug_log("jumped to %s at %.1fs" % [label, elapsed])
+
+func _debug_jump_to_boss_warning() -> void:
+	if stage_done:
+		_debug_log("stage already done")
+		return
+	if boss_spawned and boss != null and is_instance_valid(boss):
+		_debug_log("boss already active")
+		return
+	var cfg: Dictionary = configs[stage_number]
+	_debug_clear_combat()
+	_debug_mark_pre_boss_spawns_completed()
+	elapsed = maxf(elapsed, float(cfg.boss_time))
+	warning_sent = true
+	_debug_clear_boss_warnings()
+	_show_boss_warning()
+	_debug_log("jumped to boss warning")
+
+func _debug_jump_to_boss_battle() -> void:
+	if stage_done:
+		_debug_log("stage already done")
+		return
+	var cfg: Dictionary = configs[stage_number]
+	_debug_clear_combat()
+	_debug_mark_pre_boss_spawns_completed()
+	_debug_clear_boss_warnings()
+	elapsed = maxf(elapsed, float(cfg.boss_time) + BOSS_WARNING_TO_SPAWN_TIME)
+	warning_sent = true
+	if boss == null or not is_instance_valid(boss) or boss.is_queued_for_deletion():
+		boss = null
+		boss_spawned = false
+	if not boss_spawned:
+		_spawn_boss(int(cfg.boss))
+	elif hud:
+		hud.show_boss_bar(true)
+	if boss != null and is_instance_valid(boss):
+		var boss_target = boss.get("target")
+		if boss_target is Vector2:
+			boss.global_position = boss_target
+	_debug_log("jumped to boss battle")
+
+func _debug_mark_pre_boss_spawns_completed() -> void:
+	rotation_spawned = true
+	small_boss_spawned = true
+	ship_accum = 0.0
+	ep2_accum = 0.0
+	meteor_enemy_accum = 0.0
+	phase_accum = 0.0
+	meteor_accum = 0.0
+
+func _debug_clear_combat(include_boss := false) -> void:
+	for child in get_children():
+		if child == player:
+			continue
+		if child is SpaceBullet or child is PickupItem or child is BossWarning:
+			child.queue_free()
+		elif child is EnemyShip:
+			child.queue_free()
+		elif include_boss and child is BossShip:
+			child.queue_free()
+	if include_boss:
+		boss = null
+		boss_spawned = false
+		if hud:
+			hud.show_boss_bar(false)
+
+func _debug_clear_boss_warnings() -> void:
+	for child in get_children():
+		if child is BossWarning:
+			child.queue_free()
 
 func _debug_drop_next_goods() -> void:
 	var definition := _debug_next_shop_definition()
@@ -275,12 +443,16 @@ func _debug_apply_goods_definition(definition: Node) -> bool:
 			var bullet_type := String(definition.get("bullet_type"))
 			if bullet_type == "":
 				return false
-			GameData.equip_bullet(bullet_type)
+			if not GameData.equip_bullet(bullet_type):
+				return false
 		"friend":
 			if not GameData.buy_friend():
 				return false
 		"shield":
 			spawn_shield()
+		"fire_rate":
+			if not GameData.add_fire_rate_to_current_bullet():
+				return false
 		_:
 			return false
 	if hud:
@@ -302,7 +474,7 @@ func _debug_shop_definitions() -> Array[Node]:
 		return definitions
 	for child in shop_drop_manager.get_children():
 		var product_type := String(child.get("product_type"))
-		if product_type in ["bullet", "friend", "shield"]:
+		if product_type in ["bullet", "friend", "shield", "fire_rate"]:
 			definitions.append(child)
 	return definitions
 
@@ -313,7 +485,7 @@ func _debug_goods_name(definition: Node) -> String:
 	return product_type
 
 func _debug_log(message: String) -> void:
-	print("[debug-shop] %s" % message)
+	print("[debug] %s" % message)
 
 func _update_enemy_spawns(cfg: Dictionary) -> void:
 	if ship_accum >= 1.0:
@@ -328,6 +500,12 @@ func _update_enemy_spawns(cfg: Dictionary) -> void:
 		meteor_enemy_accum = 0
 		if elapsed >= cfg.meteor_enemy_delay and randf() <= cfg.meteor_enemy_prob:
 			_spawn_enemy("meteor_enemy")
+	if phase_accum >= 1.5:
+		phase_accum = 0
+		var phase_delay := float(cfg.get("phase_delay", -1.0))
+		var phase_prob := float(cfg.get("phase_prob", 0.0))
+		if phase_delay >= 0.0 and phase_prob > 0.0 and elapsed >= phase_delay and randf() <= phase_prob:
+			_spawn_enemy("phase_interceptor")
 	if meteor_accum >= 0.5:
 		meteor_accum = 0
 		var meteor_delay := float(cfg.get("meteor_delay", -1.0))
@@ -396,6 +574,15 @@ func _coin_value(type_name: String) -> int:
 		"coin3":
 			return 200
 	return 20
+
+func _spawn_boss_reward_coin(type_name: String, origin: Vector2) -> void:
+	var coin := PickupItem.new()
+	add_child(coin)
+	var offset := DisplaySettings.to_current(Vector2(randf_range(-118.0, 118.0), randf_range(-52.0, 72.0)))
+	var angle := deg_to_rad(randf_range(-66.0, 66.0))
+	var speed := DisplaySettings.scale_value(randf_range(118.0, 360.0))
+	var velocity := Vector2.DOWN.rotated(angle) * speed
+	coin.configure_coin(type_name, origin + offset, _coin_value(type_name), velocity)
 
 func _enemy_drop_velocity(enemy: CombatBody) -> Vector2:
 	if enemy is EnemyShip:

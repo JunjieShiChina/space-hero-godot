@@ -14,6 +14,7 @@ const RESOLUTIONS := [
 
 var current_index := 0
 var has_saved_resolution := false
+var _scale_update_pending := false
 
 
 func _ready() -> void:
@@ -74,11 +75,17 @@ func _configure_window_scale() -> void:
 	var window := get_window()
 	if window == null:
 		return
-	window.content_scale_size = current_size()
-	window.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
-	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
-	window.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL
-	window.min_size = MIN_SIZE
+	var target_size := current_size()
+	if window.content_scale_size != target_size:
+		window.content_scale_size = target_size
+	if window.content_scale_mode != Window.CONTENT_SCALE_MODE_VIEWPORT:
+		window.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	if window.content_scale_aspect != Window.CONTENT_SCALE_ASPECT_KEEP:
+		window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	if window.content_scale_stretch != Window.CONTENT_SCALE_STRETCH_FRACTIONAL:
+		window.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL
+	if not window.is_embedded() and window.min_size != MIN_SIZE:
+		window.min_size = MIN_SIZE
 
 
 func _apply_current() -> void:
@@ -99,6 +106,14 @@ func _can_resize_window(window: Window) -> bool:
 
 
 func _on_window_size_changed() -> void:
+	if _scale_update_pending:
+		return
+	_scale_update_pending = true
+	call_deferred("_apply_deferred_window_scale")
+
+
+func _apply_deferred_window_scale() -> void:
+	_scale_update_pending = false
 	_configure_window_scale()
 
 

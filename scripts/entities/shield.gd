@@ -3,28 +3,37 @@ class_name ShieldBubble
 
 var target: PlayerShip
 var health := 100.0
+var max_health := 100.0
 var retired := false
 var _base_radius := 87.0
 var _pulse := 0.0
 var _hit_flash_timer := 0.0
+var _particle_texture: Texture2D
 const HIT_FLASH_DURATION := 0.18
-const OUTER_RING_COLOR := Color(0.26, 0.96, 1.0, 0.62)
-const INNER_RING_COLOR := Color(0.74, 1.0, 1.0, 0.46)
+const OUTER_RING_COLOR := Color(1.0, 0.78, 0.10, 0.68)
+const INNER_RING_COLOR := Color(1.0, 0.96, 0.42, 0.54)
 const HIT_RING_COLOR := Color(1.0, 0.16, 0.08, 0.92)
 
 @onready var _ring: Line2D = get_node_or_null("ShieldRing") as Line2D
 @onready var _inner_ring: Line2D = get_node_or_null("InnerRing") as Line2D
 @onready var _aura_particles: GPUParticles2D = get_node_or_null("AuraParticles") as GPUParticles2D
+@onready var _core_particles: GPUParticles2D = get_node_or_null("CoreParticles") as GPUParticles2D
 @onready var _spark_particles: GPUParticles2D = get_node_or_null("SparkParticles") as GPUParticles2D
 @onready var _collision: CollisionShape2D = get_node_or_null("CollisionShape2D") as CollisionShape2D
 
 func configure(player: PlayerShip) -> void:
 	target = player
+	health = max_health
+	GameData.set_shield(health, max_health)
 	collision_layer = 32
 	collision_mask = 2 | 8
+	monitoring = true
+	monitorable = true
 	z_index = 48
 	_ensure_nodes()
 	_layout_effect()
+	if not area_entered.is_connected(_on_area_entered):
+		area_entered.connect(_on_area_entered)
 
 func _process(delta: float) -> void:
 	if target == null or target.dead:
@@ -51,12 +60,32 @@ func reflect_bullet(bullet: SpaceBullet) -> void:
 	bullet.velocity *= -1.15
 	bullet.collision_layer = 4
 	bullet.collision_mask = 2 | 32
-	health -= bullet.damage
-	AudioBus.play_sfx("shield")
+	_damage_shield(bullet.damage)
+
+func _on_area_entered(area: Area2D) -> void:
+	if retired or target == null:
+		return
+	if area is CombatBody:
+		var body := area as CombatBody
+		if body.dead or body.team == target.team:
+			return
+		var shield_damage := body.health
+		body.take_damage(health)
+		_damage_shield(shield_damage)
+
+func _damage_shield(amount: float) -> void:
+	health -= amount
+	GameData.set_shield(health, max_health)
+	_play_shield_sfx()
 	_hit_flash_timer = HIT_FLASH_DURATION
 	_restart_hit_sparks()
 	if health <= 0:
 		call_deferred("_retire")
+
+func _play_shield_sfx() -> void:
+	var audio_bus := get_node_or_null("/root/AudioBus")
+	if audio_bus and audio_bus.has_method("play_sfx"):
+		audio_bus.call("play_sfx", "shield")
 
 func _retire() -> void:
 	if is_queued_for_deletion() or retired:
@@ -67,6 +96,7 @@ func _retire() -> void:
 	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if collision:
 		collision.set_deferred("disabled", true)
+	GameData.clear_shield()
 	visible = false
 	set_process(false)
 	set_physics_process(false)
@@ -84,6 +114,10 @@ func _ensure_nodes() -> void:
 		_aura_particles = GPUParticles2D.new()
 		_aura_particles.name = "AuraParticles"
 		add_child(_aura_particles)
+	if _core_particles == null:
+		_core_particles = GPUParticles2D.new()
+		_core_particles.name = "CoreParticles"
+		add_child(_core_particles)
 	if _spark_particles == null:
 		_spark_particles = GPUParticles2D.new()
 		_spark_particles.name = "SparkParticles"
@@ -122,17 +156,31 @@ func _configure_ring(ring: Line2D, radius: float, width: float, color: Color) ->
 		ring.material = material
 
 func _configure_particles(radius: float) -> void:
+	var dot_texture := _shield_particle_texture()
 	if _aura_particles:
-		_aura_particles.amount = 140
-		_aura_particles.lifetime = 1.45
-		_aura_particles.preprocess = 1.45
-		_aura_particles.randomness = 0.78
+		_aura_particles.texture = dot_texture
+		_aura_particles.amount = 48
+		_aura_particles.lifetime = 1.20
+		_aura_particles.preprocess = 1.20
+		_aura_particles.randomness = 0.82
 		_aura_particles.fixed_fps = 30
 		_aura_particles.visibility_rect = Rect2(Vector2(-radius * 1.65, -radius * 1.65), Vector2.ONE * radius * 3.3)
-		_aura_particles.material = _additive_material()
+		_aura_particles.material = _soft_particle_material()
 		_aura_particles.process_material = _make_aura_material(radius)
 		_aura_particles.emitting = true
+	if _core_particles:
+		_core_particles.texture = dot_texture
+		_core_particles.amount = 18
+		_core_particles.lifetime = 0.85
+		_core_particles.preprocess = 0.85
+		_core_particles.randomness = 0.86
+		_core_particles.fixed_fps = 30
+		_core_particles.visibility_rect = Rect2(Vector2(-radius, -radius), Vector2.ONE * radius * 2.0)
+		_core_particles.material = _soft_particle_material()
+		_core_particles.process_material = _make_core_material(radius)
+		_core_particles.emitting = true
 	if _spark_particles:
+		_spark_particles.texture = dot_texture
 		_spark_particles.amount = 40
 		_spark_particles.lifetime = 0.34
 		_spark_particles.one_shot = true
@@ -143,46 +191,74 @@ func _configure_particles(radius: float) -> void:
 		_spark_particles.process_material = _make_spark_material(radius)
 
 func _make_aura_material(radius: float) -> ParticleProcessMaterial:
-	var material := ParticleProcessMaterial.new()
-	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
-	material.emission_sphere_radius = radius
-	material.direction = Vector3(0.0, -1.0, 0.0)
-	material.spread = 180.0
-	material.gravity = Vector3.ZERO
-	material.initial_velocity_min = DisplaySettings.scale_value(6.0)
-	material.initial_velocity_max = DisplaySettings.scale_value(34.0)
-	material.scale_min = DisplaySettings.scale_factor() * 0.7
-	material.scale_max = DisplaySettings.scale_factor() * 2.4
-	material.angular_velocity_min = -55.0
-	material.angular_velocity_max = 55.0
-	material.color = Color(0.28, 0.95, 1.0, 0.30)
-	material.color_ramp = _make_aura_ramp()
-	material.particle_flag_disable_z = true
-	return material
+	var particle_material := ParticleProcessMaterial.new()
+	particle_material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	particle_material.emission_sphere_radius = radius
+	particle_material.direction = Vector3(0.0, -1.0, 0.0)
+	particle_material.spread = 180.0
+	particle_material.gravity = Vector3.ZERO
+	particle_material.initial_velocity_min = DisplaySettings.scale_value(7.0)
+	particle_material.initial_velocity_max = DisplaySettings.scale_value(32.0)
+	particle_material.scale_min = DisplaySettings.scale_factor() * 0.24
+	particle_material.scale_max = DisplaySettings.scale_factor() * 0.55
+	particle_material.angular_velocity_min = -70.0
+	particle_material.angular_velocity_max = 70.0
+	particle_material.color = Color(1.0, 0.78, 0.12, 0.10)
+	particle_material.color_ramp = _make_aura_ramp()
+	particle_material.particle_flag_disable_z = true
+	return particle_material
+
+func _make_core_material(radius: float) -> ParticleProcessMaterial:
+	var particle_material := ParticleProcessMaterial.new()
+	particle_material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	particle_material.emission_sphere_radius = radius * 0.68
+	particle_material.direction = Vector3(0.0, -1.0, 0.0)
+	particle_material.spread = 180.0
+	particle_material.gravity = Vector3.ZERO
+	particle_material.initial_velocity_min = DisplaySettings.scale_value(3.0)
+	particle_material.initial_velocity_max = DisplaySettings.scale_value(18.0)
+	particle_material.scale_min = DisplaySettings.scale_factor() * 0.20
+	particle_material.scale_max = DisplaySettings.scale_factor() * 0.42
+	particle_material.angular_velocity_min = -120.0
+	particle_material.angular_velocity_max = 120.0
+	particle_material.color = Color(1.0, 0.90, 0.20, 0.08)
+	particle_material.color_ramp = _make_core_ramp()
+	particle_material.particle_flag_disable_z = true
+	return particle_material
 
 func _make_spark_material(radius: float) -> ParticleProcessMaterial:
-	var material := ParticleProcessMaterial.new()
-	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
-	material.emission_sphere_radius = radius * 0.92
-	material.direction = Vector3(0.0, -1.0, 0.0)
-	material.spread = 180.0
-	material.gravity = Vector3.ZERO
-	material.initial_velocity_min = DisplaySettings.scale_value(85.0)
-	material.initial_velocity_max = DisplaySettings.scale_value(230.0)
-	material.scale_min = DisplaySettings.scale_factor() * 0.8
-	material.scale_max = DisplaySettings.scale_factor() * 2.8
-	material.color = Color(1.0, 0.32, 0.18, 0.8)
-	material.color_ramp = _make_spark_ramp()
-	material.particle_flag_disable_z = true
-	return material
+	var particle_material := ParticleProcessMaterial.new()
+	particle_material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	particle_material.emission_sphere_radius = radius * 0.92
+	particle_material.direction = Vector3(0.0, -1.0, 0.0)
+	particle_material.spread = 180.0
+	particle_material.gravity = Vector3.ZERO
+	particle_material.initial_velocity_min = DisplaySettings.scale_value(85.0)
+	particle_material.initial_velocity_max = DisplaySettings.scale_value(230.0)
+	particle_material.scale_min = DisplaySettings.scale_factor() * 0.8
+	particle_material.scale_max = DisplaySettings.scale_factor() * 2.8
+	particle_material.color = Color(1.0, 0.32, 0.18, 0.8)
+	particle_material.color_ramp = _make_spark_ramp()
+	particle_material.particle_flag_disable_z = true
+	return particle_material
 
 func _make_aura_ramp() -> GradientTexture1D:
 	var gradient := Gradient.new()
-	gradient.set_color(0, Color(0.1, 0.6, 1.0, 0.0))
-	gradient.set_color(1, Color(0.1, 0.9, 1.0, 0.0))
-	gradient.add_point(0.18, Color(0.55, 1.0, 1.0, 0.42))
-	gradient.add_point(0.50, Color(0.20, 0.75, 1.0, 0.18))
-	gradient.add_point(0.82, Color(0.85, 1.0, 1.0, 0.36))
+	gradient.set_color(0, Color(1.0, 0.44, 0.0, 0.0))
+	gradient.set_color(1, Color(1.0, 0.30, 0.0, 0.0))
+	gradient.add_point(0.16, Color(1.0, 0.94, 0.34, 0.11))
+	gradient.add_point(0.50, Color(1.0, 0.72, 0.08, 0.06))
+	gradient.add_point(0.82, Color(1.0, 0.96, 0.48, 0.09))
+	var texture := GradientTexture1D.new()
+	texture.gradient = gradient
+	return texture
+
+func _make_core_ramp() -> GradientTexture1D:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(1.0, 0.50, 0.02, 0.0))
+	gradient.set_color(1, Color(1.0, 0.46, 0.0, 0.0))
+	gradient.add_point(0.20, Color(1.0, 1.0, 0.52, 0.10))
+	gradient.add_point(0.62, Color(1.0, 0.70, 0.06, 0.06))
 	var texture := GradientTexture1D.new()
 	texture.gradient = gradient
 	return texture
@@ -201,6 +277,25 @@ func _additive_material() -> CanvasItemMaterial:
 	var material := CanvasItemMaterial.new()
 	material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	return material
+
+func _soft_particle_material() -> CanvasItemMaterial:
+	var material := CanvasItemMaterial.new()
+	material.blend_mode = CanvasItemMaterial.BLEND_MODE_MIX
+	return material
+
+func _shield_particle_texture() -> Texture2D:
+	if _particle_texture:
+		return _particle_texture
+	var image := Image.create(5, 5, false, Image.FORMAT_RGBA8)
+	image.fill(Color(1.0, 1.0, 1.0, 0.0))
+	var center := Vector2(2.0, 2.0)
+	for y in 5:
+		for x in 5:
+			var distance := Vector2(float(x), float(y)).distance_to(center)
+			var alpha := clampf(1.0 - distance / 2.5, 0.0, 1.0)
+			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
+	_particle_texture = ImageTexture.create_from_image(image)
+	return _particle_texture
 
 func _restart_hit_sparks() -> void:
 	if _spark_particles == null:

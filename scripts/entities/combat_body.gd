@@ -15,12 +15,14 @@ var dead := false
 var retired := false
 var _authored_collision_polygons: Dictionary = {}
 var _authored_circle_collisions: Dictionary = {}
+var _authored_sprite_scale := Vector2.ONE
 
 const GAMEPLAY_ENTITY_SCALE := 0.62
 const PLAYER_VISUAL_TARGET := 68.0
 const ENEMY_VISUAL_TARGET := 56.0
 const BOSS_VISUAL_TARGET := 150.0
 const ShipExplosionScene := preload("res://scenes/components/ship_explosion.tscn")
+const DamageNumberScene := preload("res://scenes/components/damage_number.tscn")
 
 @onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
 
@@ -39,6 +41,7 @@ func setup(texture_path: String, radius: float, body_team: String, hp: float) ->
 	sprite = get_node("Sprite2D")
 	if texture_path != "":
 		sprite.texture = load(texture_path)
+	_authored_sprite_scale = _non_zero_scale(sprite.scale)
 	if sprite.texture:
 		var target := PLAYER_VISUAL_TARGET if team == "player" else ENEMY_VISUAL_TARGET
 		if hp >= 800:
@@ -51,10 +54,12 @@ func setup(texture_path: String, radius: float, body_team: String, hp: float) ->
 	if not area_entered.is_connected(_on_area_entered):
 		area_entered.connect(_on_area_entered)
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, hit_position := Vector2.ZERO, use_hit_position := false) -> void:
 	if dead:
 		return
 	health -= amount
+	if team == "enemy" and amount > 0.0:
+		_spawn_damage_number(amount, hit_position, use_hit_position)
 	_flash_hit()
 	AudioBus.play_sfx("hit", -9.0)
 	if health <= 0:
@@ -99,6 +104,15 @@ func _spawn_burst() -> void:
 		explosion.scale = Vector2.ONE * 1.75
 	elif team == "player":
 		explosion.scale = Vector2.ONE * 1.12
+
+func _spawn_damage_number(amount: float, hit_position: Vector2, use_hit_position: bool) -> void:
+	var number := DamageNumberScene.instantiate() as DamageNumber
+	if number == null:
+		return
+	var base_position := hit_position if use_hit_position else global_position
+	var spawn_position := base_position + DisplaySettings.to_current(Vector2(randf_range(-8.0, 8.0), randf_range(-10.0, -2.0)))
+	number.setup(amount, spawn_position, true)
+	_spawn_parent().add_child(number)
 
 func _retire() -> void:
 	if is_queued_for_deletion() or retired:
@@ -170,8 +184,9 @@ func _apply_authored_circle_collision(shape_node: CollisionShape2D) -> void:
 		shape_node.shape = circle.duplicate()
 	var base: Dictionary = _authored_circle_collisions[key]
 	var active_circle := shape_node.shape as CircleShape2D
-	active_circle.radius = float(base["radius"]) * DisplaySettings.scale_factor()
-	shape_node.position = (base["position"] as Vector2) * DisplaySettings.scale_factor()
+	var collision_scale := _authored_collision_scale()
+	active_circle.radius = float(base["radius"]) * maxf(absf(collision_scale.x), absf(collision_scale.y))
+	shape_node.position = _scale_point(base["position"] as Vector2, collision_scale)
 	shape_node.disabled = false
 
 func _apply_authored_collision_polygon(polygon_node: CollisionPolygon2D) -> void:
@@ -180,14 +195,26 @@ func _apply_authored_collision_polygon(polygon_node: CollisionPolygon2D) -> void
 		_authored_collision_polygons[key] = polygon_node.polygon
 	var base_polygon: PackedVector2Array = _authored_collision_polygons[key]
 	var scaled_polygon := PackedVector2Array()
-	var scale_factor := DisplaySettings.scale_factor()
+	var collision_scale := _authored_collision_scale()
 	for point in base_polygon:
-		scaled_polygon.append(point * scale_factor)
+		scaled_polygon.append(_scale_point(point, collision_scale))
 	polygon_node.position = Vector2.ZERO
 	polygon_node.rotation = 0.0
 	polygon_node.scale = Vector2.ONE
 	polygon_node.polygon = scaled_polygon
 	polygon_node.disabled = false
+
+func _authored_collision_scale() -> Vector2:
+	if sprite == null:
+		return Vector2.ONE * DisplaySettings.scale_factor()
+	var base_scale := _non_zero_scale(_authored_sprite_scale)
+	return Vector2(sprite.scale.x / base_scale.x, sprite.scale.y / base_scale.y)
+
+func _non_zero_scale(value: Vector2) -> Vector2:
+	return Vector2(1.0 if is_zero_approx(value.x) else value.x, 1.0 if is_zero_approx(value.y) else value.y)
+
+func _scale_point(point: Vector2, scale_value: Vector2) -> Vector2:
+	return Vector2(point.x * scale_value.x, point.y * scale_value.y)
 
 func _uses_round_collision(texture_path: String) -> bool:
 	var lower := texture_path.to_lower()

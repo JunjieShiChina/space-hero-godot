@@ -32,6 +32,17 @@ const AUDIO := {
 	"failed": "res://assets/audio/failed.wav",
 	"settlement": "res://assets/audio/settlement.wav",
 	"shield": "res://assets/audio/shieldtrigger.wav",
+	"boss_explosion": "res://assets/audio/bossboom.wav",
+	"boss_explosion_long": "res://assets/audio/bossexplode.mp3",
+	"coin_splash": "res://assets/audio/coinsplash.ogg",
+}
+
+const LOOPING_MUSIC := {
+	"menu": true,
+	"stage": true,
+	"boss": true,
+	"game_over": true,
+	"success": true,
 }
 
 func _ready() -> void:
@@ -49,6 +60,8 @@ func play_music(key: String) -> void:
 	var stream := _load_stream(key)
 	if stream == null:
 		return
+	stream = stream.duplicate()
+	_set_stream_loop(stream, bool(LOOPING_MUSIC.get(key, false)))
 	music_player.stop()
 	music_player.stream = stream
 	music_player.volume_db = -8.0
@@ -73,3 +86,15 @@ func _load_stream(key: String) -> AudioStream:
 	if not AUDIO.has(key):
 		return null
 	return load(AUDIO[key])
+
+func _set_stream_loop(stream: AudioStream, should_loop: bool) -> void:
+	if _has_property(stream, "loop"):
+		stream.set("loop", should_loop)
+	if _has_property(stream, "loop_mode"):
+		stream.set("loop_mode", 1 if should_loop else 0)
+
+func _has_property(object: Object, property_name: String) -> bool:
+	for property in object.get_property_list():
+		if String(property.get("name")) == property_name:
+			return true
+	return false

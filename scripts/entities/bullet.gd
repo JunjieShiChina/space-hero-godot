@@ -19,11 +19,15 @@ var damage_tick_interval := 0.0
 var damage_tick_timer := 0.0
 var spin := 0.0
 var spin_angle := 0.0
+var curve_rate := 0.0
+var curve_direction := 1.0
 var retired := false
 var hit_spark_timer := 0.0
 var _template_node_states: Dictionary = {}
 var _template_shape_states: Dictionary = {}
+var _level_light_texture: Texture2D
 
+const DAMAGE_VARIANCE := 0.10
 const BulletHitSparkScene := preload("res://scenes/components/bullet_hit_spark.tscn")
 const BULLET_SCENE_PATHS := {
 	"Bullet1": "res://scenes/entities/bullets/bullet_1.tscn",
@@ -33,6 +37,7 @@ const BULLET_SCENE_PATHS := {
 	"BulletLaser": "res://scenes/entities/bullets/bullet_laser.tscn",
 	"BulletFire": "res://scenes/entities/bullets/bullet_fire.tscn",
 	"BulletYue": "res://scenes/entities/bullets/bullet_yue.tscn",
+	"BulletPhaseShard": "res://scenes/entities/bullets/bullet_phase_shard.tscn",
 	"Bullet3": "res://scenes/entities/bullets/bullet_3.tscn",
 	"FollowBullet": "res://scenes/entities/bullets/follow_bullet.tscn",
 }
@@ -55,6 +60,8 @@ func setup(type_name: String, team: String, pos: Vector2, direction: Vector2, ov
 	for key in overrides.keys():
 		info[key] = overrides[key]
 	damage = float(info.damage)
+	if team == "player":
+		damage *= GameData.weapon_damage_multiplier(type_name)
 	base_speed = DisplaySettings.scale_value(float(info.speed))
 	velocity = safe_direction * base_speed
 	life_time = float(info.life)
@@ -68,9 +75,12 @@ func setup(type_name: String, team: String, pos: Vector2, direction: Vector2, ov
 	damage_tick_timer = damage_tick_interval
 	spin = float(info.spin)
 	spin_angle = 0.0
+	curve_rate = float(info.get("curve_rate", 0.0))
+	curve_direction = float(info.get("curve_direction", 1.0))
 	collision_layer = 4 if team == "player" else 8
 	collision_mask = 2 | 32 if team == "player" else 1 | 32
 	_make_visual(info)
+	_apply_weapon_level_effect(info)
 	if not area_entered.is_connected(_on_area_entered):
 		area_entered.connect(_on_area_entered)
 
@@ -81,14 +91,21 @@ static func bullet_info(type_name: String) -> Dictionary:
 		"BulletArrow": {"speed": 1080.0, "damage": 3.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/WyvernHornBow.png", "scale": 0.30, "radius": 16.0, "height": 48.0, "pierce": false, "homing": false, "spin": 0.0, "visual_angle_offset": PI / 4.0, "sfx": "arrow"},
 		"BulletMissile": {"speed": 540.0, "damage": 50.0, "interval": 1.5, "life": 5.0, "texture": "res://assets/sprites/spr_missile.png", "scale": 0.70, "radius": 10.0, "height": 42.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "missile"},
 		"BulletLaser": {"speed": 0.0, "damage": 1.0, "interval": 2.0, "life": 1.5, "tick_interval": 0.08, "texture": "res://assets/sprites/bosslaser.png", "scale": 1.0, "radius": 18.0, "height": 810.0, "pierce": true, "homing": false, "spin": 0.0, "sfx": "laser"},
-		"BulletFire": {"speed": 540.0, "damage": 10.0, "interval": 1.0, "life": 3.0, "texture": "res://assets/sprites/bullet5.png", "scale": 0.72, "radius": 12.0, "height": 34.0, "pierce": false, "homing": false, "spin": 5.0, "sfx": "bullet_fire"},
+		"BulletFire": {"speed": 540.0, "damage": 10.0, "interval": 1.0, "life": 3.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(416, 144, 16, 17), Rect2(432, 144, 16, 17), Rect2(448, 144, 16, 17), Rect2(464, 144, 16, 17)], "scale": 1.35, "radius": 8.0, "height": 22.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "bullet_fire"},
 		"BulletYue": {"speed": 540.0, "damage": 6.0, "interval": 0.2, "life": 3.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(576, 16, 16, 17), Rect2(592, 16, 16, 17), Rect2(608, 16, 16, 17), Rect2(624, 16, 16, 17)], "scale": 1.35, "radius": 8.0, "height": 24.0, "pierce": false, "homing": false, "spin": 8.0, "sfx": "bullet_yue"},
+		"BulletPhaseShard": {"speed": 640.0, "damage": 7.0, "interval": 1.55, "life": 4.0, "texture": "res://assets/sprites/bullet_phase_shard.png", "scale": 0.44, "radius": 7.0, "height": 28.0, "pierce": false, "homing": false, "spin": 5.4, "curve_rate": 0.0, "curve_direction": 1.0, "visual_angle_offset": PI / 2.0, "sfx": "bullet_yue"},
 		"Bullet3": {"speed": 1080.0, "damage": 5.0, "interval": 0.18, "life": 3.0, "texture": "res://assets/sprites/bullet6.png", "scale": 0.50, "radius": 8.0, "height": 34.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
 		"FollowBullet": {"speed": 1080.0, "damage": 2.0, "interval": 0.1, "life": 4.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(96, 48, 16, 16), Rect2(112, 48, 16, 16), Rect2(128, 48, 16, 16), Rect2(144, 48, 16, 16)], "scale": 1.2, "radius": 8.0, "height": 22.0, "pierce": false, "homing": true, "homing_range": 576.0, "homing_direct": true, "homing_delay": 0.14, "visual_angle_offset": -PI / 4.0, "spin": 0.0, "sfx": "shoot"},
 	}
 	return map.get(type_name, map["Bullet1"])
 
+static func roll_damage(base_damage: float) -> float:
+	return maxf(0.0, base_damage * randf_range(1.0 - DAMAGE_VARIANCE, 1.0 + DAMAGE_VARIANCE))
+
 func _physics_process(delta: float) -> void:
+	if retired:
+		return
+	_sync_weapon_level_particles()
 	life_time -= delta
 	hit_spark_timer = maxf(0.0, hit_spark_timer - delta)
 	if life_time <= 0:
@@ -110,12 +127,19 @@ func _physics_process(delta: float) -> void:
 	if velocity.is_zero_approx() and base_speed > 0.0:
 		velocity = Vector2.UP * base_speed
 	if velocity != Vector2.ZERO:
-		global_position += velocity * delta
+		if not is_zero_approx(curve_rate):
+			velocity = velocity.rotated(curve_rate * curve_direction * delta)
+		var next_position := global_position + velocity * delta
+		if _sweep_motion(global_position, next_position):
+			return
+		global_position = next_position
 		if spin != 0.0:
 			spin_angle += spin * delta
 		rotation = _rotation_for_direction(velocity)
+		_sync_weapon_level_particles()
 	elif spin != 0.0:
 		rotation += spin * delta
+		_sync_weapon_level_particles()
 	if damage_tick_interval > 0.0:
 		damage_tick_timer -= delta
 		if damage_tick_timer <= 0.0:
@@ -123,6 +147,8 @@ func _physics_process(delta: float) -> void:
 			_damage_overlapping_targets()
 
 func _on_area_entered(area: Area2D) -> void:
+	if retired:
+		return
 	if area.has_method("reflect_bullet"):
 		area.reflect_bullet(self)
 		return
@@ -131,9 +157,41 @@ func _on_area_entered(area: Area2D) -> void:
 		if body.dead:
 			return
 		_spawn_hit_spark(global_position)
-		body.take_damage(damage)
+		body.take_damage(roll_damage(damage), global_position, true)
 		if not pierce:
 			call_deferred("_retire")
+
+func _sweep_motion(from_position: Vector2, to_position: Vector2) -> bool:
+	if from_position.distance_squared_to(to_position) <= 1.0:
+		return false
+	var query := PhysicsRayQueryParameters2D.create(from_position, to_position)
+	query.collision_mask = collision_mask
+	if shooter_team == "player":
+		query.collision_mask &= ~32
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+	query.exclude = [get_rid()]
+	var result := get_world_2d().direct_space_state.intersect_ray(query)
+	if result.is_empty():
+		return false
+	var collider := result.get("collider") as Object
+	if collider == null:
+		return false
+	var hit_position := result.get("position") as Vector2
+	global_position = hit_position
+	if collider.has_method("reflect_bullet") and shooter_team != "player":
+		collider.call("reflect_bullet", self)
+		return true
+	if collider is CombatBody:
+		var body := collider as CombatBody
+		if body.dead or body.team == shooter_team:
+			return false
+		_spawn_hit_spark(hit_position)
+		body.take_damage(roll_damage(damage), hit_position, true)
+		if not pierce:
+			_retire()
+		return true
+	return false
 
 func _retire() -> void:
 	if is_queued_for_deletion() or retired:
@@ -146,6 +204,10 @@ func _retire() -> void:
 		collision.set_deferred("disabled", true)
 	if bullet_type == "BulletMissile":
 		_spawn_missile_burst()
+	var level_particles := get_node_or_null("BulletLevelParticles") as CPUParticles2D
+	if level_particles:
+		level_particles.emitting = false
+		level_particles.visible = false
 	visible = false
 	set_process(false)
 	set_physics_process(false)
@@ -210,9 +272,9 @@ func _make_visual(info: Dictionary) -> void:
 		collision.position = Vector2.ZERO
 
 func _apply_scene_template() -> void:
-	for node_name in ["Sprite2D", "AnimatedSprite2D", "MissileTrail"]:
-		var visual_node := get_node_or_null(node_name) as Node2D
-		if visual_node:
+	for child in get_children():
+		if child is Node2D and not child is CollisionShape2D:
+			var visual_node := child as Node2D
 			_apply_template_node_state(visual_node)
 			if visual_node is AnimatedSprite2D:
 				(visual_node as AnimatedSprite2D).play()
@@ -266,6 +328,8 @@ func _find_target() -> CombatBody:
 			var body := node as CombatBody
 			if body.dead or body.team == shooter_team:
 				continue
+			if not _is_target_visible_in_camera(body):
+				continue
 			var dist := global_position.distance_squared_to(body.global_position)
 			if dist <= DisplaySettings.scale_value(12.0) * DisplaySettings.scale_value(12.0):
 				continue
@@ -275,6 +339,17 @@ func _find_target() -> CombatBody:
 				best = body
 				best_dist = dist
 	return best
+
+func _is_target_visible_in_camera(body: CombatBody) -> bool:
+	var viewport := get_viewport()
+	if viewport == null:
+		return true
+	var visible_size := get_viewport_rect().size
+	if visible_size.x <= 0.0 or visible_size.y <= 0.0:
+		visible_size = DisplaySettings.logical_size()
+	var screen_pos := viewport.get_canvas_transform() * body.global_position
+	var screen_rect := Rect2(Vector2.ZERO, visible_size).grow(DisplaySettings.scale_value(10.0))
+	return screen_rect.has_point(screen_pos)
 
 func _safe_direction(direction: Vector2) -> Vector2:
 	if direction.is_zero_approx():
@@ -292,7 +367,7 @@ func _damage_overlapping_targets() -> void:
 			if body.dead:
 				continue
 			_spawn_hit_spark(body.global_position)
-			body.take_damage(damage)
+			body.take_damage(roll_damage(damage), body.global_position, true)
 
 func _make_texture(info: Dictionary) -> Texture2D:
 	if info.has("region"):
@@ -307,6 +382,90 @@ func _make_atlas_texture(texture_path: String, rect: Rect2) -> Texture2D:
 
 func _visual_modulate(_info: Dictionary) -> Color:
 	return Color.WHITE
+
+func _apply_weapon_level_effect(info: Dictionary) -> void:
+	if shooter_team != "player":
+		return
+	var level := GameData.weapon_level(bullet_type)
+	if level <= 0:
+		_remove_weapon_level_effect()
+		return
+	var strength := clampf(float(level - 1) / float(GameData.MAX_WEAPON_LEVEL - 1), 0.0, 1.0)
+	var color := Color(0.46, 0.96, 1.0, 1.0).lerp(Color(1.0, 0.82, 0.24, 1.0), strength)
+	_remove_legacy_weapon_level_effect()
+
+	var particles := get_node_or_null("BulletLevelParticles") as CPUParticles2D
+	if particles == null:
+		particles = CPUParticles2D.new()
+		particles.name = "BulletLevelParticles"
+		particles.top_level = true
+		particles.z_as_relative = false
+		particles.z_index = 48
+		var material := CanvasItemMaterial.new()
+		material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		particles.material = material
+		add_child(particles)
+	particles.texture = _make_level_light_texture()
+	particles.emitting = true
+	particles.amount = int(round(lerpf(5.0, 16.0, strength)))
+	particles.lifetime = lerpf(0.055, 0.105, strength)
+	particles.preprocess = 0.0
+	particles.randomness = lerpf(0.18, 0.38, strength)
+	particles.lifetime_randomness = 0.24
+	particles.local_coords = false
+	particles.spread = lerpf(7.0, 20.0, strength)
+	particles.gravity = Vector2.ZERO
+	particles.initial_velocity_min = DisplaySettings.scale_value(12.0 + 12.0 * strength)
+	particles.initial_velocity_max = DisplaySettings.scale_value(30.0 + 44.0 * strength)
+	particles.damping_min = DisplaySettings.scale_value(120.0)
+	particles.damping_max = DisplaySettings.scale_value(250.0)
+	particles.scale_amount_min = DisplaySettings.scale_factor() * lerpf(0.45, 0.85, strength)
+	particles.scale_amount_max = DisplaySettings.scale_factor() * lerpf(0.90, 1.45, strength)
+	particles.color = Color(color.r, color.g, color.b, lerpf(0.34, 0.68, strength))
+	_sync_weapon_level_particles()
+
+func _remove_weapon_level_effect() -> void:
+	_remove_legacy_weapon_level_effect()
+	var particles := get_node_or_null("BulletLevelParticles") as CPUParticles2D
+	if particles:
+		particles.queue_free()
+
+func _remove_legacy_weapon_level_effect() -> void:
+	var light := get_node_or_null("BulletLevelLight") as PointLight2D
+	if light:
+		light.queue_free()
+	var glow := get_node_or_null("BulletLevelGlow") as Sprite2D
+	if glow:
+		glow.queue_free()
+
+func _sync_weapon_level_particles() -> void:
+	var particles := get_node_or_null("BulletLevelParticles") as CPUParticles2D
+	if particles == null:
+		return
+	particles.global_rotation = 0.0
+	if velocity.length_squared() > 1.0:
+		var trail_direction := -velocity.normalized()
+		particles.direction = trail_direction
+		particles.global_position = global_position + trail_direction * DisplaySettings.scale_value(8.0)
+	else:
+		particles.direction = Vector2.DOWN
+		particles.global_position = global_position
+
+func _make_level_light_texture() -> Texture2D:
+	if _level_light_texture:
+		return _level_light_texture
+	var size := 7
+	var center := Vector2(size * 0.5 - 0.5, size * 0.5 - 0.5)
+	var radius := float(size) * 0.5
+	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	for y in size:
+		for x in size:
+			var distance := Vector2(float(x), float(y)).distance_to(center)
+			var alpha := clampf(1.0 - distance / radius, 0.0, 1.0)
+			alpha = alpha * alpha
+			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
+	_level_light_texture = ImageTexture.create_from_image(image)
+	return _level_light_texture
 
 func _ensure_missile_trail() -> void:
 	if get_node_or_null("MissileTrail"):

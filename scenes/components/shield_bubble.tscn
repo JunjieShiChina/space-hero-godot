@@ -8,6 +8,9 @@ script = ExtResource("1_shield")
 [node name="AuraParticles" type="GPUParticles2D" parent="."]
 texture_filter = 1
 
+[node name="CoreParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
 [node name="SparkParticles" type="GPUParticles2D" parent="."]
 texture_filter = 1
 
