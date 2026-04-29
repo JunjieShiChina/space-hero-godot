@@ -1,16 +1,5 @@
 # Space Hero Migration Memory
 
-## Ongoing migration prompt / 工作提示
-
-- 视觉或画面效果改动必须启动 Godot 游戏实际运行验证，不能只靠代码推断或 headless smoke test。每次涉及主界面、关卡画面、动画、粒子、UI、层级、可见性、运动效果的修改，都要保存运行时截图；如果是运动效果，至少截图两帧或用运行时状态确认位置变化。
-- 截图验证优先使用 `godot-remote-executor` / `godot-screenshot`。如果当前只有 editor executor、没有 game executor，可以从编辑器启动主场景，再用系统窗口截图兜底，但最终必须看真实游戏窗口画面。
-- 不要什么都通过脚本控制。Godot 迁移应优先使用 Godot 原生结构：静态布局放在节点树里，可复用对象创建独立 `.tscn` 场景，配置/数值适合时放到资源或常量表里；脚本主要负责行为、状态、输入、随机和运行时调度。
-- 该用节点就用节点，该创建场景就创建场景。比如主菜单背景、标题、按钮、选择器、飞船、陨石模板等可见结构应尽量是场景节点；敌人、子弹、拾取物、护盾、Boss、HUD 组件等后续迁移应逐步拆成可复用场景，而不是长期保留在单个脚本里动态拼装。
-- 遇到不清楚、不确定或容易凭感觉误判的实现点时，优先查资料再实现，不能靠猜。资料来源应优先覆盖官方文档/API、成熟项目或高质量社区案例，并在动手前明确当前项目适合采用哪种做法。
-- 添加或重做视觉特效时，不能只看官方粒子文档；必须同时搜索别人做出的优秀案例、教程或开源实现，观察他们如何组合粒子、Shader、AnimationPlayer、Polygon2D/Line2D、材质、场景节点和资源参数，再选一个当前需求下效果最好且可维护的方案落地。不要在没有调研参考的情况下直接手写临时特效。
-- 画面层级调整要截图确认。尤其是 `z_index`、CanvasItem 顺序、Control/Node2D 混排、透明度、缩放、分辨率迁移后的坐标，都要以运行截图为准。
-- 修改后至少跑一次 smoke test：`/opt/godot/Godot_v4.6.2-stable_linux.x86_64 --headless --path . --script test/smoke_test.gd`。视觉类修改还必须补充运行截图验证。
-
 ## 2026-04-25 Current migration progress audit
 
 Source Unity project inspected at `/data/space-hero/Space-Hero`; target Godot project inspected at `/data/space-hero/space-hero-godot`.
