@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bvm5lq3x3veoy"]
 
 [ext_resource type="Script" uid="uid://dxx2wpar4hxmv" path="res://scripts/entities/boss.gd" id="1_boss"]
-[ext_resource type="Texture2D" uid="uid://cd5gkx2fxot8q" path="res://assets/sprites/Spaceship_Boss 1.png" id="2_texture"]
+[ext_resource type="Texture2D" uid="uid://c75gy6msfjrlh" path="res://assets/sprites/Spaceship_Boss 3.png" id="2_texture"]
 
 [node name="Boss2" type="Area2D" unique_id=278735335]
 script = ExtResource("1_boss")

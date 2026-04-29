@@ -23,9 +23,12 @@ var curve_rate := 0.0
 var curve_direction := 1.0
 var retired := false
 var hit_spark_timer := 0.0
+var _homing_target: CombatBody = null
+var _homing_target_locked := false
 var _template_node_states: Dictionary = {}
 var _template_shape_states: Dictionary = {}
 var _level_light_texture: Texture2D
+var _laser_particle_texture: Texture2D
 
 const DAMAGE_VARIANCE := 0.10
 const BulletHitSparkScene := preload("res://scenes/components/bullet_hit_spark.tscn")
@@ -55,7 +58,6 @@ func setup(type_name: String, team: String, pos: Vector2, direction: Vector2, ov
 	shooter_team = team
 	global_position = pos
 	var safe_direction := _safe_direction(direction)
-	rotation = _rotation_for_direction(safe_direction)
 	var info := bullet_info(type_name)
 	for key in overrides.keys():
 		info[key] = overrides[key]
@@ -70,7 +72,10 @@ func setup(type_name: String, team: String, pos: Vector2, direction: Vector2, ov
 	homing_range = DisplaySettings.scale_value(float(info.get("homing_range", 0.0)))
 	homing_direct = bool(info.get("homing_direct", false))
 	homing_delay_timer = float(info.get("homing_delay", 0.0))
+	_homing_target = null
+	_homing_target_locked = false
 	visual_angle_offset = float(info.get("visual_angle_offset", PI / 2.0))
+	rotation = _rotation_for_direction(safe_direction)
 	damage_tick_interval = float(info.get("tick_interval", 0.0))
 	damage_tick_timer = damage_tick_interval
 	spin = float(info.spin)
@@ -83,6 +88,8 @@ func setup(type_name: String, team: String, pos: Vector2, direction: Vector2, ov
 	_apply_weapon_level_effect(info)
 	if not area_entered.is_connected(_on_area_entered):
 		area_entered.connect(_on_area_entered)
+	if homing and is_inside_tree():
+		_lock_homing_target_once()
 
 static func bullet_info(type_name: String) -> Dictionary:
 	var map := {
@@ -90,17 +97,21 @@ static func bullet_info(type_name: String) -> Dictionary:
 		"Bullet2": {"speed": 540.0, "damage": 5.0, "interval": 2.0, "life": 4.0, "texture": "res://assets/sprites/bullet4.png", "scale": 0.58, "radius": 10.0, "height": 32.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot2"},
 		"BulletArrow": {"speed": 1080.0, "damage": 3.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/WyvernHornBow.png", "scale": 0.30, "radius": 16.0, "height": 48.0, "pierce": false, "homing": false, "spin": 0.0, "visual_angle_offset": PI / 4.0, "sfx": "arrow"},
 		"BulletMissile": {"speed": 540.0, "damage": 50.0, "interval": 1.5, "life": 5.0, "texture": "res://assets/sprites/spr_missile.png", "scale": 0.70, "radius": 10.0, "height": 42.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "missile"},
-		"BulletLaser": {"speed": 0.0, "damage": 1.0, "interval": 2.0, "life": 1.5, "tick_interval": 0.08, "texture": "res://assets/sprites/bosslaser.png", "scale": 1.0, "radius": 18.0, "height": 810.0, "pierce": true, "homing": false, "spin": 0.0, "sfx": "laser"},
+		"BulletLaser": {"speed": 0.0, "damage": 1.0, "interval": 2.0, "life": 1.5, "tick_interval": 0.08, "texture": "res://assets/sprites/bosslaser.png", "scale": 1.0, "radius": 18.0, "height": 810.0, "length": 1240.0, "width": 20.0, "pierce": true, "homing": false, "spin": 0.0, "visual_angle_offset": 0.0, "sfx": "laser"},
 		"BulletFire": {"speed": 540.0, "damage": 10.0, "interval": 1.0, "life": 3.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(416, 144, 16, 17), Rect2(432, 144, 16, 17), Rect2(448, 144, 16, 17), Rect2(464, 144, 16, 17)], "scale": 1.35, "radius": 8.0, "height": 22.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "bullet_fire"},
 		"BulletYue": {"speed": 540.0, "damage": 6.0, "interval": 0.2, "life": 3.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(576, 16, 16, 17), Rect2(592, 16, 16, 17), Rect2(608, 16, 16, 17), Rect2(624, 16, 16, 17)], "scale": 1.35, "radius": 8.0, "height": 24.0, "pierce": false, "homing": false, "spin": 8.0, "sfx": "bullet_yue"},
 		"BulletPhaseShard": {"speed": 640.0, "damage": 7.0, "interval": 1.55, "life": 4.0, "texture": "res://assets/sprites/bullet_phase_shard.png", "scale": 0.44, "radius": 7.0, "height": 28.0, "pierce": false, "homing": false, "spin": 5.4, "curve_rate": 0.0, "curve_direction": 1.0, "visual_angle_offset": PI / 2.0, "sfx": "bullet_yue"},
 		"Bullet3": {"speed": 1080.0, "damage": 5.0, "interval": 0.18, "life": 3.0, "texture": "res://assets/sprites/bullet6.png", "scale": 0.50, "radius": 8.0, "height": 34.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot"},
-		"FollowBullet": {"speed": 1080.0, "damage": 2.0, "interval": 0.1, "life": 4.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(96, 48, 16, 16), Rect2(112, 48, 16, 16), Rect2(128, 48, 16, 16), Rect2(144, 48, 16, 16)], "scale": 1.2, "radius": 8.0, "height": 22.0, "pierce": false, "homing": true, "homing_range": 576.0, "homing_direct": true, "homing_delay": 0.14, "visual_angle_offset": -PI / 4.0, "spin": 0.0, "sfx": "shoot"},
+		"FollowBullet": {"speed": 1080.0, "damage": 2.0, "interval": 0.1, "life": 4.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(96, 48, 16, 16), Rect2(112, 48, 16, 16), Rect2(128, 48, 16, 16), Rect2(144, 48, 16, 16)], "scale": 1.2, "radius": 8.0, "height": 22.0, "pierce": false, "homing": true, "homing_range": 648.0, "homing_direct": true, "homing_delay": 0.14, "visual_angle_offset": -PI / 4.0, "spin": 0.0, "sfx": "shoot"},
 	}
 	return map.get(type_name, map["Bullet1"])
 
 static func roll_damage(base_damage: float) -> float:
 	return maxf(0.0, base_damage * randf_range(1.0 - DAMAGE_VARIANCE, 1.0 + DAMAGE_VARIANCE))
+
+func _ready() -> void:
+	if homing and not _homing_target_locked:
+		_lock_homing_target_once()
 
 func _physics_process(delta: float) -> void:
 	if retired:
@@ -112,12 +123,14 @@ func _physics_process(delta: float) -> void:
 		call_deferred("_retire")
 		return
 	if homing:
+		if not _homing_target_locked:
+			_lock_homing_target_once()
 		if homing_delay_timer > 0.0:
 			homing_delay_timer -= delta
 		else:
-			var target := _find_target()
+			var target := _locked_homing_target()
 			if target:
-				var target_delta := target.global_position - global_position
+				var target_delta := target.tracking_position() - global_position
 				if target_delta.length_squared() > 1.0:
 					var current_speed := velocity.length()
 					if current_speed <= 0.0:
@@ -156,10 +169,11 @@ func _on_area_entered(area: Area2D) -> void:
 		var body := area as CombatBody
 		if body.dead:
 			return
-		_spawn_hit_spark(global_position)
-		body.take_damage(roll_damage(damage), global_position, true)
+		var hit_position := body.closest_collision_point(global_position)
+		_spawn_hit_spark(hit_position)
+		body.take_damage(roll_damage(damage), hit_position, true)
 		if not pierce:
-			call_deferred("_retire")
+			_retire()
 
 func _sweep_motion(from_position: Vector2, to_position: Vector2) -> bool:
 	if from_position.distance_squared_to(to_position) <= 1.0:
@@ -216,6 +230,8 @@ func _retire() -> void:
 func _make_visual(info: Dictionary) -> void:
 	if use_scene_template:
 		_apply_scene_template()
+		if bullet_type == "BulletLaser":
+			_configure_laser_effect(info)
 		return
 	var animated := get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
 	if info.has("frames"):
@@ -270,6 +286,260 @@ func _make_visual(info: Dictionary) -> void:
 		capsule.radius = DisplaySettings.scale_value(float(info.radius))
 		capsule.height = DisplaySettings.scale_value(float(info.height))
 		collision.position = Vector2.ZERO
+
+func _configure_laser_effect(info: Dictionary) -> void:
+	var sprite := get_node_or_null("Sprite2D") as Sprite2D
+	if sprite:
+		sprite.visible = false
+	var length := DisplaySettings.scale_value(float(info.get("length", info.get("height", 1240.0))))
+	var width := DisplaySettings.scale_value(float(info.get("width", info.get("radius", 18.0))))
+	_configure_laser_texture(length, width)
+	var color := Color(1.0, 0.08, 0.01, 1.0)
+	_configure_laser_line(
+		"OuterGlowLine",
+		length,
+		width * 12.0,
+		Color(color.r, color.g, color.b, 0.28),
+		"outer"
+	)
+	_configure_laser_line("GlowLine", length, width * 7.0, Color(1.0, 0.16, 0.02, 0.84), "glow")
+	_configure_laser_line("CoreLine", length, width * 2.35, Color(1.0, 0.30, 0.04, 1.0), "core")
+	_configure_laser_line("HotLine", length, width * 0.70, Color(1.0, 0.90, 0.52, 1.0), "hot")
+	_configure_laser_particles(length, width)
+	_configure_laser_collision(length, width)
+
+func _configure_laser_texture(length: float, width: float) -> void:
+	var beam_texture := get_node_or_null("BeamTexture") as Sprite2D
+	if beam_texture == null or beam_texture.texture == null:
+		return
+	beam_texture.position = Vector2(length * 0.5, 0.0)
+	beam_texture.rotation = -PI / 2.0
+	var texture_size := beam_texture.texture.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return
+	beam_texture.scale = Vector2(width * 3.25 / texture_size.x, length / texture_size.y)
+	beam_texture.material = _additive_canvas_material()
+	beam_texture.modulate = Color(1.0, 0.58, 0.16, 0.88)
+	beam_texture.z_index = 1
+
+func _configure_laser_line(
+	node_name: String,
+	length: float,
+	width: float,
+	color: Color,
+	profile: String
+) -> void:
+	var line := get_node_or_null(node_name) as Line2D
+	if line == null:
+		return
+	line.points = PackedVector2Array([Vector2.ZERO, Vector2(length, 0.0)])
+	line.width = width
+	line.default_color = color
+	line.antialiased = true
+	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	line.end_cap_mode = Line2D.LINE_CAP_ROUND
+	line.joint_mode = Line2D.LINE_JOINT_ROUND
+	line.round_precision = 16
+	line.gradient = _laser_line_gradient(color, profile)
+	line.width_curve = _laser_width_curve(profile)
+	line.material = _laser_shader_material(profile)
+	line.z_index = _laser_line_z_index(profile)
+
+func _configure_laser_particles(length: float, width: float) -> void:
+	var beam_particles := get_node_or_null("BeamParticles") as GPUParticles2D
+	if beam_particles:
+		beam_particles.position = Vector2(length * 0.5, 0.0)
+		beam_particles.amount = 280
+		beam_particles.lifetime = 0.18
+		beam_particles.preprocess = 0.18
+		beam_particles.randomness = 0.70
+		beam_particles.fixed_fps = 30
+		beam_particles.local_coords = true
+		beam_particles.visibility_rect = Rect2(
+			Vector2(-length * 0.55, -width * 12.0),
+			Vector2(length * 1.1, width * 24.0)
+		)
+		beam_particles.texture = _laser_soft_particle_texture()
+		beam_particles.material = _additive_canvas_material()
+		beam_particles.process_material = _make_laser_particle_material(length, width)
+		beam_particles.z_index = 5
+		beam_particles.emitting = true
+		beam_particles.restart()
+	var muzzle_particles := get_node_or_null("MuzzleParticles") as GPUParticles2D
+	if muzzle_particles:
+		muzzle_particles.position = Vector2.ZERO
+		muzzle_particles.amount = 120
+		muzzle_particles.lifetime = 0.25
+		muzzle_particles.preprocess = 0.08
+		muzzle_particles.randomness = 0.76
+		muzzle_particles.fixed_fps = 30
+		muzzle_particles.local_coords = true
+		muzzle_particles.visibility_rect = Rect2(
+			Vector2(-width * 8.0, -width * 8.0),
+			Vector2.ONE * width * 16.0
+		)
+		muzzle_particles.texture = _laser_soft_particle_texture()
+		muzzle_particles.material = _additive_canvas_material()
+		muzzle_particles.process_material = _make_laser_muzzle_material(width)
+		muzzle_particles.z_index = 6
+		muzzle_particles.emitting = true
+		muzzle_particles.restart()
+
+func _configure_laser_collision(length: float, width: float) -> void:
+	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision == null:
+		return
+	if collision.shape == null or not collision.shape is RectangleShape2D:
+		collision.shape = RectangleShape2D.new()
+	var rectangle := collision.shape as RectangleShape2D
+	rectangle.size = Vector2(length, width * 1.25)
+	collision.position = Vector2(length * 0.5, 0.0)
+	collision.disabled = false
+
+func _laser_shader_material(profile: String) -> ShaderMaterial:
+	var material := ShaderMaterial.new()
+	material.shader = _laser_shader()
+	material.set_shader_parameter("pulse_speed", 13.0 if profile in ["core", "hot"] else 8.0)
+	material.set_shader_parameter("wave_density", 30.0 if profile in ["core", "hot"] else 18.0)
+	return material
+
+func _laser_shader() -> Shader:
+	var shader := Shader.new()
+	shader.code = """
+shader_type canvas_item;
+
+uniform float pulse_speed = 10.0;
+uniform float wave_density = 24.0;
+
+void fragment() {
+	vec4 base = COLOR;
+	float wave_a = 0.5 + 0.5 * sin(UV.x * wave_density - TIME * pulse_speed);
+	float wave_b = 0.5 + 0.5 * sin(UV.x * (wave_density * 0.43) + TIME * pulse_speed * 0.71);
+	float ridge = smoothstep(0.38, 1.0, max(wave_a, wave_b * 0.86));
+	float edge = 1.0 - abs(UV.y - 0.5) * 2.0;
+	float core = smoothstep(0.16, 0.78, edge);
+	float glow = 0.86 + ridge * 0.56 + core * 0.24;
+	COLOR = vec4(base.rgb * glow, base.a * (0.62 + ridge * 0.28 + core * 0.10));
+}
+"""
+	return shader
+
+func _laser_line_gradient(color: Color, profile: String) -> Gradient:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(color.r, color.g, color.b, 0.0))
+	gradient.set_color(1, Color(color.r, color.g, color.b, 0.0))
+	var start_alpha := 0.92 if profile in ["core", "hot"] else 0.54
+	var middle_alpha := color.a
+	var end_alpha := 0.55 if profile in ["core", "hot"] else 0.22
+	gradient.add_point(0.018, Color(color.r, color.g, color.b, color.a * start_alpha))
+	gradient.add_point(0.10, Color(color.r, color.g, color.b, middle_alpha))
+	gradient.add_point(0.74, Color(color.r, color.g, color.b, middle_alpha))
+	gradient.add_point(0.96, Color(color.r, color.g, color.b, color.a * end_alpha))
+	return gradient
+
+func _laser_width_curve(profile: String) -> Curve:
+	var curve := Curve.new()
+	match profile:
+		"outer":
+			curve.add_point(Vector2(0.0, 1.12))
+			curve.add_point(Vector2(0.20, 0.82))
+			curve.add_point(Vector2(0.72, 0.68))
+			curve.add_point(Vector2(1.0, 0.90))
+		"glow":
+			curve.add_point(Vector2(0.0, 1.18))
+			curve.add_point(Vector2(0.20, 0.86))
+			curve.add_point(Vector2(0.72, 0.72))
+			curve.add_point(Vector2(1.0, 0.96))
+		"hot":
+			curve.add_point(Vector2(0.0, 1.0))
+			curve.add_point(Vector2(0.25, 0.84))
+			curve.add_point(Vector2(0.76, 0.72))
+			curve.add_point(Vector2(1.0, 0.82))
+		_:
+			curve.add_point(Vector2(0.0, 1.08))
+			curve.add_point(Vector2(0.20, 0.90))
+			curve.add_point(Vector2(0.74, 0.78))
+			curve.add_point(Vector2(1.0, 0.86))
+	return curve
+
+func _make_laser_particle_material(length: float, width: float) -> ParticleProcessMaterial:
+	var material := ParticleProcessMaterial.new()
+	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	material.emission_box_extents = Vector3(length * 0.5, width * 0.85, 1.0)
+	material.direction = Vector3(1.0, 0.0, 0.0)
+	material.spread = 8.0
+	material.gravity = Vector3.ZERO
+	material.initial_velocity_min = DisplaySettings.scale_value(58.0)
+	material.initial_velocity_max = DisplaySettings.scale_value(168.0)
+	material.scale_min = DisplaySettings.scale_factor() * 0.72
+	material.scale_max = DisplaySettings.scale_factor() * 2.10
+	material.angular_velocity_min = -120.0
+	material.angular_velocity_max = 120.0
+	material.color = Color(1.0, 0.12, 0.02, 0.76)
+	material.color_ramp = _laser_particle_ramp()
+	material.particle_flag_disable_z = true
+	return material
+
+func _make_laser_muzzle_material(width: float) -> ParticleProcessMaterial:
+	var material := ParticleProcessMaterial.new()
+	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	material.emission_sphere_radius = width * 2.0
+	material.direction = Vector3(1.0, 0.0, 0.0)
+	material.spread = 52.0
+	material.gravity = Vector3.ZERO
+	material.initial_velocity_min = DisplaySettings.scale_value(155.0)
+	material.initial_velocity_max = DisplaySettings.scale_value(420.0)
+	material.scale_min = DisplaySettings.scale_factor() * 1.10
+	material.scale_max = DisplaySettings.scale_factor() * 3.55
+	material.angular_velocity_min = -180.0
+	material.angular_velocity_max = 180.0
+	material.color = Color(1.0, 0.18, 0.04, 0.98)
+	material.color_ramp = _laser_particle_ramp()
+	material.particle_flag_disable_z = true
+	return material
+
+func _laser_particle_ramp() -> GradientTexture1D:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(1.0, 0.04, 0.02, 0.0))
+	gradient.set_color(1, Color(1.0, 0.02, 0.01, 0.0))
+	gradient.add_point(0.09, Color(1.0, 0.88, 0.46, 1.0))
+	gradient.add_point(0.34, Color(1.0, 0.18, 0.04, 0.90))
+	gradient.add_point(0.70, Color(1.0, 0.04, 0.01, 0.24))
+	var texture := GradientTexture1D.new()
+	texture.gradient = gradient
+	return texture
+
+func _laser_line_z_index(profile: String) -> int:
+	match profile:
+		"outer":
+			return 0
+		"glow":
+			return 2
+		"core":
+			return 3
+		"hot":
+			return 4
+	return 0
+
+func _laser_soft_particle_texture() -> Texture2D:
+	if _laser_particle_texture:
+		return _laser_particle_texture
+	var size := 9
+	var center := Vector2(size * 0.5 - 0.5, size * 0.5 - 0.5)
+	var radius := float(size) * 0.5
+	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	for y in size:
+		for x in size:
+			var distance := Vector2(float(x), float(y)).distance_to(center)
+			var alpha := clampf(1.0 - distance / radius, 0.0, 1.0)
+			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha * alpha))
+	_laser_particle_texture = ImageTexture.create_from_image(image)
+	return _laser_particle_texture
+
+func _additive_canvas_material() -> CanvasItemMaterial:
+	var material := CanvasItemMaterial.new()
+	material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	return material
 
 func _apply_scene_template() -> void:
 	for child in get_children():
@@ -330,7 +600,8 @@ func _find_target() -> CombatBody:
 				continue
 			if not _is_target_visible_in_camera(body):
 				continue
-			var dist := global_position.distance_squared_to(body.global_position)
+			var target_position := body.tracking_position()
+			var dist := global_position.distance_squared_to(target_position)
 			if dist <= DisplaySettings.scale_value(12.0) * DisplaySettings.scale_value(12.0):
 				continue
 			if homing_range > 0.0 and dist > homing_range * homing_range:
@@ -340,6 +611,21 @@ func _find_target() -> CombatBody:
 				best_dist = dist
 	return best
 
+func _lock_homing_target_once() -> void:
+	if _homing_target_locked:
+		return
+	_homing_target = _find_target()
+	_homing_target_locked = true
+
+func _locked_homing_target() -> CombatBody:
+	if not is_instance_valid(_homing_target):
+		return null
+	if not _homing_target.is_inside_tree() or _homing_target.is_queued_for_deletion():
+		return null
+	if _homing_target.dead or _homing_target.team == shooter_team:
+		return null
+	return _homing_target
+
 func _is_target_visible_in_camera(body: CombatBody) -> bool:
 	var viewport := get_viewport()
 	if viewport == null:
@@ -347,7 +633,7 @@ func _is_target_visible_in_camera(body: CombatBody) -> bool:
 	var visible_size := get_viewport_rect().size
 	if visible_size.x <= 0.0 or visible_size.y <= 0.0:
 		visible_size = DisplaySettings.logical_size()
-	var screen_pos := viewport.get_canvas_transform() * body.global_position
+	var screen_pos := viewport.get_canvas_transform() * body.tracking_position()
 	var screen_rect := Rect2(Vector2.ZERO, visible_size).grow(DisplaySettings.scale_value(10.0))
 	return screen_rect.has_point(screen_pos)
 

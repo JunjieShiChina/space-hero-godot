@@ -65,6 +65,40 @@ func take_damage(amount: float, hit_position := Vector2.ZERO, use_hit_position :
 	if health <= 0:
 		die()
 
+func closest_collision_point(world_position: Vector2) -> Vector2:
+	var polygon_node := get_node_or_null("CollisionPolygon2D") as CollisionPolygon2D
+	if polygon_node != null and not polygon_node.disabled and polygon_node.polygon.size() >= 3:
+		return _closest_polygon_point(polygon_node, world_position)
+
+	var shape_node := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if shape_node != null and not shape_node.disabled and shape_node.shape is CircleShape2D:
+		var circle := shape_node.shape as CircleShape2D
+		var center := shape_node.global_position
+		var radius := circle.radius * maxf(
+			absf(shape_node.global_scale.x),
+			absf(shape_node.global_scale.y)
+		)
+		var direction := world_position - center
+		if direction.length_squared() <= 0.001:
+			return center
+		return center + direction.normalized() * radius
+
+	return global_position
+
+func tracking_position() -> Vector2:
+	var polygon_node := get_node_or_null("CollisionPolygon2D") as CollisionPolygon2D
+	if polygon_node != null and not polygon_node.disabled and polygon_node.polygon.size() >= 3:
+		return _polygon_bounds_center(polygon_node)
+
+	var shape_node := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if shape_node != null and not shape_node.disabled:
+		return shape_node.global_position
+
+	if sprite != null:
+		return sprite.global_position
+
+	return global_position
+
 func heal(amount: float) -> void:
 	health = min(max_health, health + amount)
 
@@ -99,7 +133,7 @@ func _flash_hit() -> void:
 func _spawn_burst() -> void:
 	var explosion := ShipExplosionScene.instantiate() as Node2D
 	_spawn_parent().add_child(explosion)
-	explosion.global_position = global_position
+	explosion.global_position = tracking_position()
 	if max_health >= 800.0:
 		explosion.scale = Vector2.ONE * 1.75
 	elif team == "player":
@@ -186,7 +220,7 @@ func _apply_authored_circle_collision(shape_node: CollisionShape2D) -> void:
 	var active_circle := shape_node.shape as CircleShape2D
 	var collision_scale := _authored_collision_scale()
 	active_circle.radius = float(base["radius"]) * maxf(absf(collision_scale.x), absf(collision_scale.y))
-	shape_node.position = _scale_point(base["position"] as Vector2, collision_scale)
+	shape_node.position = _scale_authored_point(base["position"] as Vector2, collision_scale)
 	shape_node.disabled = false
 
 func _apply_authored_collision_polygon(polygon_node: CollisionPolygon2D) -> void:
@@ -197,7 +231,7 @@ func _apply_authored_collision_polygon(polygon_node: CollisionPolygon2D) -> void
 	var scaled_polygon := PackedVector2Array()
 	var collision_scale := _authored_collision_scale()
 	for point in base_polygon:
-		scaled_polygon.append(_scale_point(point, collision_scale))
+		scaled_polygon.append(_scale_authored_point(point, collision_scale))
 	polygon_node.position = Vector2.ZERO
 	polygon_node.rotation = 0.0
 	polygon_node.scale = Vector2.ONE
@@ -215,6 +249,46 @@ func _non_zero_scale(value: Vector2) -> Vector2:
 
 func _scale_point(point: Vector2, scale_value: Vector2) -> Vector2:
 	return Vector2(point.x * scale_value.x, point.y * scale_value.y)
+
+func _scale_authored_point(point: Vector2, scale_value: Vector2) -> Vector2:
+	if sprite == null:
+		return _scale_point(point, scale_value)
+	var pivot := sprite.position
+	return pivot + _scale_point(point - pivot, scale_value)
+
+func _closest_polygon_point(polygon_node: CollisionPolygon2D, world_position: Vector2) -> Vector2:
+	var polygon := polygon_node.polygon
+	var closest := polygon_node.to_global(polygon[0])
+	var closest_distance := closest.distance_squared_to(world_position)
+	for index in polygon.size():
+		var start := polygon_node.to_global(polygon[index])
+		var end := polygon_node.to_global(polygon[(index + 1) % polygon.size()])
+		var candidate := _closest_point_on_segment(world_position, start, end)
+		var distance := candidate.distance_squared_to(world_position)
+		if distance < closest_distance:
+			closest = candidate
+			closest_distance = distance
+	return closest
+
+func _closest_point_on_segment(point: Vector2, segment_start: Vector2, segment_end: Vector2) -> Vector2:
+	var segment := segment_end - segment_start
+	var length_squared := segment.length_squared()
+	if length_squared <= 0.001:
+		return segment_start
+	var t := clampf((point - segment_start).dot(segment) / length_squared, 0.0, 1.0)
+	return segment_start + segment * t
+
+func _polygon_bounds_center(polygon_node: CollisionPolygon2D) -> Vector2:
+	var polygon := polygon_node.polygon
+	var min_point := polygon_node.to_global(polygon[0])
+	var max_point := min_point
+	for point in polygon:
+		var global_point := polygon_node.to_global(point)
+		min_point.x = minf(min_point.x, global_point.x)
+		min_point.y = minf(min_point.y, global_point.y)
+		max_point.x = maxf(max_point.x, global_point.x)
+		max_point.y = maxf(max_point.y, global_point.y)
+	return (min_point + max_point) * 0.5
 
 func _uses_round_collision(texture_path: String) -> bool:
 	var lower := texture_path.to_lower()

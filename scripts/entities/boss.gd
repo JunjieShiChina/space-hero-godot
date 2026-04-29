@@ -32,8 +32,8 @@ func configure(id: int, target_player: PlayerShip, owner_stage: Node) -> void:
 	var hp := 2000.0
 	scale = Vector2.ONE
 	if id == 2:
-		texture = "res://assets/sprites/Spaceship_Boss 1.png"
-		hp = 1200.0
+		texture = "res://assets/sprites/Spaceship_Boss 3.png"
+		hp = 2000.0
 	elif id == 3:
 		texture = "res://assets/sprites/Spaceship_Boss 3.png"
 		hp = 1500.0

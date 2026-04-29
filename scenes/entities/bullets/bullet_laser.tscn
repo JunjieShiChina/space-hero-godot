@@ -1,23 +1,40 @@
-[gd_scene format=3 uid="uid://cs4ir5mah8hwk"]
+[gd_scene load_steps=4 format=3 uid="uid://cs4ir5mah8hwk"]
 
 [ext_resource type="Script" uid="uid://cmpgctq5dqxgy" path="res://scripts/entities/bullet.gd" id="1_bullet"]
-[ext_resource type="Texture2D" uid="uid://cqv4aa7if3505" path="res://assets/sprites/bosslaser.png" id="2_texture"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosslaser.png" id="2_laser"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bullet_laser"]
-radius = 6.0
-height = 760.0
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bullet_laser"]
+size = Vector2(1240, 25)
 
 [node name="BulletLaser" type="Area2D" unique_id=2085021871]
 texture_filter = 1
+z_index = 40
 script = ExtResource("1_bullet")
 bullet_type = "BulletLaser"
 use_scene_template = true
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1663248384]
-scale = Vector2(0.24, 1.05)
-texture = ExtResource("2_texture")
-offset = Vector2(0, -377.5)
+[node name="BeamTexture" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("2_laser")
+
+[node name="OuterGlowLine" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="GlowLine" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="CoreLine" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="HotLine" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="BeamParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
+[node name="MuzzleParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1356110945]
-position = Vector2(0, -375)
-shape = SubResource("CapsuleShape2D_bullet_laser")
+position = Vector2(620, 0)
+shape = SubResource("RectangleShape2D_bullet_laser")

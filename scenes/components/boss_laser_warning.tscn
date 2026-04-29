@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/components/boss_laser_warning.gd" id="1_warning"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosslaser.png" id="2_laser"]
+
+[node name="BossLaserWarning" type="Node2D"]
+texture_filter = 1
+z_index = 38
+script = ExtResource("1_warning")
+
+[node name="WarningBeamSprite" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("2_laser")
+
+[node name="WarningGlowLine" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="WarningCoreLine" type="Line2D" parent="."]
+texture_filter = 1
+
+[node name="WarningParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
+[node name="MuzzleParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1

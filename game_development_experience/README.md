@@ -14,3 +14,5 @@ Before migration work or new game development work, review this file and any rel
 ## Experience Files
 
 - `000-template.md`: Template for adding new game development lessons.
+- `006-laser-telegraph-particle-layering.md`: Pattern for building readable warning
+  lines and laser beams from sprite/Line2D cores plus visible particle layers.

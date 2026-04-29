@@ -19,6 +19,9 @@ var phase_dash_timer := 1.1
 var phase_dash_time_left := 0.0
 var phase_dash_direction := 1.0
 var phase_burst_side := 1.0
+var small_boss_target := Vector2.ZERO
+var small_boss_find_next_target := false
+var small_boss_in_move := false
 
 @export var enemy_kind := "ship"
 @export var enemy_health := 5.0
@@ -34,7 +37,13 @@ var phase_burst_side := 1.0
 
 const UNITY_UNIT := 108.0
 const METEOR_VISUAL_TARGET := 82.0
+const SMALL_BOSS_MOVE_SPEED := UNITY_UNIT * 5.0
+const SMALL_BOSS_TARGET_EPSILON := 2.0
+const SMALL_BOSS_LASER_INTERVAL := 1.0
+const SMALL_BOSS_LASER_PAUSE := 4.0
+const SMALL_BOSS_LASER_COUNT := 2
 const EnemyFireTailScene := preload("res://scenes/components/enemy_fire_tail.tscn")
+const BossLaserWarningScene := preload("res://scenes/components/boss_laser_warning.tscn")
 
 func configure(_kind: String, pos: Vector2, target: PlayerShip) -> void:
 	player = target
@@ -68,6 +77,14 @@ func configure(_kind: String, pos: Vector2, target: PlayerShip) -> void:
 		phase_dash_time_left = 0.0
 		phase_dash_direction = -1.0 if global_position.x > DisplaySettings.logical_center().x else 1.0
 		phase_burst_side = 1.0
+	if ai == "small_boss":
+		small_boss_find_next_target = true
+		small_boss_in_move = false
+		small_boss_target = global_position
+		small_laser_timer = SMALL_BOSS_LASER_INTERVAL
+		small_laser_count = 0
+		small_laser_pause_timer = 0.0
+		small_laser_paused = false
 	shoot_timer = shoot_interval if ai == "small_boss" else 0.5
 	rotation = 0.0 if ai in ["rotate", "small_boss", "meteor", "phase_interceptor"] else PI
 	add_to_group("enemy")
@@ -96,8 +113,7 @@ func _process(delta: float) -> void:
 		"rotate":
 			_process_rotation_ep(delta)
 		"small_boss":
-			velocity.x = DisplaySettings.scale_value(sin(Time.get_ticks_msec() * 0.002) * 210)
-			velocity.y = DisplaySettings.scale_value(60)
+			_process_small_boss_movement(delta)
 		"phase_interceptor":
 			_process_phase_interceptor(delta)
 	global_position += velocity * delta
@@ -159,6 +175,37 @@ func _process_phase_fire(delta: float) -> void:
 	shoot_timer = shoot_interval
 	_shoot_phase_spread()
 
+func _process_small_boss_movement(delta: float) -> void:
+	if small_boss_find_next_target:
+		_choose_small_boss_target()
+
+	var to_target := small_boss_target - global_position
+	var target_epsilon := DisplaySettings.scale_value(SMALL_BOSS_TARGET_EPSILON)
+	if to_target.length() <= target_epsilon:
+		velocity = Vector2.ZERO
+		small_boss_in_move = false
+		return
+
+	small_boss_in_move = true
+	if delta <= 0.0:
+		velocity = Vector2.ZERO
+		return
+
+	var speed := DisplaySettings.scale_value(SMALL_BOSS_MOVE_SPEED)
+	var step := speed * delta
+	if to_target.length() <= step:
+		velocity = to_target / delta
+	else:
+		velocity = to_target.normalized() * speed
+
+func _choose_small_boss_target() -> void:
+	var viewport_size := DisplaySettings.logical_size()
+	small_boss_target = Vector2(
+		randf_range(0.0, viewport_size.x),
+		randf_range(0.0, viewport_size.y)
+	)
+	small_boss_find_next_target = false
+
 func _shoot_phase_spread() -> void:
 	var base_direction := Vector2.DOWN
 	if player and not player.dead:
@@ -195,17 +242,22 @@ func _process_small_boss_fire(delta: float) -> void:
 		if small_laser_pause_timer <= 0.0:
 			small_laser_paused = false
 			small_laser_count = 0
-			small_laser_timer = 1.0
+			small_laser_timer = SMALL_BOSS_LASER_INTERVAL
+			small_boss_find_next_target = true
+		return
+
+	if small_boss_in_move or small_boss_find_next_target:
 		return
 
 	small_laser_timer -= delta
 	if small_laser_timer <= 0.0:
-		small_laser_timer = 1.0
-		_shoot_small_boss_laser()
-		small_laser_count += 1
-		if small_laser_count >= 2:
+		small_laser_timer = SMALL_BOSS_LASER_INTERVAL
+		if small_laser_count < SMALL_BOSS_LASER_COUNT:
+			_shoot_small_boss_laser()
+			small_laser_count += 1
+		else:
 			small_laser_paused = true
-			small_laser_pause_timer = 4.0
+			small_laser_pause_timer = SMALL_BOSS_LASER_PAUSE
 
 func _shoot_small_boss_ring() -> void:
 	_play_bullet_sfx("Bullet2")
@@ -217,9 +269,11 @@ func _shoot_small_boss_ring() -> void:
 func _shoot_small_boss_laser() -> void:
 	if player == null or player.dead:
 		return
-	_play_bullet_sfx("BulletLaser")
 	var direction := (player.global_position - global_position).normalized()
-	_spawn_bullet("BulletLaser", global_position + direction * DisplaySettings.scale_value(90.0), direction, {"life": 3.0})
+	var warning := BossLaserWarningScene.instantiate()
+	_spawn_parent().add_child(warning)
+	if warning.has_method("fire"):
+		warning.call("fire", global_position, direction, "enemy")
 
 func _spawn_bullet(type_name: String, origin: Vector2, direction: Vector2, overrides := {}) -> SpaceBullet:
 	var bullet := SpaceBullet.create(type_name)
@@ -252,6 +306,7 @@ func _apply_meteor_visual_scale() -> void:
 	if max_size <= 0.0:
 		return
 	sprite.scale = Vector2.ONE * (DisplaySettings.scale_value(METEOR_VISUAL_TARGET) / max_size)
+	_configure_collision(_scene_texture_path(), collision_radius, enemy_health)
 
 func _spawn_parent() -> Node:
 	return get_tree().current_scene if get_tree().current_scene else get_tree().root
