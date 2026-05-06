@@ -192,7 +192,7 @@ func _on_display_settings_changed() -> void:
 	_update_selection()
 
 
-func _on_settings_menu_closed() -> void:
+func _on_settings_menu_closed(_reason: String) -> void:
 	menu_items.visible = true
 	_update_selection()
 

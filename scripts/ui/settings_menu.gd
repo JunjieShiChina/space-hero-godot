@@ -165,11 +165,12 @@ func _set_atlas_text(parent: Node2D, text_value: String, scale_value := MENU_ITE
 	for child in parent.get_children():
 		child.queue_free()
 	var cursor := 0.0
+	var spacing := MENU_GLYPH_SPACING * (scale_value / MENU_ITEM_BASE_SCALE)
 	for index in text_value.length():
 		var character := text_value.substr(index, 1)
 		var region: Rect2 = MENU_GLYPHS.get(character, Rect2())
 		if region.size == Vector2.ZERO:
-			cursor += 36.0
+			cursor += 36.0 * (scale_value / MENU_ITEM_BASE_SCALE)
 			continue
 		var atlas := AtlasTexture.new()
 		atlas.atlas = MENU_FONT_TEXTURE
@@ -180,5 +181,5 @@ func _set_atlas_text(parent: Node2D, text_value: String, scale_value := MENU_ITE
 		sprite.position = Vector2(cursor, 0)
 		sprite.scale = Vector2.ONE * scale_value
 		parent.add_child(sprite)
-		cursor += region.size.x * scale_value + MENU_GLYPH_SPACING
-	return maxf(0.0, cursor - MENU_GLYPH_SPACING)
+		cursor += region.size.x * scale_value + spacing
+	return maxf(0.0, cursor - spacing)
