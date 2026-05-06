@@ -12,16 +12,36 @@ const SELECTOR_BASE_SCALE := 1.38
 const TITLE_LAYOUT_SCALE := 0.78
 const MENU_GLYPH_SPACING := 8.0
 const TITLE_BASE_POSITION := Vector2(276, 196.5)
-const RESOLUTION_CENTER_X := 960.0
-const RESOLUTION_BASE_Y := 583.5
+const NEW_GAME_BASE_Y := 528.0
+const SETTINGS_CENTER_X := 960.0
+const SETTINGS_BASE_Y := 624.0
+const QUIT_GAME_BASE_Y := 720.0
 const SHIPS_BASE_POSITION := Vector2(270, 882)
 const MENU_GLYPHS := {
 	"0": Rect2(457, 427, 44, 51),
 	"1": Rect2(43, 427, 22, 51),
 	"2": Rect2(69, 427, 45, 51),
 	"8": Rect2(359, 427, 45, 51),
+	"A": Rect2(30, 212, 45, 52),
+	"B": Rect2(80, 212, 45, 52),
+	"C": Rect2(129, 212, 45, 52),
+	"D": Rect2(177, 212, 45, 52),
+	"E": Rect2(227, 212, 45, 52),
+	"F": Rect2(275, 212, 45, 52),
+	"G": Rect2(323, 212, 45, 52),
+	"I": Rect2(421, 212, 45, 52),
 	"K": Rect2(30, 278, 45, 52),
+	"L": Rect2(79, 278, 45, 52),
+	"M": Rect2(134, 278, 45, 52),
+	"N": Rect2(187, 278, 45, 52),
+	"O": Rect2(235, 278, 45, 52),
 	"P": Rect2(284, 278, 45, 52),
+	"Q": Rect2(333, 278, 45, 59),
+	"R": Rect2(381, 278, 45, 52),
+	"S": Rect2(432, 278, 45, 52),
+	"T": Rect2(478, 278, 45, 52),
+	"U": Rect2(30, 344, 45, 52),
+	"W": Rect2(132, 344, 45, 52),
 }
 const ROCK_INITIAL_LAYERS := [2, 1, 2, 0, 1, 2, 1, 0]
 const ROCK_LAYER_DATA := [
@@ -76,10 +96,11 @@ const ROCK_LAYER_DATA := [
 ]
 
 @onready var menu_items: Node2D = $MenuItems
-@onready var resolution_item: Node2D = $MenuItems/Resolution
+@onready var settings_item: Node2D = $MenuItems/Settings
+@onready var settings_menu: Node = $SettingsMenu
 @onready var items: Array[CanvasItem] = [
 	$MenuItems/NewGame,
-	$MenuItems/Resolution,
+	$MenuItems/Settings,
 	$MenuItems/QuitGame,
 ]
 @onready var title: Node2D = $Title
@@ -111,8 +132,9 @@ func _ready() -> void:
 	_apply_resolution_layout()
 	_ensure_rock_count()
 	_setup_rocks()
-	_update_resolution_label()
+	_update_settings_item_label()
 	DisplaySettings.changed.connect(_on_display_settings_changed)
+	settings_menu.connect("closed", _on_settings_menu_closed)
 	_update_selection()
 
 
@@ -124,6 +146,8 @@ func _process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if bool(settings_menu.call("is_open")):
+		return
 	if navigation_requested:
 		return
 	if event.is_action_pressed("move_up"):
@@ -134,20 +158,13 @@ func _input(event: InputEvent) -> void:
 		selected = min(items.size() - 1, selected + 1)
 		AudioBus.play_sfx("select")
 		_update_selection()
-	elif event.is_action_pressed("move_left") or event.is_action_pressed("move_right"):
-		if selected == 1:
-			DisplaySettings.toggle_resolution()
-			AudioBus.play_sfx("select")
-			_update_selection()
 	elif event.is_action_pressed("ui_accept"):
 		if confirm_active:
 			return
 		if selected == 0:
 			_start_confirm_flash()
 		elif selected == 1:
-			DisplaySettings.toggle_resolution()
-			AudioBus.play_sfx("select")
-			_update_selection()
+			open_settings_menu()
 		else:
 			get_tree().quit()
 
@@ -155,20 +172,34 @@ func _input(event: InputEvent) -> void:
 func _update_selection() -> void:
 	for index in items.size():
 		items[index].modulate = Color(1.0, 1.0, 1.0, 1.0)
+	selector.visible = not bool(settings_menu.call("is_open"))
+	if not selector.visible:
+		return
 	if selected < items.size():
 		var item_position := _item_global_position(items[selected])
 		selector.position = Vector2(item_position.x - DisplaySettings.scale_value(70.5), item_position.y + DisplaySettings.scale_value(28.5))
 
 
-func _update_resolution_label() -> void:
-	var text_width := _set_atlas_text(resolution_item, DisplaySettings.current_label())
-	resolution_item.position = Vector2(RESOLUTION_CENTER_X - text_width * 0.5, RESOLUTION_BASE_Y)
+func _update_settings_item_label() -> void:
+	var width := _set_atlas_text(settings_item, "SETTINGS")
+	settings_item.position = Vector2(SETTINGS_CENTER_X - width * 0.5, SETTINGS_BASE_Y)
 
 
 func _on_display_settings_changed() -> void:
 	_apply_resolution_layout()
-	_update_resolution_label()
+	_update_settings_item_label()
 	_setup_rocks()
+	_update_selection()
+
+
+func _on_settings_menu_closed() -> void:
+	menu_items.visible = true
+	_update_selection()
+
+
+func open_settings_menu() -> void:
+	menu_items.visible = false
+	settings_menu.call("open", 0)
 	_update_selection()
 
 
@@ -186,6 +217,13 @@ func _apply_resolution_layout() -> void:
 	selector.scale = Vector2.ONE * SELECTOR_BASE_SCALE * scale_value
 	ships.position = SHIPS_BASE_POSITION * scale_value
 	ships.scale = Vector2.ONE * scale_value
+	_layout_menu_items()
+
+
+func _layout_menu_items() -> void:
+	$MenuItems/NewGame.position.y = NEW_GAME_BASE_Y
+	settings_item.position.y = SETTINGS_BASE_Y
+	$MenuItems/QuitGame.position.y = QUIT_GAME_BASE_Y
 
 
 func _node2d_local_bounds(node: Node2D) -> Rect2:

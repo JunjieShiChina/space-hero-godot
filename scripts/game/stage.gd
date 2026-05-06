@@ -18,6 +18,7 @@ const BackgroundAsteroidsScene := preload("res://scenes/components/background_as
 const ShopDropManagerScene := preload("res://scenes/components/shop_drop_manager.tscn")
 const BossWarningScene := preload("res://scenes/components/boss_warning.tscn")
 const ShieldBubbleScene := preload("res://scenes/components/shield_bubble.tscn")
+const PauseSettingsOverlayScene := preload("res://scenes/ui/pause_settings_overlay.tscn")
 const ENEMY_SCENES := {
 	"ship": preload("res://scenes/entities/enemy_single_shot.tscn"),
 	"ep2": preload("res://scenes/entities/enemy_dual_shot.tscn"),
@@ -57,7 +58,9 @@ const BOSS_REWARD_COUNTS := {
 var player: PlayerShip
 var hud: BattleHud
 var boss: BossShip
+var shield: ShieldBubble
 var shop_drop_manager: Node
+var pause_settings_overlay: CanvasLayer
 var elapsed := 0.0
 var ship_accum := 0.0
 var ep2_accum := 0.0
@@ -73,7 +76,7 @@ var _debug_shop_index := 0
 
 var configs := {
 	1: {"boss_time": 120.0, "ship_delay": 0.0, "ship_prob": 0.8, "ep2_delay": 10.0, "ep2_prob": 0.6, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.1, "phase_delay": 28.0, "phase_prob": 0.35, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": -1.0, "boss": 1},
-	2: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "phase_delay": -1.0, "phase_prob": 0.0, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": 120.0, "boss": 2},
+	2: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "phase_delay": -1.0, "phase_prob": 0.0, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 2},
 	3: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "phase_delay": -1.0, "phase_prob": 0.0, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 3},
 }
 
@@ -85,6 +88,7 @@ func _ready() -> void:
 	_ensure_hud()
 	_ensure_player()
 	_ensure_shop_drop_manager()
+	_ensure_pause_settings_overlay()
 	if OS.is_debug_build():
 		print("Debug mode: F2 toggle, F3 drop goods, F4 grant goods, F5 +coins, F6 grant loadout, F7 boss warning, F8 boss battle, F9 clear combat.")
 
@@ -107,6 +111,10 @@ func _process(delta: float) -> void:
 		_spawn_boss(cfg.boss)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("pause") and not get_tree().paused:
+		_open_pause_settings()
+		get_viewport().set_input_as_handled()
+		return
 	if not event is InputEventKey:
 		return
 	var key_event := event as InputEventKey
@@ -168,7 +176,13 @@ func on_boss_defeated() -> void:
 	SceneFlow.finish_stage()
 
 func spawn_shield() -> void:
-	var shield := ShieldBubbleScene.instantiate() as ShieldBubble
+	var active_shield := _active_shield()
+	if active_shield != null:
+		active_shield.reset_health()
+		return
+	if is_instance_valid(shield):
+		shield.queue_free()
+	shield = ShieldBubbleScene.instantiate() as ShieldBubble
 	add_child(shield)
 	shield.configure(player)
 
@@ -222,25 +236,38 @@ func _ensure_background() -> void:
 		background_layer.name = "BackgroundLayer"
 		background_layer.layer = -100
 		add_child(background_layer)
-	if background_layer.get_node_or_null("ScrollingBackground") == null and background_layer.get_node_or_null("Background") == null:
+	var scrolling_background := background_layer.get_node_or_null("ScrollingBackground") as ScrollingBackground
+	if scrolling_background != null and STAGE_BACKGROUNDS.has(stage_number):
+		scrolling_background.configure(
+			STAGE_BACKGROUNDS[stage_number],
+			float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035))
+		)
+	if scrolling_background == null and background_layer.get_node_or_null("Background") == null:
 		if STAGE_BACKGROUNDS.has(stage_number):
-			var bg := ScrollingBackgroundScene.instantiate()
-			if bg.has_method("configure"):
-				bg.configure(STAGE_BACKGROUNDS[stage_number], float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035)))
-			background_layer.add_child(bg)
+			scrolling_background = ScrollingBackgroundScene.instantiate() as ScrollingBackground
+			scrolling_background.configure(
+				STAGE_BACKGROUNDS[stage_number],
+				float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035))
+			)
+			background_layer.add_child(scrolling_background)
 		else:
 			var bg := ColorRect.new()
 			bg.name = "Background"
 			bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 			bg.color = Color.BLACK
 			background_layer.add_child(bg)
-	if background_layer.get_node_or_null("Starfield") == null:
-		var starfield := StarfieldScene.instantiate()
+	var starfield := background_layer.get_node_or_null("Starfield")
+	if starfield == null:
+		starfield = StarfieldScene.instantiate()
 		starfield.name = "Starfield"
-		starfield.modulate = Color(0.72, 0.86, 1.0, 0.34)
-		if starfield.has_method("configure_scroll"):
-			starfield.configure_scroll(float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035)), Vector2(0.0, -1.0))
 		background_layer.add_child(starfield)
+	if starfield is CanvasItem:
+		(starfield as CanvasItem).modulate = Color(0.72, 0.86, 1.0, 0.34)
+	if starfield.has_method("configure_scroll"):
+		starfield.configure_scroll(
+			float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035)),
+			Vector2(0.0, -1.0)
+		)
 	if background_layer.get_node_or_null("BackgroundAsteroids") == null:
 		var asteroids := BackgroundAsteroidsScene.instantiate()
 		asteroids.name = "BackgroundAsteroids"
@@ -279,6 +306,22 @@ func _ensure_shop_drop_manager() -> void:
 		add_child(shop_drop_manager)
 	if "stage" in shop_drop_manager:
 		shop_drop_manager.stage = self
+
+
+func _ensure_pause_settings_overlay() -> void:
+	pause_settings_overlay = get_node_or_null("PauseSettingsOverlay") as CanvasLayer
+	if pause_settings_overlay != null:
+		return
+	pause_settings_overlay = PauseSettingsOverlayScene.instantiate() as CanvasLayer
+	pause_settings_overlay.name = "PauseSettingsOverlay"
+	add_child(pause_settings_overlay)
+
+
+func _open_pause_settings() -> void:
+	if pause_settings_overlay == null:
+		return
+	pause_settings_overlay.call("open")
+	get_tree().paused = true
 
 func _is_debug_enabled() -> bool:
 	return debug_mode \
@@ -366,6 +409,8 @@ func _debug_clear_combat(include_boss := false) -> void:
 		if child == player:
 			continue
 		if child is SpaceBullet or child is PickupItem or child is BossWarning:
+			child.queue_free()
+		elif child.has_method("has_active_laser") and child.has_method("active_laser"):
 			child.queue_free()
 		elif child is EnemyShip:
 			child.queue_free()
@@ -556,6 +601,21 @@ func _spawn_boss(id: int) -> void:
 func _show_boss_warning() -> void:
 	var warning := BossWarningScene.instantiate() as BossWarning
 	add_child(warning)
+
+func _active_shield() -> ShieldBubble:
+	var active_shield: ShieldBubble = null
+	for child in get_children():
+		if not child is ShieldBubble:
+			continue
+		var candidate := child as ShieldBubble
+		if candidate.retired:
+			continue
+		if active_shield == null:
+			active_shield = candidate
+		else:
+			candidate.call_deferred("queue_free")
+	shield = active_shield
+	return active_shield
 
 func _on_enemy_died(enemy: CombatBody) -> void:
 	if enemy.coin_type != "" and randf() < enemy.coin_drop_chance:

@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/components/scrolling_background.tscn" id="2_oh1tq"]
 [ext_resource type="PackedScene" path="res://scenes/components/starfield_particles.tscn" id="3_8ycmi"]
 [ext_resource type="PackedScene" path="res://scenes/ui/battle_hud.tscn" id="4_3soqk"]
-[ext_resource type="PackedScene" path="res://scenes/entities/player_ship.tscn" id="5_r2qk8"]
+[ext_resource type="PackedScene" uid="uid://cyp6c3ws0abr7" path="res://scenes/entities/player_ship.tscn" id="5_r2qk8"]
 [ext_resource type="PackedScene" path="res://scenes/components/shop_drop_manager.tscn" id="6_wx4jp"]
 
 [node name="Stage1" type="Node2D" unique_id=1898984850]
@@ -28,6 +28,5 @@ position = Vector2(960, 900)
 
 [node name="Player" parent="." unique_id=1120350645 instance=ExtResource("5_r2qk8")]
 position = Vector2(960, 900)
-debug_invincible = true
 
 [node name="ShopDropManager" parent="." unique_id=305462302 instance=ExtResource("6_wx4jp")]

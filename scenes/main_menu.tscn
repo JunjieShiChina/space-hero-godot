@@ -9,12 +9,13 @@
 [ext_resource type="Texture2D" uid="uid://c0uxhyk4eln6f" path="res://assets/sprites/Asteroids 03.png" id="10"]
 [ext_resource type="Texture2D" uid="uid://68sumtg7o65x" path="res://assets/sprites/Asteroids 15.png" id="11"]
 [ext_resource type="Texture2D" uid="uid://dalph40p3cnx8" path="res://assets/sprites/Asteroids 01.png" id="12"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Asteroids 05.png" id="13"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Asteroids 11.png" id="14"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Asteroids 14.png" id="15"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Asteroids 16.png" id="16"]
+[ext_resource type="Texture2D" uid="uid://rybtco3ynd4o" path="res://assets/sprites/Asteroids 05.png" id="13"]
+[ext_resource type="Texture2D" uid="uid://dqg036vm3vjkm" path="res://assets/sprites/Asteroids 11.png" id="14"]
+[ext_resource type="Texture2D" uid="uid://e8s8x8qdal4k" path="res://assets/sprites/Asteroids 14.png" id="15"]
+[ext_resource type="Texture2D" uid="uid://cispgcq8h5xlb" path="res://assets/sprites/Asteroids 16.png" id="16"]
 [ext_resource type="PackedScene" path="res://scenes/components/menu_ship_formation.tscn" id="17"]
 [ext_resource type="PackedScene" path="res://scenes/components/starfield_particles.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://scenes/ui/settings_menu.tscn" id="19"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1"]
 atlas = ExtResource("5")
@@ -143,7 +144,7 @@ grow_vertical = 2
 texture = ExtResource("3")
 expand_mode = 1
 
-[node name="Starfield" parent="." instance=ExtResource("18")]
+[node name="Starfield" parent="." unique_id=139644130 instance=ExtResource("18")]
 
 [node name="Rocks" type="Node2D" parent="." unique_id=501427726]
 
@@ -175,28 +176,28 @@ scale = Vector2(0.33, 0.33)
 texture = ExtResource("12")
 metadata/velocity = Vector2(3, 84)
 
-[node name="Rock5" type="Sprite2D" parent="Rocks"]
+[node name="Rock5" type="Sprite2D" parent="Rocks" unique_id=794783471]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
 position = Vector2(480, -315)
 scale = Vector2(0.3, 0.3)
 texture = ExtResource("13")
 metadata/velocity = Vector2(12, 93)
 
-[node name="Rock6" type="Sprite2D" parent="Rocks"]
+[node name="Rock6" type="Sprite2D" parent="Rocks" unique_id=2104170567]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
 position = Vector2(930, -615)
 scale = Vector2(0.24, 0.24)
 texture = ExtResource("14")
 metadata/velocity = Vector2(-9, 78)
 
-[node name="Rock7" type="Sprite2D" parent="Rocks"]
+[node name="Rock7" type="Sprite2D" parent="Rocks" unique_id=1016034570]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
 position = Vector2(1395, -135)
 scale = Vector2(0.39, 0.39)
 texture = ExtResource("15")
 metadata/velocity = Vector2(6, 114)
 
-[node name="Rock8" type="Sprite2D" parent="Rocks"]
+[node name="Rock8" type="Sprite2D" parent="Rocks" unique_id=1659310477]
 modulate = Color(0.18, 0.16, 0.2, 0.7)
 position = Vector2(1815, -465)
 scale = Vector2(0.27, 0.27)
@@ -358,9 +359,9 @@ scale = Vector2(1.08, 1.08)
 texture = SubResource("AtlasTexture_24")
 centered = false
 
-[node name="Resolution" type="Node2D" parent="MenuItems"]
+[node name="Settings" type="Node2D" parent="MenuItems" unique_id=1375613247]
 modulate = Color(0.55, 0.72, 1, 1)
-position = Vector2(835, 583.5)
+position = Vector2(820, 528)
 
 [node name="Selector" type="Sprite2D" parent="." unique_id=1932184729]
 position = Vector2(700.5, 508.5)
@@ -368,5 +369,7 @@ rotation = 1.5708
 scale = Vector2(1.38, 1.38)
 texture = ExtResource("6")
 
-[node name="Ships" parent="." instance=ExtResource("17")]
+[node name="SettingsMenu" parent="." instance=ExtResource("19")]
+
+[node name="Ships" parent="." unique_id=2133306957 instance=ExtResource("17")]
 position = Vector2(270, 882)
