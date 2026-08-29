@@ -35,6 +35,9 @@ texture_filter = 1
 [node name="MuzzleParticles" type="GPUParticles2D" parent="."]
 texture_filter = 1
 
+[node name="ImpactParticles" type="GPUParticles2D" parent="."]
+texture_filter = 1
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1356110945]
 position = Vector2(620, 0)
 shape = SubResource("RectangleShape2D_bullet_laser")

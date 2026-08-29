@@ -29,6 +29,15 @@ var _template_node_states: Dictionary = {}
 var _template_shape_states: Dictionary = {}
 var _level_light_texture: Texture2D
 var _laser_particle_texture: Texture2D
+var _laser_direction := Vector2.ZERO
+var _laser_start_distance := 0.0
+var _laser_end_distance := 0.0
+var _laser_max_end_distance := 0.0
+var _laser_cast_duration := 0.0
+var _laser_cast_elapsed := 0.0
+var _follow_owner: Node2D = null
+var _follow_offset := Vector2.ZERO
+var _laser_has_collision_endpoint := false
 
 const DAMAGE_VARIANCE := 0.10
 const BulletHitSparkScene := preload("res://scenes/components/bullet_hit_spark.tscn")
@@ -84,7 +93,12 @@ func setup(type_name: String, team: String, pos: Vector2, direction: Vector2, ov
 	curve_direction = float(info.get("curve_direction", 1.0))
 	collision_layer = 4 if team == "player" else 8
 	collision_mask = 2 | 32 if team == "player" else 1 | 32
+	_follow_owner = overrides.get("follow_owner") as Node2D
+	_follow_offset = overrides.get("follow_offset", Vector2.ZERO)
 	_make_visual(info)
+	if bullet_type == "BulletLaser":
+		_laser_direction = safe_direction
+		_update_laser_endpoint(0.0)
 	_apply_weapon_level_effect(info)
 	if not area_entered.is_connected(_on_area_entered):
 		area_entered.connect(_on_area_entered)
@@ -97,7 +111,7 @@ static func bullet_info(type_name: String) -> Dictionary:
 		"Bullet2": {"speed": 540.0, "damage": 5.0, "interval": 2.0, "life": 4.0, "texture": "res://assets/sprites/bullet4.png", "scale": 0.58, "radius": 10.0, "height": 32.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "shoot2"},
 		"BulletArrow": {"speed": 1080.0, "damage": 3.0, "interval": 0.3, "life": 3.0, "texture": "res://assets/sprites/WyvernHornBow.png", "scale": 0.30, "radius": 16.0, "height": 48.0, "pierce": false, "homing": false, "spin": 0.0, "visual_angle_offset": PI / 4.0, "sfx": "arrow"},
 		"BulletMissile": {"speed": 540.0, "damage": 50.0, "interval": 1.5, "life": 5.0, "texture": "res://assets/sprites/spr_missile.png", "scale": 0.70, "radius": 10.0, "height": 42.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "missile"},
-		"BulletLaser": {"speed": 0.0, "damage": 1.0, "interval": 2.0, "life": 1.5, "tick_interval": 0.08, "texture": "res://assets/sprites/bosslaser.png", "scale": 1.0, "radius": 18.0, "height": 810.0, "length": 1240.0, "width": 20.0, "pierce": true, "homing": false, "spin": 0.0, "visual_angle_offset": 0.0, "sfx": "laser"},
+		"BulletLaser": {"speed": 0.0, "damage": 1.0, "interval": 2.0, "life": 1.5, "tick_interval": 0.08, "texture": "res://assets/sprites/bosslaser.png", "scale": 1.0, "radius": 18.0, "height": 810.0, "length": 1240.0, "width": 20.0, "pierce": true, "homing": false, "spin": 0.0, "visual_angle_offset": 0.0, "cast_time": 0.18, "sfx": "laser"},
 		"BulletFire": {"speed": 540.0, "damage": 10.0, "interval": 1.0, "life": 3.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(416, 144, 16, 17), Rect2(432, 144, 16, 17), Rect2(448, 144, 16, 17), Rect2(464, 144, 16, 17)], "scale": 1.35, "radius": 8.0, "height": 22.0, "pierce": false, "homing": false, "spin": 0.0, "sfx": "bullet_fire"},
 		"BulletYue": {"speed": 540.0, "damage": 6.0, "interval": 0.2, "life": 3.0, "texture": "res://assets/sprites/All_Fire_Bullet_Pixel_16x16_00.png", "frames": [Rect2(576, 16, 16, 17), Rect2(592, 16, 16, 17), Rect2(608, 16, 16, 17), Rect2(624, 16, 16, 17)], "scale": 1.35, "radius": 8.0, "height": 24.0, "pierce": false, "homing": false, "spin": 8.0, "sfx": "bullet_yue"},
 		"BulletPhaseShard": {"speed": 640.0, "damage": 7.0, "interval": 1.55, "life": 4.0, "texture": "res://assets/sprites/bullet_phase_shard.png", "scale": 0.44, "radius": 7.0, "height": 28.0, "pierce": false, "homing": false, "spin": 5.4, "curve_rate": 0.0, "curve_direction": 1.0, "visual_angle_offset": PI / 2.0, "sfx": "bullet_yue"},
@@ -116,6 +130,11 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if retired:
 		return
+	if _follow_owner != null:
+		if not is_instance_valid(_follow_owner) or _follow_owner.is_queued_for_deletion():
+			call_deferred("_retire")
+			return
+		global_position = _follow_owner.to_global(_follow_offset)
 	_sync_weapon_level_particles()
 	life_time -= delta
 	hit_spark_timer = maxf(0.0, hit_spark_timer - delta)
@@ -154,6 +173,8 @@ func _physics_process(delta: float) -> void:
 		rotation += spin * delta
 		_sync_weapon_level_particles()
 	if damage_tick_interval > 0.0:
+		if bullet_type == "BulletLaser":
+			_update_laser_endpoint(delta)
 		damage_tick_timer -= delta
 		if damage_tick_timer <= 0.0:
 			damage_tick_timer = damage_tick_interval
@@ -292,39 +313,63 @@ func _configure_laser_effect(info: Dictionary) -> void:
 	if sprite:
 		sprite.visible = false
 	var length := DisplaySettings.scale_value(float(info.get("length", info.get("height", 1240.0))))
+	var start_distance := minf(
+		DisplaySettings.scale_value(float(info.get("start_distance", 28.0))),
+		length - 1.0
+	)
+	_laser_start_distance = start_distance
+	_laser_end_distance = length
+	_laser_max_end_distance = length
+	_laser_cast_duration = maxf(0.0, float(info.get("cast_time", 0.18)))
+	_laser_cast_elapsed = 0.0
 	var width := DisplaySettings.scale_value(float(info.get("width", info.get("radius", 18.0))))
-	_configure_laser_texture(length, width)
-	var color := Color(1.0, 0.08, 0.01, 1.0)
+	_configure_laser_texture(length, start_distance)
 	_configure_laser_line(
 		"OuterGlowLine",
 		length,
-		width * 12.0,
-		Color(color.r, color.g, color.b, 0.28),
-		"outer"
+		start_distance,
+		width * 2.4,
+		Color(1.0, 0.08, 0.03, 0.55),
+		"back"
 	)
-	_configure_laser_line("GlowLine", length, width * 7.0, Color(1.0, 0.16, 0.02, 0.84), "glow")
-	_configure_laser_line("CoreLine", length, width * 2.35, Color(1.0, 0.30, 0.04, 1.0), "core")
-	_configure_laser_line("HotLine", length, width * 0.70, Color(1.0, 0.90, 0.52, 1.0), "hot")
-	_configure_laser_particles(length, width)
-	_configure_laser_collision(length, width)
+	_configure_laser_line(
+		"GlowLine",
+		length,
+		start_distance,
+		width * 1.20,
+		Color(1.0, 0.10, 0.04, 1.0),
+		"mid"
+	)
+	_configure_laser_line(
+		"CoreLine",
+		length,
+		start_distance,
+		width * 0.42,
+		Color(1.0, 0.88, 0.82, 1.0),
+		"core"
+	)
+	_configure_laser_line(
+		"HotLine",
+		length,
+		start_distance,
+		width * 0.16,
+		Color(1.0, 1.0, 0.96, 1.0),
+		"detail"
+	)
+	_configure_laser_particles(length, start_distance, width)
+	_configure_laser_collision(length, start_distance, width)
 
-func _configure_laser_texture(length: float, width: float) -> void:
+func _configure_laser_texture(length: float, start_distance: float) -> void:
 	var beam_texture := get_node_or_null("BeamTexture") as Sprite2D
-	if beam_texture == null or beam_texture.texture == null:
+	if beam_texture == null:
 		return
-	beam_texture.position = Vector2(length * 0.5, 0.0)
-	beam_texture.rotation = -PI / 2.0
-	var texture_size := beam_texture.texture.get_size()
-	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
-		return
-	beam_texture.scale = Vector2(width * 3.25 / texture_size.x, length / texture_size.y)
-	beam_texture.material = _additive_canvas_material()
-	beam_texture.modulate = Color(1.0, 0.58, 0.16, 0.88)
-	beam_texture.z_index = 1
+	beam_texture.visible = false
+	beam_texture.position = Vector2((length + start_distance) * 0.5, 0.0)
 
 func _configure_laser_line(
 	node_name: String,
 	length: float,
+	start_distance: float,
 	width: float,
 	color: Color,
 	profile: String
@@ -332,7 +377,7 @@ func _configure_laser_line(
 	var line := get_node_or_null(node_name) as Line2D
 	if line == null:
 		return
-	line.points = PackedVector2Array([Vector2.ZERO, Vector2(length, 0.0)])
+	line.points = PackedVector2Array([Vector2(start_distance, 0.0), Vector2(length, 0.0)])
 	line.width = width
 	line.default_color = color
 	line.antialiased = true
@@ -340,38 +385,40 @@ func _configure_laser_line(
 	line.end_cap_mode = Line2D.LINE_CAP_ROUND
 	line.joint_mode = Line2D.LINE_JOINT_ROUND
 	line.round_precision = 16
-	line.gradient = _laser_line_gradient(color, profile)
-	line.width_curve = _laser_width_curve(profile)
-	line.material = _laser_shader_material(profile)
+	line.gradient = null
+	line.width_curve = null
+	line.material = null
 	line.z_index = _laser_line_z_index(profile)
 
-func _configure_laser_particles(length: float, width: float) -> void:
+func _configure_laser_particles(length: float, start_distance: float, width: float) -> void:
+	var segment_length := maxf(1.0, length - start_distance)
+	var width_ratio := maxf(0.55, width / DisplaySettings.scale_value(12.0))
 	var beam_particles := get_node_or_null("BeamParticles") as GPUParticles2D
 	if beam_particles:
-		beam_particles.position = Vector2(length * 0.5, 0.0)
-		beam_particles.amount = 280
-		beam_particles.lifetime = 0.18
-		beam_particles.preprocess = 0.18
-		beam_particles.randomness = 0.70
+		beam_particles.position = Vector2(start_distance + segment_length * 0.5, 0.0)
+		beam_particles.amount = maxi(24, int(round(28.0 + width_ratio * 18.0)))
+		beam_particles.lifetime = 0.44
+		beam_particles.preprocess = 0.44
+		beam_particles.randomness = 1.0
 		beam_particles.fixed_fps = 30
 		beam_particles.local_coords = true
 		beam_particles.visibility_rect = Rect2(
-			Vector2(-length * 0.55, -width * 12.0),
-			Vector2(length * 1.1, width * 24.0)
+			Vector2(-segment_length * 0.55, -width * 8.0),
+			Vector2(segment_length * 1.1, width * 16.0)
 		)
 		beam_particles.texture = _laser_soft_particle_texture()
 		beam_particles.material = _additive_canvas_material()
-		beam_particles.process_material = _make_laser_particle_material(length, width)
+		beam_particles.process_material = _make_laser_particle_material(segment_length, width)
 		beam_particles.z_index = 5
 		beam_particles.emitting = true
 		beam_particles.restart()
 	var muzzle_particles := get_node_or_null("MuzzleParticles") as GPUParticles2D
 	if muzzle_particles:
-		muzzle_particles.position = Vector2.ZERO
-		muzzle_particles.amount = 120
-		muzzle_particles.lifetime = 0.25
+		muzzle_particles.position = Vector2(start_distance, 0.0)
+		muzzle_particles.amount = maxi(16, int(round(14.0 + width_ratio * 10.0)))
+		muzzle_particles.lifetime = 0.34
 		muzzle_particles.preprocess = 0.08
-		muzzle_particles.randomness = 0.76
+		muzzle_particles.randomness = 0.0
 		muzzle_particles.fixed_fps = 30
 		muzzle_particles.local_coords = true
 		muzzle_particles.visibility_rect = Rect2(
@@ -384,17 +431,113 @@ func _configure_laser_particles(length: float, width: float) -> void:
 		muzzle_particles.z_index = 6
 		muzzle_particles.emitting = true
 		muzzle_particles.restart()
+	var impact_particles := get_node_or_null("ImpactParticles") as GPUParticles2D
+	if impact_particles:
+		impact_particles.position = Vector2(length, 0.0)
+		impact_particles.amount = maxi(18, int(round(18.0 + width_ratio * 14.0)))
+		impact_particles.lifetime = 0.38
+		impact_particles.preprocess = 0.12
+		impact_particles.randomness = 0.0
+		impact_particles.fixed_fps = 30
+		impact_particles.local_coords = true
+		impact_particles.visibility_rect = Rect2(
+			Vector2(-width * 8.0, -width * 8.0),
+			Vector2.ONE * width * 16.0
+		)
+		impact_particles.texture = _laser_soft_particle_texture()
+		impact_particles.material = _additive_canvas_material()
+		impact_particles.process_material = _make_laser_impact_material(width, _laser_has_collision_endpoint)
+		impact_particles.z_index = 6
+		impact_particles.emitting = _laser_has_collision_endpoint
+		impact_particles.restart()
 
-func _configure_laser_collision(length: float, width: float) -> void:
+func _configure_laser_collision(length: float, start_distance: float, width: float) -> void:
 	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if collision == null:
 		return
 	if collision.shape == null or not collision.shape is RectangleShape2D:
 		collision.shape = RectangleShape2D.new()
 	var rectangle := collision.shape as RectangleShape2D
-	rectangle.size = Vector2(length, width * 1.25)
-	collision.position = Vector2(length * 0.5, 0.0)
+	var segment_length := maxf(1.0, length - start_distance)
+	rectangle.size = Vector2(segment_length, width * 1.25)
+	collision.position = Vector2(start_distance + segment_length * 0.5, 0.0)
 	collision.disabled = false
+
+func _update_laser_endpoint(delta: float = 0.0) -> void:
+	if bullet_type != "BulletLaser":
+		return
+	var direction := _laser_direction
+	if direction.is_zero_approx():
+		direction = Vector2.RIGHT.rotated(rotation - visual_angle_offset)
+	_laser_direction = direction.normalized()
+	if _laser_cast_duration > 0.0:
+		_laser_cast_elapsed = minf(_laser_cast_elapsed + delta, _laser_cast_duration)
+	var cast_ratio := 1.0
+	if _laser_cast_duration > 0.0:
+		cast_ratio = clampf(_laser_cast_elapsed / _laser_cast_duration, 0.0, 1.0)
+	var current_max_end_distance := lerpf(
+		_laser_start_distance,
+		_laser_max_end_distance,
+		cast_ratio
+	)
+	var origin := global_position + _laser_direction * _laser_start_distance
+	var target := global_position + _laser_direction * current_max_end_distance
+	var query := PhysicsRayQueryParameters2D.create(origin, target)
+	query.collision_mask = collision_mask
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+	query.exclude = [get_rid()]
+	var result := get_world_2d().direct_space_state.intersect_ray(query)
+	var end_distance := current_max_end_distance
+	_laser_has_collision_endpoint = false
+	if not result.is_empty():
+		var hit_position := result.get("position") as Vector2
+		end_distance = _laser_start_distance + origin.distance_to(hit_position)
+		_laser_has_collision_endpoint = true
+	if is_equal_approx(end_distance, _laser_end_distance):
+		return
+	_laser_end_distance = end_distance
+	var width := 0.0
+	var core_line := get_node_or_null("CoreLine") as Line2D
+	if core_line:
+		width = core_line.width / 0.42
+	if width <= 0.0:
+		width = DisplaySettings.scale_value(20.0)
+	_configure_laser_texture(_laser_end_distance, _laser_start_distance)
+	_configure_laser_line(
+		"OuterGlowLine",
+		_laser_end_distance,
+		_laser_start_distance,
+		width * 2.4,
+		Color(1.0, 0.08, 0.03, 0.55),
+		"back"
+	)
+	_configure_laser_line(
+		"GlowLine",
+		_laser_end_distance,
+		_laser_start_distance,
+		width * 1.20,
+		Color(1.0, 0.10, 0.04, 1.0),
+		"mid"
+	)
+	_configure_laser_line(
+		"CoreLine",
+		_laser_end_distance,
+		_laser_start_distance,
+		width * 0.42,
+		Color(1.0, 0.88, 0.82, 1.0),
+		"core"
+	)
+	_configure_laser_line(
+		"HotLine",
+		_laser_end_distance,
+		_laser_start_distance,
+		width * 0.16,
+		Color(1.0, 1.0, 0.96, 1.0),
+		"detail"
+	)
+	_configure_laser_particles(_laser_end_distance, _laser_start_distance, width)
+	_configure_laser_collision(_laser_end_distance, _laser_start_distance, width)
 
 func _laser_shader_material(profile: String) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
@@ -424,58 +567,18 @@ void fragment() {
 """
 	return shader
 
-func _laser_line_gradient(color: Color, profile: String) -> Gradient:
-	var gradient := Gradient.new()
-	gradient.set_color(0, Color(color.r, color.g, color.b, 0.0))
-	gradient.set_color(1, Color(color.r, color.g, color.b, 0.0))
-	var start_alpha := 0.92 if profile in ["core", "hot"] else 0.54
-	var middle_alpha := color.a
-	var end_alpha := 0.55 if profile in ["core", "hot"] else 0.22
-	gradient.add_point(0.018, Color(color.r, color.g, color.b, color.a * start_alpha))
-	gradient.add_point(0.10, Color(color.r, color.g, color.b, middle_alpha))
-	gradient.add_point(0.74, Color(color.r, color.g, color.b, middle_alpha))
-	gradient.add_point(0.96, Color(color.r, color.g, color.b, color.a * end_alpha))
-	return gradient
-
-func _laser_width_curve(profile: String) -> Curve:
-	var curve := Curve.new()
-	match profile:
-		"outer":
-			curve.add_point(Vector2(0.0, 1.12))
-			curve.add_point(Vector2(0.20, 0.82))
-			curve.add_point(Vector2(0.72, 0.68))
-			curve.add_point(Vector2(1.0, 0.90))
-		"glow":
-			curve.add_point(Vector2(0.0, 1.18))
-			curve.add_point(Vector2(0.20, 0.86))
-			curve.add_point(Vector2(0.72, 0.72))
-			curve.add_point(Vector2(1.0, 0.96))
-		"hot":
-			curve.add_point(Vector2(0.0, 1.0))
-			curve.add_point(Vector2(0.25, 0.84))
-			curve.add_point(Vector2(0.76, 0.72))
-			curve.add_point(Vector2(1.0, 0.82))
-		_:
-			curve.add_point(Vector2(0.0, 1.08))
-			curve.add_point(Vector2(0.20, 0.90))
-			curve.add_point(Vector2(0.74, 0.78))
-			curve.add_point(Vector2(1.0, 0.86))
-	return curve
-
 func _make_laser_particle_material(length: float, width: float) -> ParticleProcessMaterial:
 	var material := ParticleProcessMaterial.new()
 	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
-	material.emission_box_extents = Vector3(length * 0.5, width * 0.85, 1.0)
-	material.direction = Vector3(1.0, 0.0, 0.0)
+	material.emission_box_extents = Vector3(length * 0.5, width * 0.30, 1.0)
+	material.direction = Vector3(-1.0, 0.0, 0.0)
 	material.spread = 8.0
 	material.gravity = Vector3.ZERO
-	material.initial_velocity_min = DisplaySettings.scale_value(58.0)
-	material.initial_velocity_max = DisplaySettings.scale_value(168.0)
-	material.scale_min = DisplaySettings.scale_factor() * 0.72
-	material.scale_max = DisplaySettings.scale_factor() * 2.10
-	material.angular_velocity_min = -120.0
-	material.angular_velocity_max = 120.0
-	material.color = Color(1.0, 0.12, 0.02, 0.76)
+	material.tangential_accel_min = DisplaySettings.scale_value(64.0)
+	material.tangential_accel_max = DisplaySettings.scale_value(64.0)
+	material.scale_min = DisplaySettings.scale_factor() * maxf(0.26, width * 0.018)
+	material.scale_max = DisplaySettings.scale_factor() * maxf(0.58, width * 0.036)
+	material.color = Color(1.0, 0.16, 0.04, 0.88)
 	material.color_ramp = _laser_particle_ramp()
 	material.particle_flag_disable_z = true
 	return material
@@ -483,20 +586,37 @@ func _make_laser_particle_material(length: float, width: float) -> ParticleProce
 func _make_laser_muzzle_material(width: float) -> ParticleProcessMaterial:
 	var material := ParticleProcessMaterial.new()
 	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
-	material.emission_sphere_radius = width * 2.0
-	material.direction = Vector3(1.0, 0.0, 0.0)
-	material.spread = 52.0
+	material.emission_sphere_radius = width * 0.42
+	material.initial_velocity_min = DisplaySettings.scale_value(96.0)
+	material.initial_velocity_max = DisplaySettings.scale_value(96.0)
 	material.gravity = Vector3.ZERO
-	material.initial_velocity_min = DisplaySettings.scale_value(155.0)
-	material.initial_velocity_max = DisplaySettings.scale_value(420.0)
-	material.scale_min = DisplaySettings.scale_factor() * 1.10
-	material.scale_max = DisplaySettings.scale_factor() * 3.55
-	material.angular_velocity_min = -180.0
-	material.angular_velocity_max = 180.0
-	material.color = Color(1.0, 0.18, 0.04, 0.98)
-	material.color_ramp = _laser_particle_ramp()
-	material.particle_flag_disable_z = true
+	material.scale_min = DisplaySettings.scale_factor() * maxf(0.42, width * 0.030)
+	material.scale_max = DisplaySettings.scale_factor() * maxf(0.42, width * 0.046)
+	material.color_ramp = _laser_cast_particle_ramp()
 	return material
+
+func _make_laser_impact_material(width: float, collision_active: bool) -> ParticleProcessMaterial:
+	var material := ParticleProcessMaterial.new()
+	material.particle_flag_disable_z = true
+	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	material.emission_sphere_radius = width * (0.60 if collision_active else 0.40)
+	material.spread = 50.0
+	material.initial_velocity_min = DisplaySettings.scale_value(160.0)
+	material.initial_velocity_max = DisplaySettings.scale_value(160.0)
+	material.gravity = Vector3.ZERO
+	material.scale_min = DisplaySettings.scale_factor() * maxf(0.42, width * 0.032)
+	material.scale_max = DisplaySettings.scale_factor() * maxf(0.42, width * 0.052)
+	material.color_ramp = _laser_cast_particle_ramp()
+	return material
+
+func _laser_cast_particle_ramp() -> GradientTexture1D:
+	var gradient := Gradient.new()
+	gradient.add_point(0.58, Color(1.0, 0.92, 0.86, 1.0))
+	gradient.add_point(1.0, Color(1.0, 0.18, 0.06, 0.0))
+	var texture := GradientTexture1D.new()
+	texture.gradient = gradient
+	texture.width = 256
+	return texture
 
 func _laser_particle_ramp() -> GradientTexture1D:
 	var gradient := Gradient.new()
@@ -511,13 +631,13 @@ func _laser_particle_ramp() -> GradientTexture1D:
 
 func _laser_line_z_index(profile: String) -> int:
 	match profile:
-		"outer":
+		"back":
 			return 0
-		"glow":
+		"mid":
 			return 2
 		"core":
 			return 3
-		"hot":
+		"detail":
 			return 4
 	return 0
 

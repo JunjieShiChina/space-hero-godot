@@ -32,3 +32,8 @@ Before migration work or new game development work, review this file and any rel
   source glyph mappings instead of mixing fonts or guessing atlas coordinates.
 - `011-shared-settings-subpage-and-paused-ui.md`: Rule for reusing one settings subpage
   across main menu and paused gameplay using Godot's paused UI branch pattern.
+- `012-authored-canyon-playfield-over-single-background.md`: Rule for turning a tall
+  looping background into an authored corridor stage instead of treating one image as
+  the whole playfield.
+- `013-grounded-launch-enemy-state-split.md`: Rule for enemies that start as grounded
+  map props and only become combat targets after a visible launch transition.

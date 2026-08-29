@@ -1,0 +1,118 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/tests/gdquest_laser_recreation.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/tests/gdquest_laser_beam_2d.tscn" id="2_laser"]
+[ext_resource type="Texture2D" uid="uid://da7duljiw0k00" path="res://assets/sprites/Spaceship_Protagonist - P1.png" id="3_ship"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Asteroids 07.png" id="4_asteroid"]
+
+[sub_resource type="Environment" id="1_env"]
+background_mode = 1
+background_color = Color(0, 0.158861, 0.175, 1)
+glow_enabled = true
+glow_levels/4 = 0.5
+glow_levels/5 = 0.3
+glow_mix = 0.141
+glow_blend_mode = 1
+glow_hdr_threshold = 0.9
+glow_hdr_scale = 0.0
+
+[sub_resource type="CircleShape2D" id="2_shape"]
+radius = 56.0
+
+[node name="GDQuestLaserRecreation" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="Background" type="ColorRect" parent="BackgroundLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.158861, 0.175, 1)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="Instructions" type="MarginContainer" parent="CanvasLayer"]
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 740.0
+offset_bottom = 96.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Instructions"]
+
+[node name="Title" type="Label" parent="CanvasLayer/Instructions/VBoxContainer"]
+text = "GDQuest Laser 2D Recreation"
+
+[node name="Hint" type="Label" parent="CanvasLayer/Instructions/VBoxContainer"]
+text = "Mouse aim. Arrow keys move. U toggles laser. R resets ship."
+
+[node name="Status" type="Label" parent="CanvasLayer/Instructions/VBoxContainer"]
+text = "Laser: ON"
+
+[node name="Asteroids" type="Node2D" parent="."]
+
+[node name="AsteroidA" type="StaticBody2D" parent="Asteroids"]
+position = Vector2(1180, 760)
+
+[node name="Sprite2D" type="Sprite2D" parent="Asteroids/AsteroidA"]
+texture = ExtResource("4_asteroid")
+scale = Vector2(1.1, 1.1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Asteroids/AsteroidA"]
+shape = SubResource("2_shape")
+
+[node name="AsteroidB" type="StaticBody2D" parent="Asteroids"]
+position = Vector2(1260, 520)
+
+[node name="Sprite2D" type="Sprite2D" parent="Asteroids/AsteroidB"]
+texture = ExtResource("4_asteroid")
+rotation = 0.64
+scale = Vector2(0.72, 0.72)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Asteroids/AsteroidB"]
+shape = SubResource("2_shape")
+scale = Vector2(0.72, 0.72)
+
+[node name="AsteroidC" type="StaticBody2D" parent="Asteroids"]
+position = Vector2(1540, 248)
+
+[node name="Sprite2D" type="Sprite2D" parent="Asteroids/AsteroidC"]
+texture = ExtResource("4_asteroid")
+rotation = -0.48
+scale = Vector2(0.82, 0.82)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Asteroids/AsteroidC"]
+shape = SubResource("2_shape")
+scale = Vector2(0.82, 0.82)
+
+[node name="AsteroidD" type="StaticBody2D" parent="Asteroids"]
+position = Vector2(924, 290)
+
+[node name="Sprite2D" type="Sprite2D" parent="Asteroids/AsteroidD"]
+texture = ExtResource("4_asteroid")
+rotation = 1.14
+scale = Vector2(0.64, 0.64)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Asteroids/AsteroidD"]
+shape = SubResource("2_shape")
+scale = Vector2(0.64, 0.64)
+
+[node name="PlayerShip" type="Node2D" parent="."]
+position = Vector2(540, 620)
+
+[node name="GDQuestLaserBeam2D" parent="PlayerShip" instance=ExtResource("2_laser")]
+position = Vector2(24, 0)
+target_position = Vector2(2000, 0)
+max_length = 2000.0
+color = Color(1.31836, 0.609067, 1.5, 1)
+is_casting = true
+
+[node name="Sprite2D" type="Sprite2D" parent="PlayerShip"]
+texture = ExtResource("3_ship")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("1_env")

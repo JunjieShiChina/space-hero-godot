@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ddd320y3ma3hf"]
 
 [ext_resource type="Script" uid="uid://dxx2wpar4hxmv" path="res://scripts/entities/boss.gd" id="1_boss"]
-[ext_resource type="Texture2D" uid="uid://c75gy6msfjrlh" path="res://assets/sprites/Spaceship_Boss 3.png" id="2_texture"]
+[ext_resource type="Texture2D" uid="uid://cd5gkx2fxot8q" path="res://assets/sprites/Spaceship_Boss 1.png" id="2_texture"]
 
 [node name="Boss3" type="Area2D" unique_id=39230449]
 script = ExtResource("1_boss")
@@ -9,5 +9,5 @@ script = ExtResource("1_boss")
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1545291818]
 texture = ExtResource("2_texture")
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=1855542106]
-polygon = PackedVector2Array(-3, -16, 4, -16, 16, -26, 24, -27, 27, -23, 27, -18, 22, -8, 22, -1, 17, 1, 17, 24, 11, 26, 9, 7, 0, 20, -9, 10, -11, 27, -16, 22, -18, 0, -21, -1, -22, -7, -27, -19, -27, -24, -23, -27, -15, -27)
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="." unique_id=2049689428]
+polygon = PackedVector2Array(0, -30, 9, -30, 9, -40, 20, -40, 36, -34, 37, -27, 39, -25, 39, -2, 35, 6, 27, 11, 26, 39, 20, 41, 15, 34, 10, 17, 9, 10, 0, 10, -9, 10, -10, 16, -13, 33, -19, 40, -26, 37, -26, 9, -30, 9, -35, 6, -39, -2, -39, -25, -36, -33, -19, -40, -9, -40)

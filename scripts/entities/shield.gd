@@ -23,8 +23,7 @@ const HIT_RING_COLOR := Color(1.0, 0.16, 0.08, 0.92)
 
 func configure(player: PlayerShip) -> void:
 	target = player
-	health = max_health
-	GameData.set_shield(health, max_health)
+	reset_health()
 	collision_layer = 32
 	collision_mask = 2 | 8
 	monitoring = true
@@ -34,6 +33,10 @@ func configure(player: PlayerShip) -> void:
 	_layout_effect()
 	if not area_entered.is_connected(_on_area_entered):
 		area_entered.connect(_on_area_entered)
+
+func reset_health() -> void:
+	health = max_health
+	_set_shield_state(health, max_health)
 
 func _process(delta: float) -> void:
 	if target == null or target.dead:
@@ -75,7 +78,7 @@ func _on_area_entered(area: Area2D) -> void:
 
 func _damage_shield(amount: float) -> void:
 	health -= amount
-	GameData.set_shield(health, max_health)
+	_set_shield_state(health, max_health)
 	_play_shield_sfx()
 	_hit_flash_timer = HIT_FLASH_DURATION
 	_restart_hit_sparks()
@@ -96,10 +99,32 @@ func _retire() -> void:
 	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if collision:
 		collision.set_deferred("disabled", true)
-	GameData.clear_shield()
+	_clear_shield_state()
 	visible = false
 	set_process(false)
 	set_physics_process(false)
+
+func _set_shield_state(value: float, max_value: float) -> void:
+	var game_data := get_node_or_null("/root/GameData")
+	if game_data and game_data.has_method("set_shield"):
+		game_data.call("set_shield", value, max_value)
+
+func _clear_shield_state() -> void:
+	var game_data := get_node_or_null("/root/GameData")
+	if game_data and game_data.has_method("clear_shield"):
+		game_data.call("clear_shield")
+
+func _scale_value(value: float) -> float:
+	var display_settings := get_node_or_null("/root/DisplaySettings")
+	if display_settings and display_settings.has_method("scale_value"):
+		return float(display_settings.call("scale_value", value))
+	return value
+
+func _scale_factor() -> float:
+	var display_settings := get_node_or_null("/root/DisplaySettings")
+	if display_settings and display_settings.has_method("scale_factor"):
+		return float(display_settings.call("scale_factor"))
+	return 1.0
 
 func _ensure_nodes() -> void:
 	if _ring == null:
@@ -130,13 +155,13 @@ func _ensure_nodes() -> void:
 		_collision.shape = CircleShape2D.new()
 
 func _layout_effect() -> void:
-	var radius := DisplaySettings.scale_value(_base_radius)
-	var visual_radius := DisplaySettings.scale_value(70.0)
+	var radius := _scale_value(_base_radius)
+	var visual_radius := _scale_value(70.0)
 	if _collision and _collision.shape is CircleShape2D:
 		(_collision.shape as CircleShape2D).radius = radius
 		_collision.disabled = false
-	_configure_ring(_ring, visual_radius, DisplaySettings.scale_value(3.2), OUTER_RING_COLOR)
-	_configure_ring(_inner_ring, visual_radius * 0.82, DisplaySettings.scale_value(1.8), INNER_RING_COLOR)
+	_configure_ring(_ring, visual_radius, _scale_value(3.2), OUTER_RING_COLOR)
+	_configure_ring(_inner_ring, visual_radius * 0.82, _scale_value(1.8), INNER_RING_COLOR)
 	_configure_particles(visual_radius)
 
 func _configure_ring(ring: Line2D, radius: float, width: float, color: Color) -> void:
@@ -197,10 +222,10 @@ func _make_aura_material(radius: float) -> ParticleProcessMaterial:
 	particle_material.direction = Vector3(0.0, -1.0, 0.0)
 	particle_material.spread = 180.0
 	particle_material.gravity = Vector3.ZERO
-	particle_material.initial_velocity_min = DisplaySettings.scale_value(7.0)
-	particle_material.initial_velocity_max = DisplaySettings.scale_value(32.0)
-	particle_material.scale_min = DisplaySettings.scale_factor() * 0.24
-	particle_material.scale_max = DisplaySettings.scale_factor() * 0.55
+	particle_material.initial_velocity_min = _scale_value(7.0)
+	particle_material.initial_velocity_max = _scale_value(32.0)
+	particle_material.scale_min = _scale_factor() * 0.24
+	particle_material.scale_max = _scale_factor() * 0.55
 	particle_material.angular_velocity_min = -70.0
 	particle_material.angular_velocity_max = 70.0
 	particle_material.color = Color(1.0, 0.78, 0.12, 0.10)
@@ -215,10 +240,10 @@ func _make_core_material(radius: float) -> ParticleProcessMaterial:
 	particle_material.direction = Vector3(0.0, -1.0, 0.0)
 	particle_material.spread = 180.0
 	particle_material.gravity = Vector3.ZERO
-	particle_material.initial_velocity_min = DisplaySettings.scale_value(3.0)
-	particle_material.initial_velocity_max = DisplaySettings.scale_value(18.0)
-	particle_material.scale_min = DisplaySettings.scale_factor() * 0.20
-	particle_material.scale_max = DisplaySettings.scale_factor() * 0.42
+	particle_material.initial_velocity_min = _scale_value(3.0)
+	particle_material.initial_velocity_max = _scale_value(18.0)
+	particle_material.scale_min = _scale_factor() * 0.20
+	particle_material.scale_max = _scale_factor() * 0.42
 	particle_material.angular_velocity_min = -120.0
 	particle_material.angular_velocity_max = 120.0
 	particle_material.color = Color(1.0, 0.90, 0.20, 0.08)
@@ -233,10 +258,10 @@ func _make_spark_material(radius: float) -> ParticleProcessMaterial:
 	particle_material.direction = Vector3(0.0, -1.0, 0.0)
 	particle_material.spread = 180.0
 	particle_material.gravity = Vector3.ZERO
-	particle_material.initial_velocity_min = DisplaySettings.scale_value(85.0)
-	particle_material.initial_velocity_max = DisplaySettings.scale_value(230.0)
-	particle_material.scale_min = DisplaySettings.scale_factor() * 0.8
-	particle_material.scale_max = DisplaySettings.scale_factor() * 2.8
+	particle_material.initial_velocity_min = _scale_value(85.0)
+	particle_material.initial_velocity_max = _scale_value(230.0)
+	particle_material.scale_min = _scale_factor() * 0.8
+	particle_material.scale_max = _scale_factor() * 2.8
 	particle_material.color = Color(1.0, 0.32, 0.18, 0.8)
 	particle_material.color_ramp = _make_spark_ramp()
 	particle_material.particle_flag_disable_z = true

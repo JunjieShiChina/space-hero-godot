@@ -8,12 +8,19 @@ const PixelNumberScene := preload("res://scenes/ui/pixel_number_display.tscn")
 var amount := 1
 var _spawn_global_position := Vector2.ZERO
 var _has_spawn_global_position := false
+var _is_enemy_target := true
 
 
-func setup(value: float, spawn_global_position := Vector2.ZERO, has_spawn_global_position := false) -> void:
+func setup(
+	value: float,
+	spawn_global_position := Vector2.ZERO,
+	has_spawn_global_position := false,
+	is_enemy_target := true
+) -> void:
 	amount = maxi(1, int(ceil(value)))
 	_spawn_global_position = spawn_global_position
 	_has_spawn_global_position = has_spawn_global_position
+	_is_enemy_target = is_enemy_target
 
 
 func _ready() -> void:
@@ -24,7 +31,7 @@ func _ready() -> void:
 	add_child(display)
 	display.set_number(amount)
 	display.scale = Vector2.ONE * 0.36 * DisplaySettings.scale_factor()
-	display.modulate = Color(1.0, 0.86, 0.22, 1.0)
+	display.modulate = Color(1.0, 0.86, 0.22, 1.0) if _is_enemy_target else Color(1.0, 0.42, 0.42, 1.0)
 	display.position = Vector2(-display.content_width * display.scale.x * 0.5, 0.0)
 
 	var start := position

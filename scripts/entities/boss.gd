@@ -16,6 +16,7 @@ var boss2_laser_timer := 1.0
 var boss2_laser_count := 0
 var boss2_laser_pause_timer := 0.0
 var boss2_laser_paused := false
+var boss2_laser_warning: BossLaserWarning = null
 var boss3_attack_type := 0
 var boss3_choice_timer := 1.0
 var boss3_attack_timer := 1.0
@@ -23,6 +24,7 @@ var boss3_follow_timer := 1.0
 
 const UNITY_UNIT := 108.0
 const BossDeathEffectScene := preload("res://scenes/components/boss_death_effect.tscn")
+const BossLaserWarningScene := preload("res://scenes/components/boss_laser_warning.tscn")
 
 func configure(id: int, target_player: PlayerShip, owner_stage: Node) -> void:
 	boss_id = id
@@ -35,8 +37,9 @@ func configure(id: int, target_player: PlayerShip, owner_stage: Node) -> void:
 		texture = "res://assets/sprites/Spaceship_Boss 3.png"
 		hp = 2000.0
 	elif id == 3:
-		texture = "res://assets/sprites/Spaceship_Boss 3.png"
+		texture = "res://assets/sprites/Spaceship_Boss 1.png"
 		hp = 1500.0
+		scale = Vector2.ONE * 1.5
 	global_position = DisplaySettings.to_current(Vector2(960, -195))
 	setup(texture, 84, "enemy", hp)
 	if id == 1:
@@ -66,6 +69,8 @@ func _move(delta: float) -> void:
 		1:
 			_update_boss1_target()
 		2:
+			if _boss2_laser_sequence_active():
+				return
 			if boss2_needs_target:
 				_choose_boss2_target()
 		3:
@@ -206,12 +211,20 @@ func _shoot_boss2_ring() -> void:
 		angle += 20.0
 		_spawn_bullet("Bullet2", global_position, Vector2.DOWN.rotated(deg_to_rad(angle)))
 
-func _shoot_boss2_laser() -> void:
+func _shoot_boss2_laser():
 	if player == null or player.dead:
 		return
-	_play_bullet_sfx("BulletLaser")
 	var direction := (player.global_position - global_position).normalized()
-	_spawn_bullet("BulletLaser", global_position + direction * DisplaySettings.scale_value(UNITY_UNIT * 1.5), direction, {"life": 3.0})
+	var warning := _spawn_boss_laser_warning(
+		_laser_muzzle_origin(direction, 1.0),
+		direction,
+		{
+			"life": 3.0,
+			"start_distance": 2.0,
+		}
+	)
+	boss2_laser_warning = warning
+	return warning
 
 func _shoot_boss3_scatter() -> void:
 	_play_bullet_sfx("Bullet2")
@@ -226,10 +239,23 @@ func _shoot_boss3_missiles() -> void:
 	for origin in [Vector2(-UNITY_UNIT * 0.6, UNITY_UNIT * 1.3), Vector2(UNITY_UNIT * 0.6, UNITY_UNIT * 1.3)]:
 		_spawn_bullet("BulletMissile", global_position + DisplaySettings.to_current(origin), Vector2.DOWN)
 
-func _shoot_boss3_lasers() -> void:
-	_play_bullet_sfx("BulletLaser")
-	for origin in [Vector2(-UNITY_UNIT * 0.6, UNITY_UNIT * 0.8), Vector2(UNITY_UNIT * 0.6, UNITY_UNIT * 0.8)]:
-		_spawn_bullet("BulletLaser", global_position + DisplaySettings.to_current(origin), Vector2.DOWN, {"life": 1.0})
+func _shoot_boss3_lasers():
+	var warnings: Array[BossLaserWarning] = []
+	for origin in _boss3_laser_mount_offsets():
+		var warning := _spawn_boss_laser_warning(
+			to_global(origin),
+			Vector2.DOWN,
+			{
+				"life": 1.0,
+				"cast_time": 0.12,
+				"start_distance": 34.0,
+				"width": 11.0,
+				"follow_owner": self,
+				"follow_offset": origin,
+			}
+		)
+		warnings.append(warning)
+	return warnings
 
 func _choose_boss2_target() -> void:
 	boss2_needs_target = false
@@ -243,6 +269,19 @@ func _spawn_bullet(type_name: String, origin: Vector2, direction: Vector2, overr
 	_spawn_parent().add_child(bullet)
 	bullet.setup(type_name, "enemy", origin, direction, overrides)
 	return bullet
+
+func _spawn_boss_laser_warning(
+	origin: Vector2,
+	direction: Vector2,
+	overrides := {}
+) -> BossLaserWarning:
+	var warning := BossLaserWarningScene.instantiate() as BossLaserWarning
+	warning.warning_width_design = 3.0
+	warning.laser_width_design = 14.0
+	warning.combat_bottom_margin_design = 150.0
+	_spawn_parent().add_child(warning)
+	warning.fire(origin, direction, "enemy", overrides)
+	return warning
 
 func _play_bullet_sfx(type_name: String) -> void:
 	var sfx_key: String = SpaceBullet.bullet_info(type_name).sfx
@@ -263,8 +302,64 @@ func _on_boss_died(_body: CombatBody) -> void:
 func _spawn_parent() -> Node:
 	return get_tree().current_scene if get_tree().current_scene else get_tree().root
 
+func _laser_muzzle_origin(direction: Vector2, padding_design: float) -> Vector2:
+	var safe_direction := direction.normalized()
+	var support_distance := _support_distance_along(safe_direction)
+	return global_position + safe_direction * (
+		support_distance + DisplaySettings.scale_value(padding_design)
+	)
+
+func _support_distance_along(direction: Vector2) -> float:
+	var best := 0.0
+	if sprite and sprite.texture:
+		var half_size := Vector2(
+			sprite.texture.get_width() * absf(sprite.global_scale.x) * 0.5,
+			sprite.texture.get_height() * absf(sprite.global_scale.y) * 0.5
+		)
+		best = maxf(best, absf(direction.x) * half_size.x + absf(direction.y) * half_size.y)
+	var collision_polygon := get_node_or_null("CollisionPolygon2D") as CollisionPolygon2D
+	if collision_polygon:
+		for point in collision_polygon.polygon:
+			var world_point := collision_polygon.to_global(point)
+			best = maxf(best, direction.dot(world_point - global_position))
+	var collision_shape := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision_shape and collision_shape.shape is CircleShape2D:
+		var circle := collision_shape.shape as CircleShape2D
+		var center_offset := collision_shape.global_position - global_position
+		best = maxf(
+			best,
+			direction.dot(center_offset)
+				+ circle.radius * maxf(absf(collision_shape.global_scale.x), absf(collision_shape.global_scale.y))
+		)
+	return best
+
+func _boss3_laser_mount_offsets() -> Array[Vector2]:
+	if sprite == null or sprite.texture == null:
+		return [
+			DisplaySettings.to_current(Vector2(-UNITY_UNIT * 0.46, UNITY_UNIT * 0.66)),
+			DisplaySettings.to_current(Vector2(UNITY_UNIT * 0.46, UNITY_UNIT * 0.66)),
+		]
+	var offset_scale := Vector2(absf(sprite.scale.x), absf(sprite.scale.y))
+	return [
+		Vector2(-18.0 * offset_scale.x, 28.0 * offset_scale.y),
+		Vector2(18.0 * offset_scale.x, 28.0 * offset_scale.y),
+	]
+
 func _boss1_half_width() -> float:
 	if sprite and sprite.texture:
 		var sprite_width := sprite.texture.get_size().x * sprite.scale.x * scale.x
 		return max(DisplaySettings.scale_value(96.0), sprite_width * 0.5)
 	return DisplaySettings.scale_value(168.0)
+
+func _boss2_laser_sequence_active() -> bool:
+	if boss_id != 2:
+		return false
+	if boss2_laser_warning == null:
+		return false
+	if not is_instance_valid(boss2_laser_warning):
+		boss2_laser_warning = null
+		return false
+	if boss2_laser_warning.is_queued_for_deletion():
+		boss2_laser_warning = null
+		return false
+	return true

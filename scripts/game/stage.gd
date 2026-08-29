@@ -25,6 +25,7 @@ const ENEMY_SCENES := {
 	"rotation_ep": preload("res://scenes/entities/enemy_rotation_quadshot.tscn"),
 	"meteor_enemy": preload("res://scenes/entities/enemy_dive_arcshot.tscn"),
 	"phase_interceptor": preload("res://scenes/entities/enemy_phase_interceptor.tscn"),
+	"stage4_takeoff": preload("res://scenes/entities/stage4_takeoff_enemy.tscn"),
 	"meteor": preload("res://scenes/entities/meteor.tscn"),
 	"small_boss": preload("res://scenes/entities/enemy_small_boss.tscn"),
 }
@@ -37,11 +38,37 @@ const STAGE_BACKGROUNDS := {
 	1: preload("res://assets/sprites/bkblue.png"),
 	2: preload("res://assets/sprites/Nebula Aqua-Pink.png"),
 	3: preload("res://assets/sprites/Nebula Red.png"),
+	4: preload("res://assets/sprites/alien_planet_vertical_loop.png"),
 }
 const STAGE_BACKGROUND_SCROLL_SPEED := {
 	1: 0.035,
 	2: 0.1,
 	3: 0.1,
+	4: 0.065,
+}
+const STAGE_BACKGROUND_SAMPLE_MODE := {
+	1: ScrollingBackground.SAMPLE_MODE_STANDARD,
+	2: ScrollingBackground.SAMPLE_MODE_STANDARD,
+	3: ScrollingBackground.SAMPLE_MODE_STANDARD,
+	4: ScrollingBackground.SAMPLE_MODE_VERTICAL_LOOP_COVER,
+}
+const STAGE_STARFIELD_TINT := {
+	1: Color(0.72, 0.86, 1.0, 0.34),
+	2: Color(0.72, 0.86, 1.0, 0.34),
+	3: Color(0.72, 0.86, 1.0, 0.34),
+	4: Color(0.78, 0.94, 0.88, 0.18),
+}
+const STAGE_BACKGROUND_SAMPLE_SCALE := {
+	1: Vector2.ONE,
+	2: Vector2.ONE,
+	3: Vector2.ONE,
+	4: Vector2(0.36, 1.0),
+}
+const STAGE_BACKGROUND_ASTEROIDS_ENABLED := {
+	1: true,
+	2: true,
+	3: true,
+	4: false,
 }
 const BOSS_WARNING_TO_SPAWN_TIME := 6.0
 const BOSS_REWARD_PICKUP_DELAY := 5.0
@@ -69,6 +96,7 @@ var phase_accum := 0.0
 var meteor_accum := 0.0
 var rotation_spawned := false
 var small_boss_spawned := false
+var stage4_takeoff_spawned := false
 var boss_spawned := false
 var warning_sent := false
 var stage_done := false
@@ -76,8 +104,9 @@ var _debug_shop_index := 0
 
 var configs := {
 	1: {"boss_time": 120.0, "ship_delay": 0.0, "ship_prob": 0.8, "ep2_delay": 10.0, "ep2_prob": 0.6, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.1, "phase_delay": 28.0, "phase_prob": 0.35, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": -1.0, "boss": 1},
-	2: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "phase_delay": -1.0, "phase_prob": 0.0, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 2},
+	2: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "phase_delay": -1.0, "phase_prob": 0.0, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": -1.0, "boss": 2},
 	3: {"boss_time": 180.0, "ship_delay": 10.0, "ship_prob": 0.6, "ep2_delay": 20.0, "ep2_prob": 0.8, "rotation_delay": 60.0, "rotation_prob": 1.0, "meteor_enemy_delay": 0.0, "meteor_enemy_prob": 0.2, "phase_delay": -1.0, "phase_prob": 0.0, "meteor_delay": 0.0, "meteor_prob": 0.15, "small_boss_delay": 120.0, "boss": 3},
+	4: {"boss_time": 999999.0, "ship_delay": -1.0, "ship_prob": 0.0, "ep2_delay": -1.0, "ep2_prob": 0.0, "rotation_delay": -1.0, "rotation_prob": 0.0, "meteor_enemy_delay": -1.0, "meteor_enemy_prob": 0.0, "phase_delay": -1.0, "phase_prob": 0.0, "meteor_delay": -1.0, "meteor_prob": 0.0, "small_boss_delay": -1.0, "stage4_takeoff_delay": 3.2, "boss": 3},
 }
 
 func _ready() -> void:
@@ -238,16 +267,32 @@ func _ensure_background() -> void:
 		add_child(background_layer)
 	var scrolling_background := background_layer.get_node_or_null("ScrollingBackground") as ScrollingBackground
 	if scrolling_background != null and STAGE_BACKGROUNDS.has(stage_number):
+		scrolling_background.sample_scale = STAGE_BACKGROUND_SAMPLE_SCALE.get(
+			stage_number,
+			Vector2.ONE
+		)
 		scrolling_background.configure(
 			STAGE_BACKGROUNDS[stage_number],
-			float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035))
+			float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035)),
+			int(STAGE_BACKGROUND_SAMPLE_MODE.get(
+				stage_number,
+				ScrollingBackground.SAMPLE_MODE_STANDARD
+			))
 		)
 	if scrolling_background == null and background_layer.get_node_or_null("Background") == null:
 		if STAGE_BACKGROUNDS.has(stage_number):
 			scrolling_background = ScrollingBackgroundScene.instantiate() as ScrollingBackground
+			scrolling_background.sample_scale = STAGE_BACKGROUND_SAMPLE_SCALE.get(
+				stage_number,
+				Vector2.ONE
+			)
 			scrolling_background.configure(
 				STAGE_BACKGROUNDS[stage_number],
-				float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035))
+				float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035)),
+				int(STAGE_BACKGROUND_SAMPLE_MODE.get(
+					stage_number,
+					ScrollingBackground.SAMPLE_MODE_STANDARD
+				))
 			)
 			background_layer.add_child(scrolling_background)
 		else:
@@ -262,16 +307,24 @@ func _ensure_background() -> void:
 		starfield.name = "Starfield"
 		background_layer.add_child(starfield)
 	if starfield is CanvasItem:
-		(starfield as CanvasItem).modulate = Color(0.72, 0.86, 1.0, 0.34)
+		(starfield as CanvasItem).modulate = STAGE_STARFIELD_TINT.get(
+			stage_number,
+			Color(0.72, 0.86, 1.0, 0.34)
+		)
 	if starfield.has_method("configure_scroll"):
 		starfield.configure_scroll(
 			float(STAGE_BACKGROUND_SCROLL_SPEED.get(stage_number, 0.035)),
 			Vector2(0.0, -1.0)
 		)
-	if background_layer.get_node_or_null("BackgroundAsteroids") == null:
-		var asteroids := BackgroundAsteroidsScene.instantiate()
-		asteroids.name = "BackgroundAsteroids"
-		background_layer.add_child(asteroids)
+	if bool(STAGE_BACKGROUND_ASTEROIDS_ENABLED.get(stage_number, true)):
+		if background_layer.get_node_or_null("BackgroundAsteroids") == null:
+			var asteroids := BackgroundAsteroidsScene.instantiate()
+			asteroids.name = "BackgroundAsteroids"
+			background_layer.add_child(asteroids)
+	else:
+		var existing_asteroids := background_layer.get_node_or_null("BackgroundAsteroids")
+		if existing_asteroids != null:
+			existing_asteroids.queue_free()
 
 func _ensure_hud() -> void:
 	hud = get_node_or_null(hud_path) as BattleHud
@@ -565,6 +618,13 @@ func _update_enemy_spawns(cfg: Dictionary) -> void:
 	if small_boss_delay >= 0.0 and not small_boss_spawned and elapsed >= small_boss_delay:
 		small_boss_spawned = true
 		_spawn_enemy("small_boss")
+	var stage4_takeoff_delay := float(cfg.get("stage4_takeoff_delay", -1.0))
+	if stage4_takeoff_delay >= 0.0 and not stage4_takeoff_spawned and elapsed >= stage4_takeoff_delay:
+		stage4_takeoff_spawned = true
+		_spawn_enemy_at(
+			"stage4_takeoff",
+			DisplaySettings.to_current(Vector2(960.0, -92.0))
+		)
 
 func _spawn_rotation_pair() -> void:
 	_spawn_enemy_at("rotation_ep", Vector2(_unity_x_to_screen(-1.5), DisplaySettings.scale_value(-90)))

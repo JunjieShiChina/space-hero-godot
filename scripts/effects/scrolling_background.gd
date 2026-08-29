@@ -2,11 +2,15 @@ extends TextureRect
 class_name ScrollingBackground
 
 const SCROLL_SHADER := preload("res://shaders/scrolling_background.gdshader")
+const SAMPLE_MODE_STANDARD := 0
+const SAMPLE_MODE_VERTICAL_LOOP_COVER := 1
 
 @export var scroll_texture: Texture2D
 @export var scroll_speed := 0.035
 @export var scroll_axis := Vector2(0.0, -1.0)
 @export var tint := Color.WHITE
+@export_enum("Standard", "VerticalLoopCover") var sample_mode := SAMPLE_MODE_STANDARD
+@export var sample_scale := Vector2.ONE
 
 var _scroll_offset := 0.0
 var _shader_material: ShaderMaterial
@@ -26,9 +30,10 @@ func _ready() -> void:
 	_sync_shader_values()
 
 
-func configure(background_texture: Texture2D, speed: float) -> void:
+func configure(background_texture: Texture2D, speed: float, mode: int = SAMPLE_MODE_STANDARD) -> void:
 	scroll_texture = background_texture
 	scroll_speed = speed
+	sample_mode = mode
 	texture = background_texture
 	_sync_shader_values()
 
@@ -57,6 +62,8 @@ func _sync_shader_values() -> void:
 	_shader_material.set_shader_parameter("scroll_axis", scroll_axis)
 	_shader_material.set_shader_parameter("tint", tint)
 	_shader_material.set_shader_parameter("scroll_offset", _scroll_offset)
+	_shader_material.set_shader_parameter("sample_mode", sample_mode)
+	_shader_material.set_shader_parameter("sample_scale", sample_scale)
 
 
 func _view_size() -> Vector2:

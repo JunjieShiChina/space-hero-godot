@@ -1,10 +1,39 @@
-[gd_scene load_steps=3 format=3 uid="uid://space_hero_stage_2"]
+[gd_scene load_steps=9 format=3 uid="uid://space_hero_stage_2"]
 
 [ext_resource type="Script" path="res://scripts/game/stage.gd" id="1"]
-[ext_resource type="PackedScene" path="res://scenes/components/shop_drop_manager.tscn" id="2_pju6e"]
+[ext_resource type="PackedScene" path="res://scenes/components/scrolling_background.tscn" id="2_scroll_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Nebula Aqua-Pink.png" id="3_stage_bg"]
+[ext_resource type="PackedScene" path="res://scenes/components/starfield_particles.tscn" id="4_starfield"]
+[ext_resource type="PackedScene" path="res://scenes/components/background_asteroids.tscn" id="5_asteroids"]
+[ext_resource type="PackedScene" path="res://scenes/ui/battle_hud.tscn" id="6_hud"]
+[ext_resource type="PackedScene" path="res://scenes/entities/player_ship.tscn" id="7_player"]
+[ext_resource type="PackedScene" path="res://scenes/components/shop_drop_manager.tscn" id="8_shop_drop"]
 
 [node name="Stage2" type="Node2D"]
 script = ExtResource("1")
 stage_number = 2
 
-[node name="ShopDropManager" parent="." instance=ExtResource("2_pju6e")]
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -100
+
+[node name="ScrollingBackground" parent="BackgroundLayer" instance=ExtResource("2_scroll_bg")]
+texture = ExtResource("3_stage_bg")
+scroll_texture = ExtResource("3_stage_bg")
+scroll_speed = 0.1
+
+[node name="Starfield" parent="BackgroundLayer" instance=ExtResource("4_starfield")]
+modulate = Color(0.72, 0.86, 1, 0.34)
+
+[node name="BackgroundAsteroids" parent="BackgroundLayer" instance=ExtResource("5_asteroids")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+
+[node name="PlayerStart" type="Marker2D" parent="."]
+position = Vector2(960, 900)
+
+[node name="Player" parent="." instance=ExtResource("7_player")]
+
+[node name="BattleHud" parent="." instance=ExtResource("6_hud")]
+
+[node name="ShopDropManager" parent="." instance=ExtResource("8_shop_drop")]

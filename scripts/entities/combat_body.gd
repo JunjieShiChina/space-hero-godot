@@ -58,7 +58,7 @@ func take_damage(amount: float, hit_position := Vector2.ZERO, use_hit_position :
 	if dead:
 		return
 	health -= amount
-	if team == "enemy" and amount > 0.0:
+	if amount > 0.0:
 		_spawn_damage_number(amount, hit_position, use_hit_position)
 	_flash_hit()
 	AudioBus.play_sfx("hit", -9.0)
@@ -145,7 +145,7 @@ func _spawn_damage_number(amount: float, hit_position: Vector2, use_hit_position
 		return
 	var base_position := hit_position if use_hit_position else global_position
 	var spawn_position := base_position + DisplaySettings.to_current(Vector2(randf_range(-8.0, 8.0), randf_range(-10.0, -2.0)))
-	number.setup(amount, spawn_position, true)
+	number.setup(amount, spawn_position, true, team == "enemy")
 	_spawn_parent().add_child(number)
 
 func _retire() -> void:

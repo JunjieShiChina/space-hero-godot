@@ -91,13 +91,13 @@
    - Recreate explosion, missile boom, shield flash, hit, pickup, warning, settlement, pass-stage, boss fight, and menu/game-over music behavior.
 
 10. **Menus and settlement**
-    - Port main menu cursor/button behavior, new game/init flow, quit behavior, game-over restart/quit flow, transition scene, victory animation, and final statistics display.
-    - Current progress: main menu has been visually rebuilt against `1.mp4` reference with purple/red starfield, source-atlas orange title, source-atlas blue menu text, green ship cursor, drifting asteroids, and orbiting friend planes.
+	- Port main menu cursor/button behavior, new game/init flow, quit behavior, game-over restart/quit flow, transition scene, victory animation, and final statistics display.
+	- Current progress: main menu has been visually rebuilt against `1.mp4` reference with purple/red starfield, source-atlas orange title, source-atlas blue menu text, green ship cursor, drifting asteroids, and orbiting friend planes.
 
 11. **Validation**
-    - Run Godot smoke test once CLI path exists.
-    - Capture screenshots/video for menu, each stage pre-boss, boss fights, game over, transition, and thanks.
-    - Use visual QA after major gameplay/scene migrations.
+	- Run Godot smoke test once CLI path exists.
+	- Capture screenshots/video for menu, each stage pre-boss, boss fights, game over, transition, and thanks.
+	- Use visual QA after major gameplay/scene migrations.
 
 ## Immediate Next Implementation Order
 

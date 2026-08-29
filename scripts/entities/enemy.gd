@@ -22,6 +22,7 @@ var phase_burst_side := 1.0
 var small_boss_target := Vector2.ZERO
 var small_boss_find_next_target := false
 var small_boss_in_move := false
+var small_boss_laser_warning: BossLaserWarning = null
 
 @export var enemy_kind := "ship"
 @export var enemy_health := 5.0
@@ -176,6 +177,10 @@ func _process_phase_fire(delta: float) -> void:
 	_shoot_phase_spread()
 
 func _process_small_boss_movement(delta: float) -> void:
+	if _small_boss_laser_sequence_active():
+		velocity = Vector2.ZERO
+		small_boss_in_move = false
+		return
 	if small_boss_find_next_target:
 		_choose_small_boss_target()
 
@@ -270,10 +275,15 @@ func _shoot_small_boss_laser() -> void:
 	if player == null or player.dead:
 		return
 	var direction := (player.global_position - global_position).normalized()
-	var warning := BossLaserWarningScene.instantiate()
+	var launch_origin := _laser_muzzle_origin(direction, 0.5)
+	var warning := BossLaserWarningScene.instantiate() as BossLaserWarning
 	_spawn_parent().add_child(warning)
-	if warning.has_method("fire"):
-		warning.call("fire", global_position, direction, "enemy")
+	warning.warning_width_design = 2.2
+	warning.laser_width_design = 10.0
+	warning.laser_start_distance_design = 1.5
+	warning.combat_bottom_margin_design = 150.0
+	warning.fire(launch_origin, direction, "enemy")
+	small_boss_laser_warning = warning
 
 func _spawn_bullet(type_name: String, origin: Vector2, direction: Vector2, overrides := {}) -> SpaceBullet:
 	var bullet := SpaceBullet.create(type_name)
@@ -283,6 +293,48 @@ func _spawn_bullet(type_name: String, origin: Vector2, direction: Vector2, overr
 
 func _forward() -> Vector2:
 	return Vector2.UP.rotated(rotation).normalized()
+
+func _laser_muzzle_origin(direction: Vector2, padding_design: float) -> Vector2:
+	var safe_direction := direction.normalized()
+	var support_distance := _support_distance_along(safe_direction)
+	return global_position + safe_direction * (
+		support_distance + DisplaySettings.scale_value(padding_design)
+	)
+
+func _support_distance_along(direction: Vector2) -> float:
+	var best := 0.0
+	if sprite and sprite.texture:
+		var half_size := Vector2(
+			sprite.texture.get_width() * absf(sprite.global_scale.x) * 0.5,
+			sprite.texture.get_height() * absf(sprite.global_scale.y) * 0.5
+		)
+		best = maxf(best, absf(direction.x) * half_size.x + absf(direction.y) * half_size.y)
+	var collision_polygon := get_node_or_null("CollisionPolygon2D") as CollisionPolygon2D
+	if collision_polygon:
+		for point in collision_polygon.polygon:
+			var world_point := collision_polygon.to_global(point)
+			best = maxf(best, direction.dot(world_point - global_position))
+	var collision_shape := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision_shape and collision_shape.shape is CircleShape2D:
+		var circle := collision_shape.shape as CircleShape2D
+		var center_offset := collision_shape.global_position - global_position
+		best = maxf(
+			best,
+			direction.dot(center_offset)
+				+ circle.radius * maxf(absf(collision_shape.global_scale.x), absf(collision_shape.global_scale.y))
+		)
+	return best
+
+func _small_boss_laser_sequence_active() -> bool:
+	if small_boss_laser_warning == null:
+		return false
+	if not is_instance_valid(small_boss_laser_warning):
+		small_boss_laser_warning = null
+		return false
+	if small_boss_laser_warning.is_queued_for_deletion():
+		small_boss_laser_warning = null
+		return false
+	return true
 
 func _play_bullet_sfx(type_name: String) -> void:
 	var sfx_key: String = SpaceBullet.bullet_info(type_name).sfx

@@ -12,10 +12,14 @@ These instructions apply to the entire repository.
 ## Project Context
 
 - This project is a Godot migration of the Unity game Space Hero.
+- The Unity source project is located at `/data/space-hero/Space-Hero`.
 - Prefer migration fidelity over quick approximations when Unity behavior, visuals, or data can be verified.
 - For migration work, compare the Unity source project and Godot target project to confirm sprites, audio, and referenced assets are aligned before treating the work as complete.
 - Keep static layout and reusable objects in Godot-native scene/resource structure where practical.
 - New generated content should follow the same quality bar as migrated content: reusable, validated, performant, and consistent with the existing game.
+- Bullet and projectile visuals must stay proportional to the firing ship or creature; do
+  not ship oversized beams, bullets, or muzzle effects that read as detached from the
+  attacker's body scale or role.
 
 ## Godot Architecture
 
@@ -98,6 +102,8 @@ These instructions apply to the entire repository.
 - When a mistake, failed approach, validation issue, or reusable solution is discovered during migration or new development, add or update an experience file before finishing the task.
 - When the user is dissatisfied with a generated effect or implementation and the work is adjusted to an acceptable result, summarize the feedback, failed attempt, final approach, and validation in the experience log.
 - Each experience entry should capture the context, symptom, root cause, better approach, validation method, and related files.
+- When summarizing an experience, abstract the concrete fix into a reusable general rule or pattern that can apply to similar gameplay, UI, effects, tooling, migration, or validation work.
+- Keep the specific bug or feature as the example, but explicitly describe the broader class of problems, the reusable decision rule, and a checklist or signals for applying the lesson elsewhere.
 - Prefer updating an existing relevant experience file over creating duplicate lessons.
 - Keep experience files practical and reusable so future agents can avoid the same errors and choose the best implementation approach for both migrated and newly generated game content.
 
